@@ -5,7 +5,7 @@ services:
       context: ./app
       dockerfile: Dockerfile
     restart: always
-    command: gunicorn --bind 0.0.0.0:5001 manage:app
+    command: gunicorn --bind 0.0.0.0:5001 app:app
     ports:
      - "5001:5001"
     depends_on:
@@ -15,7 +15,7 @@ services:
     build:
       context: ./app
       dockerfile: Dockerfile
-    command: celery -A manage.celery worker -l info -E
+    command: celery -A app.celery worker -l info -E
     environment:
       CELERY_BROKER_URL: redis://redis
       CELERY_RESULT_BACKEND: redis://redis
@@ -26,7 +26,7 @@ services:
     build:
       context: ./app
       dockerfile: Dockerfile
-    command: celery -A manage.celery beat
+    command: celery -A app.celery beat
     environment:
       CELERY_BROKER_URL: redis://redis
       CELERY_RESULT_BACKEND: redis://redis
@@ -39,7 +39,7 @@ services:
       dockerfile: Dockerfile
     ports:
      - "5555:5555"
-    command: celery -A manage.celery flower
+    command: celery -A app.celery flower
     environment:
       CELERY_BROKER_URL: redis://redis:6379/0
       CELERY_RESULT_BACKEND: redis://redis:6379/0
