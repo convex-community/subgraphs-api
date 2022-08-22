@@ -1,0 +1,53 @@
+version: "3.7"
+services:
+  web:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    restart: always
+    command: gunicorn --bind 0.0.0.0:5001 manage:app
+    ports:
+     - "5001:5001"
+    depends_on:
+      - redis
+    volumes: ['./app:/app']
+  worker:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    command: celery -A manage.celery worker -l info -E
+    environment:
+      CELERY_BROKER_URL: redis://redis
+      CELERY_RESULT_BACKEND: redis://redis
+    depends_on:
+      - redis
+    volumes: ['./app:/app']
+  scheduler:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    command: celery -A manage.celery beat
+    environment:
+      CELERY_BROKER_URL: redis://redis
+      CELERY_RESULT_BACKEND: redis://redis
+    depends_on:
+      - redis
+    volumes: ['./app:/app']
+  monitor:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    ports:
+     - "5555:5555"
+    command: celery -A manage.celery flower
+    environment:
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/0
+    depends_on:
+      - redis
+      - worker
+    volumes: ['./app:/app']
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
