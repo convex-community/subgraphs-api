@@ -1,6 +1,7 @@
-from manage import celery
+from app import celery
+from tasks.queries.curve.pools import get_curve_pools
 
 
 @celery.task
 def populate_db():
-    print("Populated")
+    get_curve_pools("mainnet")

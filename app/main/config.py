@@ -1,4 +1,5 @@
 import os
+from main.const import SUBGRAPHS_DEV, SUBGRAPHS_PROD
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -13,19 +14,19 @@ class Config:
 class DevelopmentConfig(Config):
     DEBUG = True
     TESTING = False
-    MAINNET_SUBGRAPH_ENDPOINT = "a"
+    SUBGRAPHS = SUBGRAPHS_DEV
 
 
 class TestingConfig(Config):
     DEBUG = True
     TESTING = True
-    MAINNET_SUBGRAPH_ENDPOINT = "b"
+    SUBGRAPHS = SUBGRAPHS_DEV
 
 
 class ProductionConfig(Config):
     DEBUG = False
     TESTING = False
-    MAINNET_SUBGRAPH_ENDPOINT = "c"
+    SUBGRAPHS = SUBGRAPHS_PROD
 
 
 config_by_name = dict(
