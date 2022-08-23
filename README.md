@@ -5,6 +5,13 @@ Middleware for decentralized subgraph queries for Curve, Convex, Votium
 
 Running for development:
 
+Create an `.env` file with the following variables:
+
+```
+DB_ENDPOINT= (Cosmos db endpoint: https://xxxx.azure.com:443)
+DB_KEY= (Database key)
+```
+
 ```
 cp docker-compose.override.yaml.sample docker-compose.override.yaml
 sudo docker-compose up
