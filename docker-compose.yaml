@@ -11,6 +11,8 @@ services:
     depends_on:
       - redis
     volumes: ['./app:/app']
+    env_file:
+      - .env
   worker:
     build:
       context: ./app
@@ -22,6 +24,8 @@ services:
     depends_on:
       - redis
     volumes: ['./app:/app']
+    env_file:
+      - .env
   scheduler:
     build:
       context: ./app
@@ -33,6 +37,8 @@ services:
     depends_on:
       - redis
     volumes: ['./app:/app']
+    env_file:
+      - .env
   monitor:
     build:
       context: ./app
