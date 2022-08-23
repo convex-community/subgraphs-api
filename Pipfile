@@ -36,6 +36,13 @@ werkzeug = "==2.1.2"
 wrapt = "==1.14.1"
 flower = "*"
 gunicorn = "*"
+azure-cosmos = "*"
+marshmallow = "*"
+requests = "*"
+mypy = "*"
+celery-types = "*"
+marshmallow-dataclass = "*"
+dataclasses = "*"
 
 [dev-packages]
 
