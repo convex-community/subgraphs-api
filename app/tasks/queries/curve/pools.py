@@ -26,9 +26,10 @@ GRAPH_CURVE_POOL_QUERY = """
 
 
 def get_curve_pools(chain: str) -> List[CurvePool]:
-    logger.info("Querying Curve pools")
     data = grt_query(chain, GRAPH_CURVE_POOL_QUERY)
     if data is None or 'pools' not in data:
         logger.warning(f"Empty data returned for curve pool query on {chain}")
         return []
-    return CurvePoolSchema(many=True).load(data['pools'])
+    # make ids chain-specific and add chain property for filtering
+    pools = [{**d, "id": d['id'] + f'-{chain}', "chain": chain} for d in data['pools']]
+    return CurvePoolSchema(many=True).load(pools)

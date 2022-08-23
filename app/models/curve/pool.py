@@ -9,6 +9,7 @@ class CurvePool:
     address: str
     name: str
     symbol: str
+    chain: str
     lpToken: str
     coins: List[str]
     coinNames: List[str]

@@ -1,17 +1,21 @@
 from celery.schedules import crontab
+from main.const import CHAINS
 
 
-CELERY_IMPORTS = ('tasks.populate')
-CELERY_TASK_RESULT_EXPIRES = 30
-CELERY_TIMEZONE = 'UTC'
+imports = ('tasks.populate')
+result_expires = 30
+timezone = 'UTC'
 
-CELERY_ACCEPT_CONTENT = ['json', 'msgpack', 'yaml']
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
+accept_content = ['json', 'msgpack', 'yaml']
+task_serializer = 'json'
+result_serializer = 'json'
 
-CELERYBEAT_SCHEDULE = {
-    'populate-db': {
-        'task': 'tasks.populate.populate_db',
-        'schedule': crontab(minute="*"),
-    }
+curve_pool_tasks = {
+    f"populate-curve-pools-{chain}": {
+        'task': 'tasks.populate.populate_curve_pools',
+        'schedule': crontab(minute="*/15"),
+        'args': (chain,)
+    } for chain in CHAINS
 }
+
+beat_schedule = curve_pool_tasks

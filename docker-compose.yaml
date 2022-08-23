@@ -17,10 +17,7 @@ services:
     build:
       context: ./app
       dockerfile: Dockerfile
-    command: celery -A app.celery worker -l info -E
-    environment:
-      CELERY_BROKER_URL: redis://redis
-      CELERY_RESULT_BACKEND: redis://redis
+    command: celery -A app.celery worker --loglevel INFO -E
     depends_on:
       - redis
     volumes: ['./app:/app']
@@ -31,9 +28,6 @@ services:
       context: ./app
       dockerfile: Dockerfile
     command: celery -A app.celery beat
-    environment:
-      CELERY_BROKER_URL: redis://redis
-      CELERY_RESULT_BACKEND: redis://redis
     depends_on:
       - redis
     volumes: ['./app:/app']
