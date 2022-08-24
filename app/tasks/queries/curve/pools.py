@@ -26,6 +26,7 @@ GRAPH_CURVE_POOL_QUERY = """
 
 
 def get_curve_pools(chain: str) -> List[CurvePool]:
+    logger.info(f"Querying Curve pools for {chain}")
     data = grt_query(chain, GRAPH_CURVE_POOL_QUERY)
     if data is None or 'pools' not in data:
         logger.warning(f"Empty data returned for curve pool query on {chain}")

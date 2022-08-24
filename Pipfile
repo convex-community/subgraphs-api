@@ -43,6 +43,7 @@ mypy = "*"
 celery-types = "*"
 marshmallow-dataclass = "*"
 dataclasses = "*"
+pandas = "*"
 
 [dev-packages]
 
