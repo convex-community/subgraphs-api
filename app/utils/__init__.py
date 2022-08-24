@@ -7,6 +7,7 @@ TYPE_MAP = {str: String(),
  bool: Boolean()}
 
 
+# TODO : need a better way to convert from marshmallow to flask restx schema
 def convert_marshmallow(marshtype):
     res = {}
     for key, key_type in marshtype.__annotations__.items():
