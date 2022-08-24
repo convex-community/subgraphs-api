@@ -1,6 +1,8 @@
 import requests
 import time
 from typing import List, Mapping, Any, Optional
+
+import requests.exceptions
 from celery.utils.log import get_task_logger
 from app import celery
 
@@ -14,10 +16,13 @@ def grt_query(chain: str, query: str) -> Optional[Mapping[str, List[Mapping[str,
         if endpoint is None:
             logger.warning(f"Unable to find an endpoint for chain {chain}")
             return None
-        r = requests.post(endpoint, json={'query': query})
+        r = requests.post(endpoint, json={'query': query}, timeout=300)
         try:
             return r.json()['data']
-        except (requests.exceptions.RequestsJSONDecodeError, requests.exceptions.ConnectionError):
+        except (requests.exceptions.JSONDecodeError,
+                requests.exceptions.ConnectionError,
+                requests.exceptions.Timeout):
             logger.error(f"Failed at fulfilling request {query} for {chain}, retrying (f{i}/3)")
             time.sleep(60)
             continue
+    return None

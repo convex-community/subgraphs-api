@@ -1,5 +1,7 @@
 from dataclasses import dataclass
+from marshmallow import fields
 import marshmallow_dataclass
+from dataclasses import field
 from typing import List
 
 
@@ -20,5 +22,13 @@ class CurvePool:
     baseApr: float
 
 
-CurvePoolSchema = marshmallow_dataclass.class_schema(CurvePool
-)
+CurvePoolSchema = marshmallow_dataclass.class_schema(CurvePool)
+
+
+@dataclass
+class CurvePoolName:
+    address: str
+    name: str
+
+
+CurvePoolNameSchema = marshmallow_dataclass.class_schema(CurvePoolName)

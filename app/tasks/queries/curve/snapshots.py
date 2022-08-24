@@ -53,11 +53,15 @@ def _flatten(data: Mapping[str, List[Mapping[str, Any]]], attribute: str) -> Lis
 
 def get_curve_pool_standard_snapshots(chain: str) -> List[Mapping[str, Any]]:
     data = grt_query(chain, GRAPH_CURVE_POOL_SNAPSHOT_QUERY)
+    if data is None:
+        return []
     return _flatten(data, 'dailyPoolSnapshots')
 
 
 def get_curve_pool_volume_snapshots(chain: str) -> List[Mapping[str, Any]]:
     data = grt_query(chain, GRAPH_CURVE_VOLUME_SNAPSHOT_QUERY)
+    if data is None:
+        return []
     return _flatten(data, 'swapVolumeSnapshots')
 
 
