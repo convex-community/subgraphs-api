@@ -1,10 +1,10 @@
 from dataclasses import dataclass
-from marshmallow import fields
 import marshmallow_dataclass
-from dataclasses import field
+import strawberry
 from typing import List
 
 
+@strawberry.type
 @dataclass
 class CurvePool:
     id: str

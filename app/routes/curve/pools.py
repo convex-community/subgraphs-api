@@ -7,7 +7,7 @@ from services.curve.snapshot import get_pool_snapshots, get_pool_volume_snapshot
     get_pool_reserves_snapshots, get_pool_tvl_snapshots
 from utils import convert_marshmallow
 from models.curve.pool import CurvePoolName, CurvePool
-from services.curve.description import get_pool_names, get_all_pool_metadata, get_pool_metadata
+from services.curve.pool import get_pool_names, get_all_pool_metadata, get_pool_metadata
 
 api = Namespace('pools', description='Pools endpoints')
 names = api.model("Pool Name", convert_marshmallow(CurvePoolName))
