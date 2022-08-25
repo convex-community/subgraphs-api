@@ -1,5 +1,7 @@
 from app import celery
+from tasks.database.convex.pools import update_convex_pools
 from tasks.database.curve.snapshots import update_curve_pool_snapshots
+from tasks.queries.convex.pools import get_convex_pools
 from tasks.queries.curve.pools import get_curve_pools
 from tasks.database.curve.pools import update_curve_pools
 from celery.utils.log import get_task_logger
@@ -19,3 +21,10 @@ def populate_curve_pools(chain):
 def populate_curve_pool_snapshots(chain):
     logger.info(f"Updating Curve Pool Snapshots for {chain}")
     update_curve_pool_snapshots(get_curve_pool_snapshots(chain))
+
+
+@celery.task
+def populate_convex_pools():
+    logger.info(f"Updating Convex Pools")
+    update_convex_pools(get_convex_pools())
+

@@ -10,10 +10,17 @@ accept_content = ['json', 'msgpack', 'yaml']
 task_serializer = 'json'
 result_serializer = 'json'
 
+convex_pool_tasks = {
+    "populate-convex-pools": {
+        'task': 'tasks.populate.populate_convex_pools',
+        'schedule': crontab(minute=0, hour="*/12") #0, hour="*/12"),
+    }
+}
+
 curve_pool_tasks = {
     f"populate-curve-pools-{chain}": {
         'task': 'tasks.populate.populate_curve_pools',
-        'schedule': crontab(minute=0, hour="*/6"),
+        'schedule': crontab(minute=0, hour="*/12"),
         'args': (chain,)
     } for chain in CHAINS
 }
@@ -21,9 +28,9 @@ curve_pool_tasks = {
 curve_pool_snapshot_tasks = {
     f"populate-curve-pool-snapshots-{chain}": {
         'task': 'tasks.populate.populate_curve_pool_snapshots',
-        'schedule': crontab(minute=0, hour="*/6"),
+        'schedule': crontab(minute=0, hour="*/12"),
         'args': (chain,)
     } for chain in CHAINS
 }
 
-beat_schedule = curve_pool_tasks | curve_pool_snapshot_tasks
+beat_schedule = convex_pool_tasks | curve_pool_tasks | curve_pool_snapshot_tasks

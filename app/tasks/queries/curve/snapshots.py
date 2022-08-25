@@ -1,6 +1,6 @@
 from models.curve.snapshot import CurvePoolSnapshot, CurvePoolSnapshotSchema
 from typing import List, Mapping, Any
-from tasks.queries.graph import grt_query
+from tasks.queries.graph import grt_curve_pools_query
 from celery.utils.log import get_task_logger
 import pandas as pd
 
@@ -52,14 +52,14 @@ def _flatten(data: Mapping[str, List[Mapping[str, Any]]], attribute: str) -> Lis
 
 
 def get_curve_pool_standard_snapshots(chain: str) -> List[Mapping[str, Any]]:
-    data = grt_query(chain, GRAPH_CURVE_POOL_SNAPSHOT_QUERY)
+    data = grt_curve_pools_query(chain, GRAPH_CURVE_POOL_SNAPSHOT_QUERY)
     if data is None:
         return []
     return _flatten(data, 'dailyPoolSnapshots')
 
 
 def get_curve_pool_volume_snapshots(chain: str) -> List[Mapping[str, Any]]:
-    data = grt_query(chain, GRAPH_CURVE_VOLUME_SNAPSHOT_QUERY)
+    data = grt_curve_pools_query(chain, GRAPH_CURVE_VOLUME_SNAPSHOT_QUERY)
     if data is None:
         return []
     return _flatten(data, 'swapVolumeSnapshots')
