@@ -13,7 +13,7 @@ result_serializer = 'json'
 curve_pool_tasks = {
     f"populate-curve-pools-{chain}": {
         'task': 'tasks.populate.populate_curve_pools',
-        'schedule': crontab(hour="*/12"),
+        'schedule': crontab(minute=0, hour="*/6"),
         'args': (chain,)
     } for chain in CHAINS
 }
@@ -21,7 +21,7 @@ curve_pool_tasks = {
 curve_pool_snapshot_tasks = {
     f"populate-curve-pool-snapshots-{chain}": {
         'task': 'tasks.populate.populate_curve_pool_snapshots',
-        'schedule': crontab(hour="*/12"),
+        'schedule': crontab(minute=0, hour="*/6"),
         'args': (chain,)
     } for chain in CHAINS
 }
