@@ -44,6 +44,7 @@ celery-types = "*"
 marshmallow-dataclass = "*"
 dataclasses = "*"
 pandas = "*"
+strawberry-graphql = "*"
 
 [dev-packages]
 
