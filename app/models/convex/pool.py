@@ -27,3 +27,12 @@ class ConvexPool:
 
 
 ConvexPoolSchema = marshmallow_dataclass.class_schema(ConvexPool)
+
+
+@dataclass
+class ConvexPoolName:
+    id: str
+    name: str
+
+
+ConvexPoolNameSchema = marshmallow_dataclass.class_schema(ConvexPoolName)

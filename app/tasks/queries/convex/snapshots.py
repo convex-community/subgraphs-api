@@ -1,43 +1,52 @@
 from models.convex.pool import ConvexPool, ConvexPoolSchema
-from typing import List
+from typing import List, Mapping, Any
+import re
+from models.convex.snapshot import ConvexPoolSnapshotSchema
 from tasks.queries.graph import grt_convex_pools_query
 from celery.utils.log import get_task_logger
 
 logger = get_task_logger(__name__)
 
-GRAPH_CONVEX_POOL_QUERY = """
-{ pools(first: 1000) 
-    {
-        id
-        name
-        token
-        lpToken
-        swap
-        gauge
-        crvRewardsPool
-        isV2
-        creationDate
-        creationBlock
-        tvl
-        curveTvlRatio
-        baseApr
-        crvApr
-        cvxApr
-        extraRewardsApr
-        extraRewards {
-            contract
+GRAPH_CONVEX_POOL_SNAPSHOTS_QUERY = """
+{ 
+    pools(first: 1000) {
+        snapshots(first: 1000){
+            id
+            poolid {
+                id
+            }
+            poolName
+            withdrawalCount
+            withdrawalVolume
+            withdrawalValue
+            depositCount
+            depositVolume
+            depositValue
+            lpTokenBalance
+            lpTokenVirtualPrice
+            lpTokenUSDPrice
+            tvl
+            curveTvlRatio
+            baseApr
+            crvApr
+            cvxApr
+            extraRewardsApr
+            timestamp
+            block
         }
     }
 }
 """
 
 
-def get_convex_pools() -> List[ConvexPool]:
-    logger.info(f"Querying Convex Pools")
-    data = grt_convex_pools_query(GRAPH_CONVEX_POOL_QUERY)
-    if data is None or 'pools' not in data:
-        logger.warning(f"Empty data returned for convex pool query")
+def _flatten(data: Mapping[str, List[Mapping[str, Any]]], attribute: str) -> List[Mapping[str, Any]]:
+    if 'pools' not in data:
         return []
-    # flatten extra rewards to list of contracts
-    pools = [{**d, "extraRewards": [e['contract'] for e in d['extraRewards']]} for d in data['pools']]
-    return ConvexPoolSchema(many=True).load(pools)
+    return [{**snapshot, 'id': re.sub(r'\W+', '', snapshot['id']), 'poolid': snapshot['poolid']['id']} for pool_snapshots in data['pools'] for snapshot in pool_snapshots[attribute]]
+
+
+def get_convex_pool_snapshots() -> List[ConvexPool]:
+    logger.info(f"Querying Convex Pool Snapshots")
+    data = grt_convex_pools_query(GRAPH_CONVEX_POOL_SNAPSHOTS_QUERY)
+    pools = _flatten(data, 'snapshots')
+    return ConvexPoolSnapshotSchema(many=True).load(pools)
