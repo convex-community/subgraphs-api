@@ -1,7 +1,7 @@
 from flask import Blueprint
 from flask_restx import Api
-from .pools import api as pool_ns
-from .contracts import api as contract_ns
+from routes.curve.pools import api as pool_ns
+from routes.curve.contracts import api as contract_ns
 
 
 crv_blueprint = Blueprint('curve', __name__, url_prefix='/curve/v1')

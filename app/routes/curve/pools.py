@@ -49,10 +49,7 @@ class PoolMetadata(Resource):
                            envelope='pools')
     @check_exists
     def get(self, chain):
-        data = get_all_pool_metadata(chain)
-        if not data:
-            api.abort(404)
-        return data
+        return get_all_pool_metadata(chain)
 
 
 @api.route('/<string:chain>/<string:pool>')
