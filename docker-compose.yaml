@@ -1,13 +1,27 @@
 version: "3.7"
 services:
+  nginx:
+    build:
+      context: ./nginx
+      args:
+        DOMAIN: ${DOMAIN}
+        EMAIL: ${EMAIL}
+        FLASK: web
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt
+    depends_on:
+      - web
+    env_file:
+      - .env
   web:
     build:
       context: ./app
       dockerfile: Dockerfile
     restart: always
-    command: gunicorn --bind 0.0.0.0:5001 app:app
-    ports:
-     - "5001:5001"
+    command: gunicorn --bind 0.0.0.0:5000 app:app
     depends_on:
       - redis
     volumes: ['./app:/app']

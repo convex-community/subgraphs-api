@@ -1,5 +1,9 @@
 version: "3.7"
 services:
+  nginx:
+    image: tianon/true
+    command: "true"
+    entrypoint: "true"
   web:
     build:
       context: ./app
