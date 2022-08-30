@@ -52,7 +52,7 @@ class PoolMetadata(Resource):
         return get_all_pool_metadata(chain)
 
 
-@api.route('/<string:chain>/<string:pool>')
+@api.route('/<string:chain>/<regex("[a-z0-9]"):pool>')
 @api.doc(description="Get pool metadata")
 @api.param('chain', 'Chain to query for')
 @api.param('pool', 'Pool to query volume for')
@@ -64,7 +64,7 @@ class Pool(Resource):
         return get_pool_metadata(chain, pool)
 
 
-@api.route('/<string:chain>/snapshots/<string:pool>')
+@api.route('/<string:chain>/snapshots/<regex("[a-z0-9]"):pool>')
 @api.doc(description="Get historical pool snapshots")
 @api.param('chain', 'Chain to query for')
 @api.param('pool', 'Pool to query volume for')
@@ -76,7 +76,7 @@ class PoolSnapshots(Resource):
         return get_pool_snapshots(chain, pool)
 
 
-@api.route('/<string:chain>/swaps/<string:pool>')
+@api.route('/<string:chain>/swaps/<regex("[a-z0-9]"):pool>')
 @api.doc(description="Get pool swap events")
 @api.param('chain', 'Chain to query for')
 @api.param('pool', 'Pool to query volume for')
@@ -87,7 +87,7 @@ class PoolSwaps(Resource):
         return pool
 
 
-@api.route('/<string:chain>/candles/<string:pool>')
+@api.route('/<string:chain>/candles/<regex("[a-z0-9]"):pool>')
 @api.doc(description="Get pool price candles")
 @api.param('chain', 'Chain to query for')
 @api.param('pool', 'Pool to query volume for')
@@ -98,7 +98,7 @@ class PoolCandles(Resource):
         return pool
 
 
-@api.route('/<string:chain>/volume/<string:pool>')
+@api.route('/<string:chain>/volume/<regex("[a-z0-9]"):pool>')
 @api.doc(description="Get historical pool volume")
 @api.param('chain', 'Chain to query for')
 @api.param('pool', 'Pool to query volume for')
@@ -110,7 +110,7 @@ class PoolVolume(Resource):
         return get_pool_volume_snapshots(chain, pool)
 
 
-@api.route('/<string:chain>/fees/<string:pool>')
+@api.route('/<string:chain>/fees/<regex("[a-z0-9]"):pool>')
 @api.doc(description="Get historical pool fees")
 @api.param('chain', 'Chain to query for')
 @api.param('pool', 'Pool to query fees for')
@@ -122,7 +122,7 @@ class PoolFees(Resource):
         return get_pool_fee_snapshots(chain, pool)
 
 
-@api.route('/<string:chain>/reserves/<string:pool>')
+@api.route('/<string:chain>/reserves/<regex("[a-z0-9]"):pool>')
 @api.doc(description="Get historical pool reserves")
 @api.param('chain', 'Chain to query for')
 @api.param('pool', 'Pool to query reserves for')
@@ -134,7 +134,7 @@ class PoolReserves(Resource):
         return get_pool_reserves_snapshots(chain, pool)
 
 
-@api.route('/<string:chain>/tvl/<string:pool>')
+@api.route('/<string:chain>/tvl/<regex("[a-z0-9]"):pool>')
 @api.doc(description="Get historical pool TVL")
 @api.param('chain', 'Chain to query for')
 @api.param('pool', 'Pool to query TVL for')
@@ -146,7 +146,7 @@ class PoolValue(Resource):
         return get_pool_tvl_snapshots(chain, pool)
 
 
-@api.route('/<string:chain>/emissions/<string:pool>')
+@api.route('/<string:chain>/emissions/<regex("[a-z0-9]"):pool>')
 @api.doc(description="Get pool emissions")
 @api.param('chain', 'Chain to query for')
 @api.param('pool', 'Pool to query volume for')

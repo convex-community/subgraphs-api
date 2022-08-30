@@ -1,4 +1,5 @@
 from flask_restx.fields import Integer, String, List, Float, Boolean
+from werkzeug.routing import BaseConverter
 
 
 TYPE_MAP = {str: String(),
@@ -16,3 +17,9 @@ def convert_marshmallow(marshtype):
         elif key_type.__dict__['_name'] == 'List':
             res[key] = List(TYPE_MAP[key_type.__args__[0]])
     return res
+
+
+class RegexConverter(BaseConverter):
+    def __init__(self, url_map, *items):
+        super(RegexConverter, self).__init__(url_map)
+        self.regex = items[0]

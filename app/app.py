@@ -7,9 +7,11 @@ from routes.curve import crv_blueprint
 import schedules
 from strawberry.flask.views import GraphQLView
 from graphq.schema import schema
+from utils import RegexConverter
 
 app = create_app(os.getenv('SUBGRAPHS_API_ENV') or 'dev')
 app.app_context().push()
+app.url_map.converters['regex'] = RegexConverter
 app.register_blueprint(crv_blueprint)
 app.register_blueprint(cvx_blueprint)
 
