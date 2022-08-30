@@ -18,6 +18,10 @@ convex_pool_tasks = {
     "populate-convex-pools-snapshots": {
         'task': 'tasks.populate.populate_convex_pool_snapshots',
         'schedule': crontab(minute=0, hour="*/12")
+    },
+    "populate-convex-revenue-snapshots": {
+        'task': 'tasks.populate.populate_convex_revenue_snapshots',
+        'schedule': crontab(minute=0, hour="*/12")
     }
 }
 

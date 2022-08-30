@@ -1,8 +1,10 @@
 from app import celery
 from tasks.database.convex.pools import update_convex_pools
+from tasks.database.convex.revenue import update_convex_revenue_snapshots
 from tasks.database.convex.snapshots import update_convex_pool_snapshots
 from tasks.database.curve.snapshots import update_curve_pool_snapshots
 from tasks.queries.convex.pools import get_convex_pools
+from tasks.queries.convex.revenue import get_convex_revenue_snapshots
 from tasks.queries.convex.snapshots import get_convex_pool_snapshots
 from tasks.queries.curve.pools import get_curve_pools
 from tasks.database.curve.pools import update_curve_pools
@@ -35,4 +37,10 @@ def populate_convex_pools():
 def populate_convex_pool_snapshots():
     logger.info(f"Updating Convex Pool Snapshots")
     update_convex_pool_snapshots(get_convex_pool_snapshots())
+
+
+@celery.task
+def populate_convex_revenue_snapshots():
+    logger.info(f"Updating Convex Revenue Snapshots")
+    update_convex_revenue_snapshots(get_convex_revenue_snapshots())
 
