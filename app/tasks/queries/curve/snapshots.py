@@ -73,5 +73,6 @@ def get_curve_pool_snapshots(chain: str) -> List[CurvePoolSnapshot]:
         logger.warning(f"Empty data returned for curve pool query on {chain}")
         return []
     df = pd.merge(pd.DataFrame(pool_data), pd.DataFrame(vol_data), on=['pool', 'timestamp'])
-    snapshot_data = [{**d, "id": d['id'] + f'-{chain}', "chain": chain} for d in df.to_dict(orient='records')]
+    merged_data = df.to_dict(orient='records')
+    snapshot_data = [{**d, "id": d['id'] + f'-{chain}', "chain": chain} for d in merged_data] # type:ignore
     return CurvePoolSnapshotSchema(many=True).load(snapshot_data)

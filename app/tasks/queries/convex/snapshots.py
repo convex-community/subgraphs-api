@@ -48,5 +48,7 @@ def _flatten(data: Mapping[str, List[Mapping[str, Any]]], attribute: str) -> Lis
 def get_convex_pool_snapshots() -> List[ConvexPool]:
     logger.info(f"Querying Convex Pool Snapshots")
     data = grt_convex_pools_query(GRAPH_CONVEX_POOL_SNAPSHOTS_QUERY)
+    if data is None:
+        return []
     pools = _flatten(data, 'snapshots')
     return ConvexPoolSnapshotSchema(many=True).load(pools)
