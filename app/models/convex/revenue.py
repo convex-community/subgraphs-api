@@ -30,24 +30,30 @@ ConvexRevenueSnapshotSchema = marshmallow_dataclass.class_schema(ConvexRevenueSn
 
 
 @dataclass
-class ConvexPoolTVLSnapshot:
-    tvl: float
-    curveTvlRatio: float
-    timestamp: int
+class ConvexCumulativeRevenue:
+    crvRevenueToLpProvidersAmountCumulative: int
+    crvRevenueToCvxCrvStakersAmountCumulative: int
+    crvRevenueToCvxStakersAmountCumulative: int
+    crvRevenueToCallersAmountCumulative: int
+    crvRevenueToPlatformAmountCumulative: int
+    totalCrvRevenueCumulative: int
+    crvPrice: float
 
 
-ConvexPoolTVLSnapshotSchema = marshmallow_dataclass.class_schema(ConvexPoolTVLSnapshot)
+ConvexCumulativeRevenueSchema = marshmallow_dataclass.class_schema(ConvexCumulativeRevenue)
 
 
 @dataclass
-class ConvexPoolAPRSnapshot:
-    baseApr: float
-    crvApr: float
-    cvxApr: float
-    extraRewardsApr: float
+class ConvexHistoricalRevenueSnapshot:
+    crvRevenueToLpProvidersAmount: int
+    crvRevenueToCvxCrvStakersAmount: int
+    crvRevenueToCvxStakersAmount: int
+    crvRevenueToCallersAmount: int
+    crvRevenueToPlatformAmount: int
+    crvPrice: float
     timestamp: int
 
 
-ConvexPoolAPRSnapshotSchema = marshmallow_dataclass.class_schema(ConvexPoolAPRSnapshot)
+ConvexHistoricalRevenueSnapshotSchema = marshmallow_dataclass.class_schema(ConvexHistoricalRevenueSnapshot)
 
 

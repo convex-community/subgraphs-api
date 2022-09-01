@@ -21,7 +21,7 @@ convex_pool_tasks = {
     },
     "populate-convex-revenue-snapshots": {
         'task': 'tasks.populate.populate_convex_revenue_snapshots',
-        'schedule': crontab(minute=0, hour="*/12")
+        'schedule': crontab(minute="*/1")#, hour="*/12")
     }
 }
 

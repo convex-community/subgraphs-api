@@ -21,6 +21,7 @@ GRAPH_CONVEX_REVENUE_SNAPSHOTS_QUERY = """
   crvRevenueToCvxCrvStakersAmountCumulative
   totalCrvRevenueCumulative
   crvPrice
+  timestamp
 }}
 """
 
