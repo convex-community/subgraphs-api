@@ -12,6 +12,9 @@ class Config:
     DB_ENDPOINT = os.getenv('DB_ENDPOINT')
     DB_KEY = os.getenv('DB_KEY')
     DB_NAME = os.getenv('DB_NAME')
+    CACHE_TYPE = "RedisCache"
+    CACHE_REDIS_URL = os.getenv('CACHE_REDIS_URL', 'redis://localhost:6379')
+    CACHE_DEFAULT_TIMEOUT = 60 * 60 * 12
 
 
 class DevelopmentConfig(Config):

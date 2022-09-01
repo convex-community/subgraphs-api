@@ -1,5 +1,5 @@
 from flask_restx import Resource, Namespace
-
+from app import cache
 from main.const import CHAINS
 from models.curve.snapshot import CurvePoolSnapshot, CurvePoolVolumeSnapshot, CurvePoolFeeSnapshot, \
     CurvePoolTVLSnapshot, CurvePoolReserveSnapshot
@@ -31,6 +31,7 @@ def check_exists(func):
 
 
 @api.route('/<string:chain>/')
+@cache.cached(timeout=60*15)
 @api.doc(description="Get all pool names & addresses")
 @api.response(404, 'Chain or pool not found')
 class PoolList(Resource):
@@ -42,6 +43,7 @@ class PoolList(Resource):
 
 
 @api.route('/<string:chain>/all')
+@cache.cached(timeout=60*15)
 @api.doc(description="Get all pools' metadata")
 @api.response(404, 'Chain or pool not found')
 class PoolMetadata(Resource):
@@ -53,6 +55,7 @@ class PoolMetadata(Resource):
 
 
 @api.route('/<string:chain>/<regex("[a-z0-9]"):pool>')
+@cache.cached(timeout=60*15)
 @api.doc(description="Get pool metadata")
 @api.param('chain', 'Chain to query for')
 @api.param('pool', 'Pool to query volume for')
@@ -65,6 +68,7 @@ class Pool(Resource):
 
 
 @api.route('/<string:chain>/snapshots/<regex("[a-z0-9]"):pool>')
+@cache.cached()
 @api.doc(description="Get historical pool snapshots")
 @api.param('chain', 'Chain to query for')
 @api.param('pool', 'Pool to query volume for')
@@ -77,6 +81,7 @@ class PoolSnapshots(Resource):
 
 
 @api.route('/<string:chain>/swaps/<regex("[a-z0-9]"):pool>')
+@cache.cached(timeout=60*15)
 @api.doc(description="Get pool swap events")
 @api.param('chain', 'Chain to query for')
 @api.param('pool', 'Pool to query volume for')
@@ -88,6 +93,7 @@ class PoolSwaps(Resource):
 
 
 @api.route('/<string:chain>/candles/<regex("[a-z0-9]"):pool>')
+@cache.cached(timeout=60*15)
 @api.doc(description="Get pool price candles")
 @api.param('chain', 'Chain to query for')
 @api.param('pool', 'Pool to query volume for')
@@ -99,6 +105,7 @@ class PoolCandles(Resource):
 
 
 @api.route('/<string:chain>/volume/<regex("[a-z0-9]"):pool>')
+@cache.cached()
 @api.doc(description="Get historical pool volume")
 @api.param('chain', 'Chain to query for')
 @api.param('pool', 'Pool to query volume for')
@@ -111,6 +118,7 @@ class PoolVolume(Resource):
 
 
 @api.route('/<string:chain>/fees/<regex("[a-z0-9]"):pool>')
+@cache.cached()
 @api.doc(description="Get historical pool fees")
 @api.param('chain', 'Chain to query for')
 @api.param('pool', 'Pool to query fees for')
@@ -123,6 +131,7 @@ class PoolFees(Resource):
 
 
 @api.route('/<string:chain>/reserves/<regex("[a-z0-9]"):pool>')
+@cache.cached()
 @api.doc(description="Get historical pool reserves")
 @api.param('chain', 'Chain to query for')
 @api.param('pool', 'Pool to query reserves for')
@@ -135,6 +144,7 @@ class PoolReserves(Resource):
 
 
 @api.route('/<string:chain>/tvl/<regex("[a-z0-9]"):pool>')
+@cache.cached()
 @api.doc(description="Get historical pool TVL")
 @api.param('chain', 'Chain to query for')
 @api.param('pool', 'Pool to query TVL for')

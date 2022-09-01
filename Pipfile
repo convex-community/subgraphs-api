@@ -45,6 +45,7 @@ marshmallow-dataclass = "*"
 dataclasses = "*"
 pandas = "*"
 strawberry-graphql = "*"
+flask-caching = "*"
 
 [dev-packages]
 

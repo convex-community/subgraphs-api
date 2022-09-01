@@ -1,5 +1,5 @@
 from flask_restx import Resource, Namespace
-
+from app import cache
 from models.convex.snapshot import ConvexPoolSnapshot, ConvexPoolTVLSnapshot, ConvexPoolAPRSnapshot
 from services.convex.snapshot import get_pool_snapshots, get_pool_tvl_snapshots, get_pool_apr_snapshots
 from services.convex.pool import get_pool_names
@@ -25,6 +25,7 @@ def check_exists(func):
 
 
 @api.route('/')
+@cache.cached(timeout=60*15)
 @api.doc(description="Get all pool names & ids")
 @api.response(404, 'Pool not found')
 class PoolList(Resource):
@@ -36,6 +37,7 @@ class PoolList(Resource):
 
 
 @api.route('/all')
+@cache.cached(timeout=60*15)
 @api.doc(description="Get all pools' metadata")
 @api.response(404, 'Pool not found')
 class PoolMetadata(Resource):
@@ -47,17 +49,19 @@ class PoolMetadata(Resource):
 
 
 @api.route('/<regex("[0-9]"):poolid>')
+@cache.cached(timeout=60*15)
 @api.doc(description="Get pool metadata")
 @api.param('poolid', 'ID of pool to query')
 @api.response(404, 'Pool not found')
 class Pool(Resource):
     @api.marshal_with(metadata, envelope='pools')
-    #@check_exists
+    @check_exists
     def get(self, poolid):
         return get_pool_metadata(poolid)
 
 
 @api.route('/snapshots/<regex("[0-9]"):poolid>')
+@cache.cached()
 @api.doc(description="Get historical pool snapshots")
 @api.param('poolid', 'ID of pool to get historical data for')
 @api.response(404, 'Pool not found')
@@ -70,6 +74,7 @@ class PoolSnapshots(Resource):
 
 
 @api.route('/apr/<regex("[0-9]"):poolid>')
+@cache.cached()
 @api.doc(description="Get historical pool APR")
 @api.param('poolid', 'ID of pool to query APR for')
 @api.response(404, 'Pool not found')
