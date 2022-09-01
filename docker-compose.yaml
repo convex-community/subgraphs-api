@@ -25,6 +25,10 @@ services:
     depends_on:
       - redis
     volumes: ['./app:/app']
+    environment:
+      CELERY_BROKER_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
+      CELERY_RESULT_BACKEND: redis://:${REDIS_PASSWORD}@redis:6379/0
+      CACHE_REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
     env_file:
       - .env
   worker:
@@ -37,6 +41,9 @@ services:
     volumes: ['./app:/app']
     env_file:
       - .env
+    environment:
+      CELERY_BROKER_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
+      CELERY_RESULT_BACKEND: redis://:${REDIS_PASSWORD}@redis:6379/0
   scheduler:
     build:
       context: ./app
@@ -55,13 +62,14 @@ services:
      - "5555:5555"
     command: celery -A app.celery flower
     environment:
-      CELERY_BROKER_URL: redis://redis:6379/0
-      CELERY_RESULT_BACKEND: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
+      CELERY_RESULT_BACKEND: redis://:${REDIS_PASSWORD}@redis:6379/0
     depends_on:
       - redis
       - worker
     volumes: ['./app:/app']
   redis:
     image: redis:alpine
+    command: redis-server --requirepass ${REDIS_PASSWORD}
     ports:
       - "6379:6379"

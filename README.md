@@ -8,11 +8,14 @@ Running for development:
 Create an `.env` file with the following variables:
 
 ```
+API_ENV= ('dev' or 'prod')
 DB_ENDPOINT= (Cosmos db endpoint: https://xxxx.azure.com:443)
 DB_KEY= (Database key)
+DB_NAME= (Database name)
+REDIS_PASSWORD= (Redis DB Passwrod)
 ```
 
-And for production deployment:
+And for letsencrypt with production deployment:
 
 ```
 EMAIL=admin@xxx.xxx
