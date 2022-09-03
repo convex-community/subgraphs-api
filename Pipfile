@@ -46,6 +46,7 @@ dataclasses = "*"
 pandas = "*"
 strawberry-graphql = "*"
 flask-caching = "*"
+pre-commit = "*"
 
 [dev-packages]
 
