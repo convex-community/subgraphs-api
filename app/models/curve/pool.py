@@ -32,3 +32,13 @@ class CurvePoolName:
 
 
 CurvePoolNameSchema = marshmallow_dataclass.class_schema(CurvePoolName)
+
+
+@dataclass
+class CurvePoolNameChain:
+    address: str
+    name: str
+    chain: str
+
+
+CurvePoolNameChainSchema = marshmallow_dataclass.class_schema(CurvePoolNameChain)
