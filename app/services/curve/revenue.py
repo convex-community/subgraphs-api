@@ -3,16 +3,12 @@ from models.curve.revenue import (
     CurvePoolRevenueSchema,
     CurveChainRevenue,
     CurveChainRevenueSchema,
-)
-from models.curve.snapshot import (
-    CurvePoolSnapshotSchema,
-    CurvePoolSnapshot,
-    CurvePoolReserveSnapshot,
-    CurvePoolReserveSchema,
+    CurveHistoricalPoolCumulativeRevenueSchema,
+    CurveHistoricalPoolCumulativeRevenue,
 )
 from services.curve.pool import get_all_pool_names
 from services.query import query_db, get_container
-from typing import List, Mapping
+from typing import List, Mapping, Union
 from marshmallow import EXCLUDE
 import pandas as pd
 
@@ -28,7 +24,7 @@ def _get_all_revenue_snapshots() -> List[CurvePoolRevenue]:
     )
 
 
-def get_top_pools(top: int) -> Mapping[str, Mapping[str, float]]:
+def get_top_pools(top: int) -> List[CurveHistoricalPoolCumulativeRevenue]:
     df_rev = pd.DataFrame(_get_all_revenue_snapshots())
     df_names = pd.DataFrame(get_all_pool_names())
     df_names["name"] = (
@@ -58,8 +54,8 @@ def get_top_pools(top: int) -> Mapping[str, Mapping[str, float]]:
         lambda x: x if x in top_performers else "Others"
     )
     week = 3600 * 24 * 7
-    df["timestamp"] = pd.to_datetime(
-        df["timestamp"].apply(lambda x: ((int(x) // week) * week)), unit="s"
+    df["timestamp"] = df["timestamp"].apply(
+        lambda x: ((int(x) // week) * week)
     )
     df = (
         df[["totalDailyFeesUSD", "name", "timestamp"]]
@@ -74,9 +70,15 @@ def get_top_pools(top: int) -> Mapping[str, Mapping[str, float]]:
         df[["name", "timestamp", "cumulativeDailyFeesUSD"]]
         .pivot_table("cumulativeDailyFeesUSD", ["name"], "timestamp")
         .fillna(0)
+        .transpose()
+        .reset_index()
     )
-    res: Mapping[str, Mapping[str, float]] = df.to_json(orient="index")  # type: ignore
-    return res
+    data: List[Mapping[str, Union[str, int, float]]] = df.melt(  # type: ignore
+        id_vars=["timestamp"], var_name="pool", value_name="revenue"
+    ).to_dict("records")
+    return CurveHistoricalPoolCumulativeRevenueSchema(many=True).load(
+        data, unknown=EXCLUDE
+    )
 
 
 def get_platform_revenue() -> List[CurveChainRevenue]:
@@ -86,6 +88,6 @@ def get_platform_revenue() -> List[CurveChainRevenue]:
         .groupby("chain")
         .sum()
         .reset_index()
-        .to_json(orient="records")
+        .to_dict(orient="records")
     )
     return CurveChainRevenueSchema(many=True).load(data, unknown=EXCLUDE)

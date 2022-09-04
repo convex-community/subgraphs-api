@@ -2,6 +2,7 @@ from dataclasses import dataclass
 import marshmallow_dataclass
 from typing import List
 import strawberry
+from flask_restx import fields
 
 
 @dataclass
@@ -17,8 +18,20 @@ CurvePoolRevenueSchema = marshmallow_dataclass.class_schema(CurvePoolRevenue)
 
 @dataclass
 class CurveChainRevenue:
-    totalDailyFeesUSD: float
     chain: str
+    totalDailyFeesUSD: float
 
 
 CurveChainRevenueSchema = marshmallow_dataclass.class_schema(CurveChainRevenue)
+
+
+@dataclass
+class CurveHistoricalPoolCumulativeRevenue:
+    name: str
+    timestamp: int
+    cumulativeDailyFeesUSD: float
+
+
+CurveHistoricalPoolCumulativeRevenueSchema = (
+    marshmallow_dataclass.class_schema(CurveHistoricalPoolCumulativeRevenue)
+)
