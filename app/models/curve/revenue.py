@@ -27,9 +27,9 @@ CurveChainRevenueSchema = marshmallow_dataclass.class_schema(CurveChainRevenue)
 
 @dataclass
 class CurveHistoricalPoolCumulativeRevenue:
-    name: str
+    pool: str
     timestamp: int
-    cumulativeDailyFeesUSD: float
+    revenue: float
 
 
 CurveHistoricalPoolCumulativeRevenueSchema = (
