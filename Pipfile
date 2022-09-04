@@ -47,6 +47,7 @@ pandas = "*"
 strawberry-graphql = "*"
 flask-caching = "*"
 pre-commit = "*"
+flask-cors = "*"
 
 [dev-packages]
 

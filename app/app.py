@@ -9,6 +9,7 @@ import schedules
 from strawberry.flask.views import GraphQLView
 from graphq.schema import schema
 from utils import RegexConverter
+from flask_cors import CORS
 
 
 app = create_app(os.getenv("API_ENV") or "dev")
@@ -25,6 +26,7 @@ celery = make_celery(app)
 celery.config_from_object(schedules)
 app.register_blueprint(cvx_blueprint)
 app.register_blueprint(crv_blueprint)
+CORS(app)
 cache.init_app(app)
 
 
