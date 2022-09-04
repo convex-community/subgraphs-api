@@ -15,6 +15,9 @@ from flask_cors import CORS
 app = create_app(os.getenv("API_ENV") or "dev")
 app.app_context().push()
 app.url_map.converters["regex"] = RegexConverter
+cache.init_app(app)
+with app.app_context():
+    cache.clear()
 
 app.add_url_rule(
     "/graphql",
@@ -27,7 +30,6 @@ celery.config_from_object(schedules)
 app.register_blueprint(cvx_blueprint)
 app.register_blueprint(crv_blueprint)
 CORS(app)
-cache.init_app(app)
 
 
 if __name__ == "__main__":
