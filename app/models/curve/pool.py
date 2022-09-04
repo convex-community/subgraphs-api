@@ -41,4 +41,6 @@ class CurvePoolNameChain:
     chain: str
 
 
-CurvePoolNameChainSchema = marshmallow_dataclass.class_schema(CurvePoolNameChain)
+CurvePoolNameChainSchema = marshmallow_dataclass.class_schema(
+    CurvePoolNameChain
+)

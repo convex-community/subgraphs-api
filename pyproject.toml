@@ -31,4 +31,3 @@ exclude = '''
 
 [tool.mypy]
 ignore_missing_imports = true
-

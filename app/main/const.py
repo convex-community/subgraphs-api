@@ -8,15 +8,17 @@ CHAIN_MOONBEAM = "moonbeam"
 CHAIN_OPTIMISM = "optimism"
 CHAIN_XDAI = "xdai"
 
-CHAINS = [CHAIN_MAINNET,
-          CHAIN_ARBITRUM,
-          CHAIN_AVALANCHE,
-          CHAIN_FANTOM,
-          CHAIN_HARMONY,
-          CHAIN_MATIC,
-          CHAIN_MOONBEAM,
-          CHAIN_OPTIMISM,
-          CHAIN_XDAI]
+CHAINS = [
+    CHAIN_MAINNET,
+    CHAIN_ARBITRUM,
+    CHAIN_AVALANCHE,
+    CHAIN_FANTOM,
+    CHAIN_HARMONY,
+    CHAIN_MATIC,
+    CHAIN_MOONBEAM,
+    CHAIN_OPTIMISM,
+    CHAIN_XDAI,
+]
 
 SUBGRAPH_MAINNET_API_PROD = "https://api.thegraph.com/subgraphs/name/convex-community/volume-mainnet-test"
 SUBGRAPH_ARBITRUM_API_PROD = "https://api.thegraph.com/subgraphs/name/convex-community/volume-arbitrum-test"
@@ -26,7 +28,9 @@ SUBGRAPH_HARMONY_API_PROD = "https://api.thegraph.com/subgraphs/name/convex-comm
 SUBGRAPH_MATIC_API_PROD = "https://api.thegraph.com/subgraphs/name/convex-community/volume-matic-test"
 SUBGRAPH_MOONBEAM_API_PROD = "https://api.thegraph.com/subgraphs/name/convex-community/volume-moonbeam-test"
 SUBGRAPH_OPTIMISM_API_PROD = "https://api.thegraph.com/subgraphs/name/convex-community/volume-optimism-test"
-SUBGRAPH_XDAI_API_PROD = "https://api.thegraph.com/subgraphs/name/convex-community/volume-xdai-test"
+SUBGRAPH_XDAI_API_PROD = (
+    "https://api.thegraph.com/subgraphs/name/convex-community/volume-xdai-test"
+)
 
 SUBGRAPH_MAINNET_API_DEV = "https://api.thegraph.com/subgraphs/name/convex-community/volume-mainnet-test"
 SUBGRAPH_ARBITRUM_API_DEV = "https://api.thegraph.com/subgraphs/name/convex-community/volume-arbitrum-test"
@@ -36,10 +40,16 @@ SUBGRAPH_HARMONY_API_DEV = "https://api.thegraph.com/subgraphs/name/convex-commu
 SUBGRAPH_MATIC_API_DEV = "https://api.thegraph.com/subgraphs/name/convex-community/volume-matic-test"
 SUBGRAPH_MOONBEAM_API_DEV = "https://api.thegraph.com/subgraphs/name/convex-community/volume-moonbeam-test"
 SUBGRAPH_OPTIMISM_API_DEV = "https://api.thegraph.com/subgraphs/name/convex-community/volume-optimism-test"
-SUBGRAPH_XDAI_API_DEV = "https://api.thegraph.com/subgraphs/name/convex-community/volume-xdai-test"
+SUBGRAPH_XDAI_API_DEV = (
+    "https://api.thegraph.com/subgraphs/name/convex-community/volume-xdai-test"
+)
 
-CONVEX_POOLS_SUBGRAPH_PROD = "https://api.thegraph.com/subgraphs/name/convex-community/curve-pools"
-CONVEX_POOLS_SUBGRAPH_DEV = "https://api.thegraph.com/subgraphs/name/convex-community/curve-pools"
+CONVEX_POOLS_SUBGRAPH_PROD = (
+    "https://api.thegraph.com/subgraphs/name/convex-community/curve-pools"
+)
+CONVEX_POOLS_SUBGRAPH_DEV = (
+    "https://api.thegraph.com/subgraphs/name/convex-community/curve-pools"
+)
 
 CURVE_SUBGRAPHS_PROD = {
     CHAIN_MAINNET: SUBGRAPH_MAINNET_API_PROD,
@@ -70,10 +80,10 @@ CONVEX_POOLS = "CONVEX_POOLS"
 
 SUBGRAPHS_PROD = {
     CURVE_POOLS: CURVE_SUBGRAPHS_PROD,
-    CONVEX_POOLS: CONVEX_POOLS_SUBGRAPH_PROD
+    CONVEX_POOLS: CONVEX_POOLS_SUBGRAPH_PROD,
 }
 
 SUBGRAPHS_DEV = {
     CURVE_POOLS: CURVE_SUBGRAPHS_DEV,
-    CONVEX_POOLS: CONVEX_POOLS_SUBGRAPH_DEV
+    CONVEX_POOLS: CONVEX_POOLS_SUBGRAPH_DEV,
 }

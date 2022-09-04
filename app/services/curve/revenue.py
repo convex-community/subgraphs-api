@@ -1,6 +1,15 @@
-from models.curve.revenue import CurvePoolRevenue, CurvePoolRevenueSchema, CurveChainRevenue, CurveChainRevenueSchema
-from models.curve.snapshot import CurvePoolSnapshotSchema, CurvePoolSnapshot,\
-    CurvePoolReserveSnapshot, CurvePoolReserveSchema
+from models.curve.revenue import (
+    CurvePoolRevenue,
+    CurvePoolRevenueSchema,
+    CurveChainRevenue,
+    CurveChainRevenueSchema,
+)
+from models.curve.snapshot import (
+    CurvePoolSnapshotSchema,
+    CurvePoolSnapshot,
+    CurvePoolReserveSnapshot,
+    CurvePoolReserveSchema,
+)
 from services.curve.pool import get_all_pool_names
 from services.query import query_db, get_container
 from typing import List, Mapping
@@ -14,26 +23,69 @@ def _exec_query(query: str) -> List:
 
 def _get_all_revenue_snapshots() -> List[CurvePoolRevenue]:
     query = f"SELECT c.totalDailyFeesUSD, c.pool, c.timestamp, c.chain FROM CurvePoolSnapshots as c"
-    return CurvePoolRevenueSchema(many=True).load(_exec_query(query), unknown=EXCLUDE)
+    return CurvePoolRevenueSchema(many=True).load(
+        _exec_query(query), unknown=EXCLUDE
+    )
 
 
 def get_top_pools(top: int) -> Mapping[str, Mapping[str, float]]:
     df_rev = pd.DataFrame(_get_all_revenue_snapshots())
     df_names = pd.DataFrame(get_all_pool_names())
-    df_names['name'] = df_names['name'].apply(lambda x: str(x).replace('Curve.fi', '').split(':')[-1]) + ' (' + df_names['chain'] + ')'
-    df = pd.merge(df_rev, df_names, left_on=['pool', 'chain'], right_on=['address', 'chain'], how='left').drop(columns = ['address'])
-    df = df.sort_values('timestamp', ascending=True)
-    top_performers = df[['totalDailyFeesUSD', 'name']].groupby('name').sum().sort_values(by='totalDailyFeesUSD', ascending=False).index[:top]
-    df['name'] = df['name'].apply(lambda x: x if x in top_performers else 'Others')
+    df_names["name"] = (
+        df_names["name"].apply(
+            lambda x: str(x).replace("Curve.fi", "").split(":")[-1]
+        )
+        + " ("
+        + df_names["chain"]
+        + ")"
+    )
+    df = pd.merge(
+        df_rev,
+        df_names,
+        left_on=["pool", "chain"],
+        right_on=["address", "chain"],
+        how="left",
+    ).drop(columns=["address"])
+    df = df.sort_values("timestamp", ascending=True)
+    top_performers = (
+        df[["totalDailyFeesUSD", "name"]]
+        .groupby("name")
+        .sum()
+        .sort_values(by="totalDailyFeesUSD", ascending=False)
+        .index[:top]
+    )
+    df["name"] = df["name"].apply(
+        lambda x: x if x in top_performers else "Others"
+    )
     week = 3600 * 24 * 7
-    df['timestamp'] = pd.to_datetime(df['timestamp'].apply(lambda x: ((int(x) // week) * week)), unit='s')
-    df = df[['totalDailyFeesUSD', 'name', 'timestamp']].groupby(['name', 'timestamp']).sum().reset_index()
-    df['cumulativeDailyFeesUSD'] = df['totalDailyFeesUSD'].groupby(df['name']).cumsum()
-    df = df[['name', 'timestamp', 'cumulativeDailyFeesUSD']].pivot_table('cumulativeDailyFeesUSD', ['name'], 'timestamp').fillna(0)
-    return df.to_json(orient='index')
+    df["timestamp"] = pd.to_datetime(
+        df["timestamp"].apply(lambda x: ((int(x) // week) * week)), unit="s"
+    )
+    df = (
+        df[["totalDailyFeesUSD", "name", "timestamp"]]
+        .groupby(["name", "timestamp"])
+        .sum()
+        .reset_index()
+    )
+    df["cumulativeDailyFeesUSD"] = (
+        df["totalDailyFeesUSD"].groupby(df["name"]).cumsum()
+    )
+    df = (
+        df[["name", "timestamp", "cumulativeDailyFeesUSD"]]
+        .pivot_table("cumulativeDailyFeesUSD", ["name"], "timestamp")
+        .fillna(0)
+    )
+    res: Mapping[str, Mapping[str, float]] = df.to_json(orient="index")  # type: ignore
+    return res
 
 
 def get_platform_revenue() -> List[CurveChainRevenue]:
     df_rev = pd.DataFrame(_get_all_revenue_snapshots())
-    data = df_rev[['totalDailyFeesUSD', 'chain']].groupby('chain').sum().reset_index().to_json(orient='records')
+    data = (
+        df_rev[["totalDailyFeesUSD", "chain"]]
+        .groupby("chain")
+        .sum()
+        .reset_index()
+        .to_json(orient="records")
+    )
     return CurveChainRevenueSchema(many=True).load(data, unknown=EXCLUDE)

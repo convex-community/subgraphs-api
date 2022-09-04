@@ -43,4 +43,3 @@ def populate_convex_pool_snapshots():
 def populate_convex_revenue_snapshots():
     logger.info(f"Updating Convex Revenue Snapshots")
     update_convex_revenue_snapshots(get_convex_revenue_snapshots())
-

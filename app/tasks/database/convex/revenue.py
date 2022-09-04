@@ -1,4 +1,7 @@
-from models.convex.revenue import ConvexRevenueSnapshotSchema, ConvexRevenueSnapshot
+from models.convex.revenue import (
+    ConvexRevenueSnapshotSchema,
+    ConvexRevenueSnapshot,
+)
 from tasks.database.client import get_container
 from typing import List
 

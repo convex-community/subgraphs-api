@@ -35,7 +35,9 @@ class CurvePoolVolumeSnapshot:
     timestamp: int
 
 
-CurvePoolVolumeSnapshotSchema = marshmallow_dataclass.class_schema(CurvePoolVolumeSnapshot)
+CurvePoolVolumeSnapshotSchema = marshmallow_dataclass.class_schema(
+    CurvePoolVolumeSnapshot
+)
 
 
 @dataclass
@@ -46,7 +48,9 @@ class CurvePoolFeeSnapshot:
     timestamp: int
 
 
-CurvePoolFeeSnapshotSchema = marshmallow_dataclass.class_schema(CurvePoolFeeSnapshot)
+CurvePoolFeeSnapshotSchema = marshmallow_dataclass.class_schema(
+    CurvePoolFeeSnapshot
+)
 
 
 @dataclass
@@ -55,7 +59,9 @@ class CurvePoolTVLSnapshot:
     timestamp: int
 
 
-CurvePoolTVLSnapshotSchema = marshmallow_dataclass.class_schema(CurvePoolTVLSnapshot)
+CurvePoolTVLSnapshotSchema = marshmallow_dataclass.class_schema(
+    CurvePoolTVLSnapshot
+)
 
 
 @dataclass
@@ -65,4 +71,6 @@ class CurvePoolReserveSnapshot:
     timestamp: int
 
 
-CurvePoolReserveSchema = marshmallow_dataclass.class_schema(CurvePoolReserveSnapshot)
+CurvePoolReserveSchema = marshmallow_dataclass.class_schema(
+    CurvePoolReserveSnapshot
+)

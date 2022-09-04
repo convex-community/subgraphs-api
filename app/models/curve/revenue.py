@@ -22,5 +22,3 @@ class CurveChainRevenue:
 
 
 CurveChainRevenueSchema = marshmallow_dataclass.class_schema(CurveChainRevenue)
-
-

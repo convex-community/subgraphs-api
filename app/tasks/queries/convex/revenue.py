@@ -1,5 +1,8 @@
 from typing import List
-from models.convex.revenue import ConvexRevenueSnapshotSchema, ConvexRevenueSnapshot
+from models.convex.revenue import (
+    ConvexRevenueSnapshotSchema,
+    ConvexRevenueSnapshot,
+)
 from tasks.queries.graph import grt_convex_pools_query
 from celery.utils.log import get_task_logger
 
@@ -31,5 +34,5 @@ def get_convex_revenue_snapshots() -> List[ConvexRevenueSnapshot]:
     data = grt_convex_pools_query(GRAPH_CONVEX_REVENUE_SNAPSHOTS_QUERY)
     if data is None:
         return []
-    pools = data.get('revenueWeeklySnapshots', [])
+    pools = data.get("revenueWeeklySnapshots", [])
     return ConvexRevenueSnapshotSchema(many=True).load(pools)

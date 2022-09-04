@@ -29,7 +29,9 @@ class ConvexPoolSnapshot:
     block: int
 
 
-ConvexPoolSnapshotSchema = marshmallow_dataclass.class_schema(ConvexPoolSnapshot)
+ConvexPoolSnapshotSchema = marshmallow_dataclass.class_schema(
+    ConvexPoolSnapshot
+)
 
 
 @dataclass
@@ -39,7 +41,9 @@ class ConvexPoolTVLSnapshot:
     timestamp: int
 
 
-ConvexPoolTVLSnapshotSchema = marshmallow_dataclass.class_schema(ConvexPoolTVLSnapshot)
+ConvexPoolTVLSnapshotSchema = marshmallow_dataclass.class_schema(
+    ConvexPoolTVLSnapshot
+)
 
 
 @dataclass
@@ -51,6 +55,6 @@ class ConvexPoolAPRSnapshot:
     timestamp: int
 
 
-ConvexPoolAPRSnapshotSchema = marshmallow_dataclass.class_schema(ConvexPoolAPRSnapshot)
-
-
+ConvexPoolAPRSnapshotSchema = marshmallow_dataclass.class_schema(
+    ConvexPoolAPRSnapshot
+)

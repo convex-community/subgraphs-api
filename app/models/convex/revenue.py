@@ -26,7 +26,9 @@ class ConvexRevenueSnapshot:
     timestamp: int
 
 
-ConvexRevenueSnapshotSchema = marshmallow_dataclass.class_schema(ConvexRevenueSnapshot)
+ConvexRevenueSnapshotSchema = marshmallow_dataclass.class_schema(
+    ConvexRevenueSnapshot
+)
 
 
 @dataclass
@@ -40,7 +42,9 @@ class ConvexCumulativeRevenue:
     crvPrice: float
 
 
-ConvexCumulativeRevenueSchema = marshmallow_dataclass.class_schema(ConvexCumulativeRevenue)
+ConvexCumulativeRevenueSchema = marshmallow_dataclass.class_schema(
+    ConvexCumulativeRevenue
+)
 
 
 @dataclass
@@ -54,6 +58,6 @@ class ConvexHistoricalRevenueSnapshot:
     timestamp: int
 
 
-ConvexHistoricalRevenueSnapshotSchema = marshmallow_dataclass.class_schema(ConvexHistoricalRevenueSnapshot)
-
-
+ConvexHistoricalRevenueSnapshotSchema = marshmallow_dataclass.class_schema(
+    ConvexHistoricalRevenueSnapshot
+)
