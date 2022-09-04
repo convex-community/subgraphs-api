@@ -55,7 +55,7 @@ class PoolMetadata(Resource):
         return get_all_pool_metadata()
 
 
-@api.route('/<regex("[0-9]"):poolid>')
+@api.route("/<int:poolid>")
 @api.doc(description="Get pool metadata")
 @api.param("poolid", "ID of pool to query")
 @api.response(404, "Pool not found")
@@ -67,7 +67,7 @@ class Pool(Resource):
         return get_pool_metadata(poolid)
 
 
-@api.route('/snapshots/<regex("[0-9]"):poolid>')
+@api.route("/snapshots/<int:poolid>")
 @api.doc(description="Get historical pool snapshots")
 @api.param("poolid", "ID of pool to get historical data for")
 @api.response(404, "Pool not found")
@@ -79,7 +79,7 @@ class PoolSnapshots(Resource):
         return get_pool_snapshots(poolid)
 
 
-@api.route('/apr/<regex("[0-9]"):poolid>')
+@api.route("/apr/<int:poolid>")
 @api.doc(description="Get historical pool APR")
 @api.param("poolid", "ID of pool to query APR for")
 @api.response(404, "Pool not found")
@@ -91,7 +91,7 @@ class PoolAPRSnapshots(Resource):
         return get_pool_apr_snapshots(poolid)
 
 
-@api.route('/tvl/<regex("[0-9]"):poolid>')
+@api.route("/tvl/<int:poolid>")
 @api.doc(description="Get historical pool TVL")
 @api.param("poolid", "ID of pool to query TVL for")
 @api.response(404, "Pool not found")

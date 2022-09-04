@@ -11,7 +11,7 @@ from models.curve.snapshot import (
     CurvePoolReserveSchema,
 )
 from services.query import query_db, get_container
-from typing import List, Mapping
+from typing import List
 from marshmallow import EXCLUDE
 
 
