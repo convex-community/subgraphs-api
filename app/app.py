@@ -16,8 +16,8 @@ app = create_app(os.getenv("API_ENV") or "dev")
 app.app_context().push()
 app.url_map.converters["regex"] = RegexConverter
 cache.init_app(app)
-with app.app_context():
-    cache.clear()
+# with app.app_context():
+#    cache.clear()
 
 app.add_url_rule(
     "/graphql",
