@@ -1,5 +1,6 @@
-from flask_restx import Resource, Namespace
+from flask_restx import Resource, Namespace, fields
 
+from main.const import CHAINS
 from models.curve.revenue import (
     CurveChainRevenue,
     CurveHistoricalPoolCumulativeRevenue,
@@ -13,6 +14,16 @@ chain_rev = api.model("Chain Revenue", convert_marshmallow(CurveChainRevenue))
 top_pools = api.model(
     "Top Pools", convert_marshmallow(CurveHistoricalPoolCumulativeRevenue)
 )
+chains = api.model("Supported Chains", {"chains": fields.List(fields.String)})
+
+
+@api.route("/chains")
+@api.doc(description="Get the supported chains")
+@api.response(404, "Chain or pool not found")
+class ChainList(Resource):
+    @api.marshal_with(chains)
+    def get(self):
+        return {"chains": CHAINS}
 
 
 @api.route("/<string:chain>/factories")
