@@ -22,7 +22,10 @@ def _exec_query(query: str) -> List:
 
 
 def _get_all_revenue_snapshots() -> List[CurvePoolRevenue]:
-    query = f"SELECT c.totalDailyFeesUSD, c.pool, c.timestamp, c.chain FROM CurvePoolSnapshots as c"
+    # we end 48h before because there are differences between the times
+    # each subgraphs take snapshots
+    end_date = (int(datetime.now().timestamp() // DAY) * DAY) - DAY
+    query = f"SELECT c.totalDailyFeesUSD, c.pool, c.timestamp, c.chain FROM CurvePoolSnapshots as c WHERE c.timestamp < { end_date }"
     return CurvePoolRevenueSchema(many=True).load(
         _exec_query(query), unknown=EXCLUDE
     )
