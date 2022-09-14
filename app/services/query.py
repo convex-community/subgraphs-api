@@ -1,14 +1,8 @@
 import os
-import sys
-import logging
 from flask import g
 from azure.cosmos import CosmosClient, PartitionKey, exceptions
 from celery.utils.log import get_task_logger
 
-cosmos_logger = logging.getLogger("azure")
-cosmos_logger.setLevel(logging.WARNING)
-handler = logging.StreamHandler(stream=sys.stdout)
-cosmos_logger.addHandler(handler)
 
 logger = get_task_logger(__name__)
 
