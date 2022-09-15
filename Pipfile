@@ -48,6 +48,8 @@ strawberry-graphql = "*"
 flask-caching = "*"
 pre-commit = "*"
 flask-cors = "*"
+web3-input-decoder = "*"
+hexbytes = "*"
 
 [dev-packages]
 

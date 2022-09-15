@@ -11,6 +11,10 @@ ENV DEBUG true
 COPY . /app
 WORKDIR /app
 
+RUN apt-get update && apt-get install --no-install-recommends -y \
+    gcc libc-dev libpq-dev python-dev && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 RUN pip install -U setuptools pip
 RUN pip install -r requirements.txt
 
