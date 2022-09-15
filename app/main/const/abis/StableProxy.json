@@ -1,0 +1,510 @@
+[
+  {
+    "name": "CommitAdmins",
+    "inputs": [
+      {
+        "type": "address",
+        "name": "ownership_admin",
+        "indexed": false
+      },
+      {
+        "type": "address",
+        "name": "parameter_admin",
+        "indexed": false
+      },
+      {
+        "type": "address",
+        "name": "emergency_admin",
+        "indexed": false
+      }
+    ],
+    "anonymous": false,
+    "type": "event"
+  },
+  {
+    "name": "ApplyAdmins",
+    "inputs": [
+      {
+        "type": "address",
+        "name": "ownership_admin",
+        "indexed": false
+      },
+      {
+        "type": "address",
+        "name": "parameter_admin",
+        "indexed": false
+      },
+      {
+        "type": "address",
+        "name": "emergency_admin",
+        "indexed": false
+      }
+    ],
+    "anonymous": false,
+    "type": "event"
+  },
+  {
+    "name": "AddBurner",
+    "inputs": [
+      {
+        "type": "address",
+        "name": "burner",
+        "indexed": false
+      }
+    ],
+    "anonymous": false,
+    "type": "event"
+  },
+  {
+    "outputs": [],
+    "inputs": [
+      {
+        "type": "address",
+        "name": "_registry"
+      },
+      {
+        "type": "address",
+        "name": "_ownership_admin"
+      },
+      {
+        "type": "address",
+        "name": "_parameter_admin"
+      },
+      {
+        "type": "address",
+        "name": "_emergency_admin"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "name": "commit_set_admins",
+    "outputs": [],
+    "inputs": [
+      {
+        "type": "address",
+        "name": "_o_admin"
+      },
+      {
+        "type": "address",
+        "name": "_p_admin"
+      },
+      {
+        "type": "address",
+        "name": "_e_admin"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "gas": 109120
+  },
+  {
+    "name": "apply_set_admins",
+    "outputs": [],
+    "inputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "gas": 111286
+  },
+  {
+    "name": "set_burner",
+    "outputs": [],
+    "inputs": [
+      {
+        "type": "address",
+        "name": "_token"
+      },
+      {
+        "type": "address",
+        "name": "_burner"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "gas": 96987
+  },
+  {
+    "name": "withdraw_admin_fees",
+    "outputs": [],
+    "inputs": [
+      {
+        "type": "address",
+        "name": "_pool"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "gas": 58046
+  },
+  {
+    "name": "burn",
+    "outputs": [],
+    "inputs": [
+      {
+        "type": "address",
+        "name": "_burner"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "gas": 57391
+  },
+  {
+    "name": "burn_coin",
+    "outputs": [],
+    "inputs": [
+      {
+        "type": "address",
+        "name": "_coin"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "gas": 58348
+  },
+  {
+    "name": "burn_eth",
+    "outputs": [],
+    "inputs": [],
+    "stateMutability": "payable",
+    "type": "function",
+    "gas": 92172
+  },
+  {
+    "name": "kill_me",
+    "outputs": [],
+    "inputs": [
+      {
+        "type": "address",
+        "name": "_pool"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "gas": 59121
+  },
+  {
+    "name": "unkill_me",
+    "outputs": [],
+    "inputs": [
+      {
+        "type": "address",
+        "name": "_pool"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "gas": 59998
+  },
+  {
+    "name": "commit_transfer_ownership",
+    "outputs": [],
+    "inputs": [
+      {
+        "type": "address",
+        "name": "_pool"
+      },
+      {
+        "type": "address",
+        "name": "new_owner"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "gas": 59296
+  },
+  {
+    "name": "apply_transfer_ownership",
+    "outputs": [],
+    "inputs": [
+      {
+        "type": "address",
+        "name": "_pool"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "gas": 58256
+  },
+  {
+    "name": "revert_transfer_ownership",
+    "outputs": [],
+    "inputs": [
+      {
+        "type": "address",
+        "name": "_pool"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "gas": 59241
+  },
+  {
+    "name": "commit_new_parameters",
+    "outputs": [],
+    "inputs": [
+      {
+        "type": "address",
+        "name": "_pool"
+      },
+      {
+        "type": "uint256",
+        "name": "amplification"
+      },
+      {
+        "type": "uint256",
+        "name": "new_fee"
+      },
+      {
+        "type": "uint256",
+        "name": "new_admin_fee"
+      },
+      {
+        "type": "uint256",
+        "name": "min_asymmetry"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "gas": 94440
+  },
+  {
+    "name": "apply_new_parameters",
+    "outputs": [],
+    "inputs": [
+      {
+        "type": "address",
+        "name": "_pool"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "gas": 81176
+  },
+  {
+    "name": "revert_new_parameters",
+    "outputs": [],
+    "inputs": [
+      {
+        "type": "address",
+        "name": "_pool"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "gas": 59331
+  },
+  {
+    "name": "commit_new_fee",
+    "outputs": [],
+    "inputs": [
+      {
+        "type": "address",
+        "name": "_pool"
+      },
+      {
+        "type": "uint256",
+        "name": "new_fee"
+      },
+      {
+        "type": "uint256",
+        "name": "new_admin_fee"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "gas": 59391
+  },
+  {
+    "name": "apply_new_fee",
+    "outputs": [],
+    "inputs": [
+      {
+        "type": "address",
+        "name": "_pool"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "gas": 58436
+  },
+  {
+    "name": "ramp_A",
+    "outputs": [],
+    "inputs": [
+      {
+        "type": "address",
+        "name": "_pool"
+      },
+      {
+        "type": "uint256",
+        "name": "_future_A"
+      },
+      {
+        "type": "uint256",
+        "name": "_future_time"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "gas": 59451
+  },
+  {
+    "name": "stop_ramp_A",
+    "outputs": [],
+    "inputs": [
+      {
+        "type": "address",
+        "name": "_pool"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "gas": 59451
+  },
+  {
+    "name": "set_aave_referral",
+    "outputs": [],
+    "inputs": [
+      {
+        "type": "address",
+        "name": "_pool"
+      },
+      {
+        "type": "uint256",
+        "name": "referral_code"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "gas": 59496
+  },
+  {
+    "name": "donate_admin_fees",
+    "outputs": [],
+    "inputs": [
+      {
+        "type": "address",
+        "name": "_pool"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "gas": 59511
+  },
+  {
+    "name": "ownership_admin",
+    "outputs": [
+      {
+        "type": "address",
+        "name": ""
+      }
+    ],
+    "inputs": [],
+    "stateMutability": "view",
+    "type": "function",
+    "gas": 1781
+  },
+  {
+    "name": "parameter_admin",
+    "outputs": [
+      {
+        "type": "address",
+        "name": ""
+      }
+    ],
+    "inputs": [],
+    "stateMutability": "view",
+    "type": "function",
+    "gas": 1811
+  },
+  {
+    "name": "emergency_admin",
+    "outputs": [
+      {
+        "type": "address",
+        "name": ""
+      }
+    ],
+    "inputs": [],
+    "stateMutability": "view",
+    "type": "function",
+    "gas": 1841
+  },
+  {
+    "name": "future_ownership_admin",
+    "outputs": [
+      {
+        "type": "address",
+        "name": ""
+      }
+    ],
+    "inputs": [],
+    "stateMutability": "view",
+    "type": "function",
+    "gas": 1871
+  },
+  {
+    "name": "future_parameter_admin",
+    "outputs": [
+      {
+        "type": "address",
+        "name": ""
+      }
+    ],
+    "inputs": [],
+    "stateMutability": "view",
+    "type": "function",
+    "gas": 1901
+  },
+  {
+    "name": "future_emergency_admin",
+    "outputs": [
+      {
+        "type": "address",
+        "name": ""
+      }
+    ],
+    "inputs": [],
+    "stateMutability": "view",
+    "type": "function",
+    "gas": 1931
+  },
+  {
+    "name": "min_asymmetries",
+    "outputs": [
+      {
+        "type": "uint256",
+        "name": ""
+      }
+    ],
+    "inputs": [
+      {
+        "type": "address",
+        "name": "arg0"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function",
+    "gas": 2176
+  },
+  {
+    "name": "burners",
+    "outputs": [
+      {
+        "type": "address",
+        "name": ""
+      }
+    ],
+    "inputs": [
+      {
+        "type": "address",
+        "name": "arg0"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function",
+    "gas": 2206
+  }
+]
