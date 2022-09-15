@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 import marshmallow_dataclass
 import strawberry
-from typing import List
 
 
 @strawberry.type
@@ -18,7 +17,21 @@ class DaoProposal:
     votesAgainst: int
     voteCount: int
     supportRequired: int
+    minAcceptQuorum: int
     executed: bool
 
 
 DaoProposalSchema = marshmallow_dataclass.class_schema(DaoProposal)
+
+
+@strawberry.type
+@dataclass
+class DaoDetailedProposal(DaoProposal):
+    tx: str
+    creatorVotingPower: int
+    script: str
+
+
+DaoDetailedProposalSchema = marshmallow_dataclass.class_schema(
+    DaoDetailedProposal
+)

@@ -1,10 +1,6 @@
 import os
-from flask import g
+from flask import g, current_app
 from azure.cosmos import CosmosClient, PartitionKey, exceptions
-from celery.utils.log import get_task_logger
-
-
-logger = get_task_logger(__name__)
 
 
 def get_database():
@@ -18,10 +14,10 @@ def get_database():
 
         try:
             database = client.create_database(db_name)
-            logger.info(f"Database {db_name} created.")
+            current_app.logger.info(f"Database {db_name} created.")
         except exceptions.CosmosResourceExistsError:
             database = client.get_database_client(db_name)
-            logger.info(f"Connected to {db_name}.")
+            current_app.logger.info(f"Connected to {db_name}.")
         setattr(g, "db", database)
     return getattr(g, "db")
 

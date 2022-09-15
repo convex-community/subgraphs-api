@@ -3,9 +3,7 @@ import time
 from typing import List, Mapping, Any, Optional
 
 import requests.exceptions
-from celery.utils.log import get_task_logger
-
-logger = get_task_logger(__name__)
+from flask import current_app
 
 
 def grt_query(
@@ -20,7 +18,7 @@ def grt_query(
             requests.exceptions.ConnectionError,
             requests.exceptions.Timeout,
         ):
-            logger.error(
+            current_app.logger.error(
                 f"Failed at fulfilling request {query} for {endpoint}, retrying ({i}/3)"
             )
             time.sleep(60)
