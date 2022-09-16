@@ -14,6 +14,7 @@ from services.curve.dao import (
     get_user_locks,
     get_user_balance,
     get_user_votes,
+    get_user_proposals,
 )
 from utils import convert_marshmallow
 from flask_restx import fields
@@ -91,5 +92,10 @@ class GetUserVotes(Resource):
         return get_user_votes(user.lower())
 
 
-# /proposals/user
-# /votes/user
+@api.route('/<regex("[a-z0-9]+"):user>/proposals')
+@api.doc(description="Return all of a user's proposals")
+@api.param("user", "User address")
+class GetUserProposals(Resource):
+    @api.marshal_list_with(proposals, envelope="proposals")
+    def get(self, user):
+        return get_user_proposals(user.lower())

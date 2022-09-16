@@ -163,3 +163,30 @@ def get_user_votes(user: str) -> List[DaoVote]:
         query_res,
         unknown=EXCLUDE,
     )
+
+
+def get_user_proposals(user: str) -> List[DaoProposal]:
+    query = """
+{
+  proposals(first: 1000 where: {creator: "%s"} orderBy: startDate) {
+  voteId
+  voteType
+  creator
+  startDate
+  snapshotBlock
+  ipfsMetadata
+  metadata
+  votesFor
+  votesAgainst
+  voteCount
+  supportRequired
+  minAcceptQuorum
+  executed
+  }
+}
+  """
+
+    return DaoProposalSchema(many=True).load(
+        _query(query % user, "proposals"),
+        unknown=EXCLUDE,
+    )
