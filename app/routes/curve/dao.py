@@ -13,6 +13,7 @@ from services.curve.dao import (
     get_proposal_details,
     get_user_locks,
     get_user_balance,
+    get_user_votes,
 )
 from utils import convert_marshmallow
 from flask_restx import fields
@@ -63,7 +64,7 @@ class DetailedProposal(Resource):
         return proposal
 
 
-@api.route('/locks/<regex("[a-z0-9]+"):user>/history')
+@api.route('/<regex("[a-z0-9]+"):user>/locks/history')
 @api.doc(description="Return historical vote escrow actions by a user")
 @api.param("user", "User address")
 class UserHistoricalLocks(Resource):
@@ -72,10 +73,23 @@ class UserHistoricalLocks(Resource):
         return get_user_locks(user.lower())
 
 
-@api.route('/locks/<regex("[a-z0-9]+"):user>/balance')
+@api.route('/<regex("[a-z0-9]+"):user>/locks/balance')
 @api.doc(description="Return historical vote escrow actions by a user")
 @api.param("user", "User address")
 class GetUserBalance(Resource):
     @api.marshal_with(user_balance)
     def get(self, user):
         return get_user_balance(user.lower())
+
+
+@api.route('/<regex("[a-z0-9]+"):user>/votes')
+@api.doc(description="Return all of a user's votes")
+@api.param("user", "User address")
+class GetUserVotes(Resource):
+    @api.marshal_list_with(votes, envelope="votes")
+    def get(self, user):
+        return get_user_votes(user.lower())
+
+
+# /proposals/user
+# /votes/user

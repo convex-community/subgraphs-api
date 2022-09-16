@@ -9,6 +9,8 @@ from models.curve.dao import (
     UserLockSchema,
     UserBalance,
     UserBalanceSchema,
+    DaoVote,
+    DaoVoteSchema,
 )
 from typing import List, Mapping, Any, Optional, MutableMapping
 from flask import current_app
@@ -74,6 +76,7 @@ def get_proposal_details(
     voteCount
     votes(first: 1000) {
       tx
+      voteId
       voter
       supports
       stake
@@ -136,6 +139,27 @@ def get_user_balance(user: str) -> List[UserBalance]:
     query = query_template % user
     query_res = _query(query, "userBalances")
     return UserBalanceSchema(many=True).load(
+        query_res,
+        unknown=EXCLUDE,
+    )
+
+
+def get_user_votes(user: str) -> List[DaoVote]:
+    # TODO: add timestamps / order by timestamp
+    query_template = """
+  {
+    votes(first: 1000 where: {voter: "%s"} orderBy: stake, orderDirection: asc) {
+      tx
+      voteId
+      voter
+      supports
+      stake
+    }
+  }
+    """
+    query = query_template % user
+    query_res = _query(query, "votes")
+    return DaoVoteSchema(many=True).load(
         query_res,
         unknown=EXCLUDE,
     )

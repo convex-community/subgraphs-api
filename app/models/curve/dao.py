@@ -32,9 +32,13 @@ DaoProposalSchema = marshmallow_dataclass.class_schema(DaoProposal)
 @dataclass
 class DaoVote:
     tx: str
+    voteId: int
     voter: str
     supports: bool
     stake: int
+
+
+DaoVoteSchema = marshmallow_dataclass.class_schema(DaoVote)
 
 
 @dataclass

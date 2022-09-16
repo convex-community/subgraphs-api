@@ -50,6 +50,7 @@ pre-commit = "*"
 flask-cors = "*"
 web3-input-decoder = "*"
 hexbytes = "*"
+types-requests = "*"
 
 [dev-packages]
 
