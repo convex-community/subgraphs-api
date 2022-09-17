@@ -75,8 +75,12 @@ CURVE_SUBGRAPHS_DEV = {
     CHAIN_XDAI: SUBGRAPH_XDAI_API_DEV,
 }
 
-CURVE_DAO_SUBGRAPH_PROD = "https://api.thegraph.com/subgraphs/id/QmZLxgodvgQiyXDdyJJnfgfhtX9qxL4KUHzL11are2z7y4"
-CURVE_DAO_SUBGRAPH_DEV = "https://api.thegraph.com/subgraphs/id/QmZLxgodvgQiyXDdyJJnfgfhtX9qxL4KUHzL11are2z7y4"
+CURVE_DAO_SUBGRAPH_PROD = (
+    "https://api.thegraph.com/subgraphs/name/convex-community/curve-dao"
+)
+CURVE_DAO_SUBGRAPH_DEV = (
+    "https://api.thegraph.com/subgraphs/name/convex-community/curve-dao"
+)
 
 CURVE_POOLS = "CURVE_POOLS"
 CONVEX_POOLS = "CONVEX_POOLS"

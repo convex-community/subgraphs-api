@@ -26,7 +26,7 @@ class Query:
         return convex.get_all_pool_metadata()
 
     @strawberry.field
-    def convex_pool_snapshots(self, pool: str) -> list[ConvexPoolSnapshot]:
+    def convex_pool_snapshots(self, pool: int) -> list[ConvexPoolSnapshot]:
         return convex.get_pool_snapshots(pool)
 
 

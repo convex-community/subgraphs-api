@@ -42,15 +42,14 @@ GRAPH_CONVEX_POOL_SNAPSHOTS_QUERY = """
 def _flatten(
     data: Mapping[str, List[Mapping[str, Any]]], attribute: str
 ) -> List[Mapping[str, Any]]:
-    if "pools" not in data:
-        return []
+    pools = data.get("pools", [])
     return [
         {
             **snapshot,
             "id": re.sub(r"\W+", "", snapshot["id"]),
             "poolid": snapshot["poolid"]["id"],
         }
-        for pool_snapshots in data["pools"]
+        for pool_snapshots in pools
         for snapshot in pool_snapshots[attribute]
     ]
 

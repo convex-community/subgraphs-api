@@ -99,3 +99,20 @@ class GetUserProposals(Resource):
     @api.marshal_list_with(proposals, envelope="proposals")
     def get(self, user):
         return get_user_proposals(user.lower())
+
+
+@api.route("/gauges")
+@api.doc(description="Get the list of all gauges")
+class GetAllGauges(Resource):
+    @api.marshal_list_with(proposals, envelope="gauges")
+    def get(self, user):
+        return get_user_proposals(user.lower())
+
+
+@api.route('/<regex("[a-z0-9]+"):gauge>/emissions')
+@api.doc(description="Get a gauge's historical weekly emissions")
+@api.param("gauge", "Gauge address")
+class GetGaugeEmissions(Resource):
+    @api.marshal_list_with(proposals, envelope="proposals")
+    def get(self, user):
+        return get_user_proposals(user.lower())
