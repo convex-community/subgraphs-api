@@ -7,6 +7,7 @@ from models.curve.dao import (
     UserLock,
     UserBalance,
     DaoVote,
+    Gauge,
 )
 from services.curve.dao import (
     get_all_proposals,
@@ -15,13 +16,15 @@ from services.curve.dao import (
     get_user_balance,
     get_user_votes,
     get_user_proposals,
+    get_all_gauges,
 )
 from utils import convert_marshmallow
 from flask_restx import fields
 
 api = Namespace("dao", description="DAO endpoints")
 proposals = api.model("DAO Proposals", convert_marshmallow(DaoProposal))
-votes = api.model("Votes", convert_marshmallow(DaoVote))
+votes = api.model("Vote", convert_marshmallow(DaoVote))
+gauges = api.model("Gauge", convert_marshmallow(Gauge))
 flask_restx_dao_proposal_details["votes"] = fields.List(fields.Nested(votes))
 detailed_proposal = api.model(
     "DAO Proposal Details", flask_restx_dao_proposal_details
@@ -118,9 +121,10 @@ class GetUserProposals(Resource):
 @api.route("/gauges")
 @api.doc(description="Get the list of all gauges")
 class GetAllGauges(Resource):
-    @api.marshal_list_with(proposals, envelope="gauges")
-    def get(self, user):
-        return get_user_proposals(user.lower())
+    @api.marshal_list_with(gauges, envelope="gauges")
+    @cache.cached(timeout=60 * 2)
+    def get(self):
+        return get_all_gauges()
 
 
 @api.route('/<regex("[a-z0-9]+"):gauge>/emissions')

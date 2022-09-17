@@ -84,3 +84,14 @@ class UserBalance:
 
 
 UserBalanceSchema = marshmallow_dataclass.class_schema(UserBalance)
+
+
+@dataclass
+class Gauge:
+    address: str
+    name: str
+    type: int
+    weight: int
+
+
+GaugeSchema = marshmallow_dataclass.class_schema(Gauge)

@@ -11,6 +11,8 @@ from models.curve.dao import (
     UserBalanceSchema,
     DaoVote,
     DaoVoteSchema,
+    Gauge,
+    GaugeSchema,
 )
 from typing import List, Mapping, Any, Optional, MutableMapping
 from flask import current_app
@@ -23,9 +25,7 @@ def _query(query: str, envelope: str) -> List[Mapping[str, Any]]:
     subgraph_data = grt_query(subgraph_endpoint, query)
     if not subgraph_data:
         return [{}]
-    proposal_data = (
-        subgraph_data[envelope] if envelope in subgraph_data else []
-    )
+    proposal_data = subgraph_data.get(envelope, [])
     return proposal_data
 
 
@@ -188,5 +188,35 @@ def get_user_proposals(user: str) -> List[DaoProposal]:
 
     return DaoProposalSchema(many=True).load(
         _query(query % user, "proposals"),
+        unknown=EXCLUDE,
+    )
+
+
+def get_all_gauges() -> List[Gauge]:
+    query = """
+{
+  gauges(first: 1000) {
+  address
+    name
+    type {
+      id
+    }
+    weight: weights(first: 1 orderBy:timestamp orderDirection:desc) {
+      weight
+    }
+  }
+}
+  """
+    gauge_data = _query(query, "gauges")
+    flattened_data = [
+        {
+            **gauge,
+            "type": gauge["type"]["id"],
+            "weight": gauge["weight"][0].get("weight", 0),
+        }
+        for gauge in gauge_data
+    ]
+    return GaugeSchema(many=True).load(
+        flattened_data,
         unknown=EXCLUDE,
     )
