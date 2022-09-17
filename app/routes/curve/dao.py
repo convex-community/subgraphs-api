@@ -1,6 +1,6 @@
 from flask_restx import Resource, Namespace
 from routes import cache
-from main.const import OWNERSHIP
+from main.const import OWNERSHIP, PARAMETER
 from models.curve.dao import (
     DaoProposal,
     flask_restx_dao_proposal_details,
@@ -55,11 +55,25 @@ class ProposalList(Resource):
 @api.doc(description="Get full details of an ownership proposal")
 @api.param("voteid", "ID of proposal to query for")
 @api.response(404, "Proposal not found")
-class DetailedProposal(Resource):
+class DetailedOwnershipProposal(Resource):
     @api.marshal_with(detailed_proposal)
     @cache.cached(timeout=60 * 2)
     def get(self, voteid):
         proposal = get_proposal_details(voteid, OWNERSHIP)
+        if not proposal:
+            api.abort(404)
+        return proposal
+
+
+@api.route("/proposals/parameter/<int:voteid>")
+@api.doc(description="Get full details of a parameter proposal")
+@api.param("voteid", "ID of proposal to query for")
+@api.response(404, "Proposal not found")
+class DetailedParameterProposal(Resource):
+    @api.marshal_with(detailed_proposal)
+    @cache.cached(timeout=60 * 2)
+    def get(self, voteid):
+        proposal = get_proposal_details(voteid, PARAMETER)
         if not proposal:
             api.abort(404)
         return proposal
