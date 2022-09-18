@@ -13,6 +13,8 @@ from models.curve.dao import (
     DaoVoteSchema,
     Gauge,
     GaugeSchema,
+    Emission,
+    EmissionSchema,
 )
 from typing import List, Mapping, Any, Optional, MutableMapping
 from flask import current_app
@@ -220,3 +222,43 @@ def get_all_gauges() -> List[Gauge]:
         flattened_data,
         unknown=EXCLUDE,
     )
+
+
+def _get_emission_data(entity: str, param: str) -> List[Emission]:
+    query_template = """
+    {
+      emissions (where: {%s: "%s"} orderBy:timestamp orderDirection:desc) {
+        gauge {
+          address
+        }
+        pool {
+          id
+        }
+        crvAmount
+        value
+        timestamp
+      }
+    }
+      """
+    query = query_template % (entity, param)
+    data = _query(query, "emissions")
+    flattened_data = [
+        {
+            **emission,
+            "pool": emission["pool"]["id"],
+            "gauge": emission["gauge"]["address"],
+        }
+        for emission in data
+    ]
+    return EmissionSchema(many=True).load(
+        flattened_data,
+        unknown=EXCLUDE,
+    )
+
+
+def get_emissions_by_gauge(gauge: str) -> List[Emission]:
+    return _get_emission_data("gauge", gauge)
+
+
+def get_emissions_by_pool(pool: str) -> List[Emission]:
+    return _get_emission_data("pool", pool)

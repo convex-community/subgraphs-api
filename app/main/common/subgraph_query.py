@@ -12,7 +12,7 @@ def grt_query(
     for i in range(3):
         r = requests.post(endpoint, json={"query": query}, timeout=300)
         try:
-            return r.json()["data"]
+            return r.json().get("data", None)
         except (
             requests.exceptions.JSONDecodeError,
             requests.exceptions.ConnectionError,

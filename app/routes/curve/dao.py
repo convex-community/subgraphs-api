@@ -8,6 +8,7 @@ from models.curve.dao import (
     UserBalance,
     DaoVote,
     Gauge,
+    Emission,
 )
 from services.curve.dao import (
     get_all_proposals,
@@ -17,6 +18,8 @@ from services.curve.dao import (
     get_user_votes,
     get_user_proposals,
     get_all_gauges,
+    get_emissions_by_gauge,
+    get_emissions_by_pool,
 )
 from utils import convert_marshmallow
 from flask_restx import fields
@@ -25,6 +28,7 @@ api = Namespace("dao", description="DAO endpoints")
 proposals = api.model("DAO Proposals", convert_marshmallow(DaoProposal))
 votes = api.model("Vote", convert_marshmallow(DaoVote))
 gauges = api.model("Gauge", convert_marshmallow(Gauge))
+emissions = api.model("Emission", convert_marshmallow(Emission))
 flask_restx_dao_proposal_details["votes"] = fields.List(fields.Nested(votes))
 detailed_proposal = api.model(
     "DAO Proposal Details", flask_restx_dao_proposal_details
@@ -82,7 +86,7 @@ class DetailedParameterProposal(Resource):
         return proposal
 
 
-@api.route('/<regex("[a-z0-9]+"):user>/locks/history')
+@api.route('/<regex("[A-z0-9]+"):user>/locks/history')
 @api.doc(description="Return historical vote escrow actions by a user")
 @api.param("user", "User address")
 class UserHistoricalLocks(Resource):
@@ -91,7 +95,7 @@ class UserHistoricalLocks(Resource):
         return get_user_locks(user.lower())
 
 
-@api.route('/<regex("[a-z0-9]+"):user>/locks/balance')
+@api.route('/<regex("[A-z0-9]+"):user>/locks/balance')
 @api.doc(description="Return historical vote escrow actions by a user")
 @api.param("user", "User address")
 class GetUserBalance(Resource):
@@ -100,7 +104,7 @@ class GetUserBalance(Resource):
         return get_user_balance(user.lower())
 
 
-@api.route('/<regex("[a-z0-9]+"):user>/votes')
+@api.route('/<regex("[A-z0-9]+"):user>/votes')
 @api.doc(description="Return all of a user's votes")
 @api.param("user", "User address")
 class GetUserVotes(Resource):
@@ -109,7 +113,7 @@ class GetUserVotes(Resource):
         return get_user_votes(user.lower())
 
 
-@api.route('/<regex("[a-z0-9]+"):user>/proposals')
+@api.route('/<regex("[A-z0-9]+"):user>/proposals')
 @api.doc(description="Return all of a user's proposals")
 @api.param("user", "User address")
 class GetUserProposals(Resource):
@@ -127,10 +131,19 @@ class GetAllGauges(Resource):
         return get_all_gauges()
 
 
-@api.route('/<regex("[a-z0-9]+"):gauge>/emissions')
+@api.route('/emissions/gauge/<regex("[A-z0-9]+"):gauge>')
 @api.doc(description="Get a gauge's historical weekly emissions")
 @api.param("gauge", "Gauge address")
 class GetGaugeEmissions(Resource):
-    @api.marshal_list_with(proposals, envelope="proposals")
-    def get(self, user):
-        return get_user_proposals(user.lower())
+    @api.marshal_list_with(emissions, envelope="emissions")
+    def get(self, gauge):
+        return get_emissions_by_gauge(gauge.lower())
+
+
+@api.route('/emissions/pool/<regex("[A-z0-9]+"):pool>')
+@api.doc(description="Get a pool's historical weekly emissions")
+@api.param("pool", "Pool address")
+class GetPoolEmissions(Resource):
+    @api.marshal_list_with(emissions, envelope="emissions")
+    def get(self, pool):
+        return get_emissions_by_pool(pool.lower())

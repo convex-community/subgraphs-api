@@ -95,3 +95,15 @@ class Gauge:
 
 
 GaugeSchema = marshmallow_dataclass.class_schema(Gauge)
+
+
+@dataclass
+class Emission:
+    gauge: str
+    pool: str
+    crvAmount: float
+    value: float
+    timestamp: int
+
+
+EmissionSchema = marshmallow_dataclass.class_schema(Emission)
