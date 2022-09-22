@@ -51,6 +51,7 @@ flask-cors = "*"
 web3-input-decoder = "*"
 hexbytes = "*"
 types-requests = "*"
+pandas-stubs = "*"
 
 [dev-packages]
 
