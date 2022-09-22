@@ -5,16 +5,19 @@ from models.curve.revenue import (
     CurveChainRevenue,
     CurveHistoricalPoolCumulativeRevenue,
     CurveChainTopPoolRevenue,
+    CurvePoolRevenue,
 )
 from routes import cache
 from services.curve.revenue import (
     get_platform_revenue,
     get_top_pools,
     get_top_chain_pools,
+    get_pool_revenue,
 )
 from utils import convert_marshmallow
 
 api = Namespace("protocol", description="Protocol endpoints")
+pool_rev = api.model("Pool Revenue", convert_marshmallow(CurvePoolRevenue))
 chain_rev = api.model("Chain Revenue", convert_marshmallow(CurveChainRevenue))
 top_pools = api.model(
     "Top Pools", convert_marshmallow(CurveHistoricalPoolCumulativeRevenue)
@@ -23,6 +26,18 @@ chain_top_pools = api.model(
     "Chain Top Pools", convert_marshmallow(CurveChainTopPoolRevenue)
 )
 chains = api.model("Supported Chains", {"chains": fields.List(fields.String)})
+
+
+def check_exists(func):
+    def wrapped(*args, **kwargs):
+        if kwargs["chain"] not in CHAINS:
+            api.abort(404)
+        data = func(*args, **kwargs)
+        if not data:
+            api.abort(404)
+        return data
+
+    return wrapped
 
 
 @api.route("/chains")
@@ -54,16 +69,6 @@ class RegistryList(Resource):
         return pool
 
 
-@api.route("/<string:chain>/gauges")
-@api.doc(description="Get all historcial registry contracts")
-@api.param("chain", "Chain to query for")
-@api.response(404, "Chain or pool not found")
-class GaugeList(Resource):
-    def get(self, chain, pool):
-        print(chain)
-        return pool
-
-
 @api.route("/revenue/historical/toppools/<int:top>")
 @api.doc(description="Get weekly revenue of top pools vs others")
 @api.param("top", "Number of top pools to single out")
@@ -81,9 +86,25 @@ class TopPoolList(Resource):
 @api.response(404, "Not found")
 class ChainTopPoolList(Resource):
     @cache.cached()
+    @check_exists
     @api.marshal_list_with(chain_top_pools, envelope="revenue")
     def get(self, chain, top):
-        return get_top_chain_pools(chain, top)
+        return get_top_chain_pools(chain.lower(), top)
+
+
+@api.route(
+    '/revenue/<regex("[A-z0-9]+"):chain>/historical/<regex("[A-z0-9]+"):pool>'
+)
+@api.doc(description="Get the historical revenue for a pool")
+@api.param("chain", "Name of the chain to query for")
+@api.param("pool", "Name of the pool to query for")
+@api.response(404, "Not found")
+class ChainPoolRevenue(Resource):
+    @cache.cached()
+    @check_exists
+    @api.marshal_list_with(pool_rev, envelope="revenue")
+    def get(self, chain, pool):
+        return get_pool_revenue(chain.lower(), pool.lower())
 
 
 @api.route("/revenue/chains")

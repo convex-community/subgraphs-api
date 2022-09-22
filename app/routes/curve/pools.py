@@ -79,7 +79,7 @@ class Pool(Resource):
     @cache.cached(timeout=60 * 15)
     @check_exists
     def get(self, chain, pool):
-        return get_pool_metadata(chain, pool)
+        return get_pool_metadata(chain.lower(), pool.lower())
 
 
 @api.route('/<string:chain>/snapshots/<regex("[A-z0-9]+"):pool>')
@@ -92,7 +92,7 @@ class PoolSnapshots(Resource):
     @cache.cached()
     @check_exists
     def get(self, chain, pool):
-        return get_pool_snapshots(chain, pool)
+        return get_pool_snapshots(chain.lower(), pool.lower())
 
 
 @api.route('/<string:chain>/swaps/<regex("[A-z0-9]+"):pool>')
@@ -129,7 +129,7 @@ class PoolVolume(Resource):
     @cache.cached()
     @check_exists
     def get(self, chain, pool):
-        return get_pool_volume_snapshots(chain, pool)
+        return get_pool_volume_snapshots(chain.lower(), pool.lower())
 
 
 @api.route('/<string:chain>/fees/<regex("[A-z0-9]+"):pool>')
@@ -142,7 +142,7 @@ class PoolFees(Resource):
     @cache.cached()
     @check_exists
     def get(self, chain, pool):
-        return get_pool_fee_snapshots(chain, pool)
+        return get_pool_fee_snapshots(chain.lower(), pool.lower())
 
 
 @api.route('/<string:chain>/reserves/<regex("[A-z0-9]+"):pool>')
@@ -155,7 +155,7 @@ class PoolReserves(Resource):
     @cache.cached()
     @check_exists
     def get(self, chain, pool):
-        return get_pool_reserves_snapshots(chain, pool)
+        return get_pool_reserves_snapshots(chain.lower(), pool.lower())
 
 
 @api.route('/<string:chain>/tvl/<regex("[A-z0-9]+"):pool>')
@@ -168,7 +168,7 @@ class PoolValue(Resource):
     @cache.cached()
     @check_exists
     def get(self, chain, pool):
-        return get_pool_tvl_snapshots(chain, pool)
+        return get_pool_tvl_snapshots(chain.lower(), pool.lower())
 
 
 @api.route('/<string:chain>/emissions/<regex("[A-z0-9]+"):pool>')

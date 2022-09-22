@@ -31,12 +31,33 @@ def _get_all_revenue_snapshots() -> List[CurvePoolRevenue]:
     )
 
 
-def _get_all_revenue_snapshots_last_week(chain) -> List[CurvePoolRevenue]:
+def _get_pool_revenue_snapshots(
+    chain: str, pool: str
+) -> List[CurvePoolRevenue]:
+    query = f"SELECT c.totalDailyFeesUSD, c.pool, c.timestamp, c.chain FROM CurvePoolSnapshots as c WHERE  c.chain = '{chain}' AND c.pool = '{pool}'"
+    return CurvePoolRevenueSchema(many=True).load(
+        _exec_query(query), unknown=EXCLUDE
+    )
+
+
+def _get_all_revenue_snapshots_last_week(chain: str) -> List[CurvePoolRevenue]:
     start_date = (int(datetime.now().timestamp() // DAY) * DAY) - WEEK
     query = f"SELECT c.totalDailyFeesUSD, c.pool, c.timestamp, c.chain FROM CurvePoolSnapshots as c WHERE c.chain = '{chain}' AND c.timestamp >= {start_date}"
     return CurvePoolRevenueSchema(many=True).load(
         _exec_query(query), unknown=EXCLUDE
     )
+
+
+def _merge_rev_and_names(
+    df_names: pd.DataFrame, df_rev: pd.DataFrame
+) -> pd.DataFrame:
+    return pd.merge(
+        df_rev,
+        df_names,
+        left_on=["pool", "chain"],
+        right_on=["address", "chain"],
+        how="left",
+    ).drop(columns=["address"])
 
 
 def get_top_chain_pools(
@@ -45,15 +66,9 @@ def get_top_chain_pools(
     df_rev = pd.DataFrame(_get_all_revenue_snapshots_last_week(chain))
     df_names = pd.DataFrame(get_all_pool_names())
     df_names["name"] = df_names["name"].apply(
-        lambda x: str(x).replace("Curve.fi", "").split(":")[-1]
+        lambda x: str(x).replace("Curve.fi", "").split(":")[-1].strip()
     )
-    df = pd.merge(
-        df_rev,
-        df_names,
-        left_on=["pool", "chain"],
-        right_on=["address", "chain"],
-        how="left",
-    ).drop(columns=["address"])
+    df = _merge_rev_and_names(df_names, df_rev)
     top_performers = (
         df[["name", "totalDailyFeesUSD"]]
         .groupby("name")
@@ -71,19 +86,13 @@ def get_top_pools(top: int) -> List[CurveHistoricalPoolCumulativeRevenue]:
     df_names = pd.DataFrame(get_all_pool_names())
     df_names["name"] = (
         df_names["name"].apply(
-            lambda x: str(x).replace("Curve.fi", "").split(":")[-1]
+            lambda x: str(x).replace("Curve.fi", "").split(":")[-1].strip()
         )
         + " ("
         + df_names["chain"]
         + ")"
     )
-    df = pd.merge(
-        df_rev,
-        df_names,
-        left_on=["pool", "chain"],
-        right_on=["address", "chain"],
-        how="left",
-    ).drop(columns=["address"])
+    df = _merge_rev_and_names(df_names, df_rev)
     df = df.sort_values("timestamp", ascending=True)
     top_performers = (
         df[["totalDailyFeesUSD", "name"]]
@@ -120,6 +129,10 @@ def get_top_pools(top: int) -> List[CurveHistoricalPoolCumulativeRevenue]:
     return CurveHistoricalPoolCumulativeRevenueSchema(many=True).load(
         data, unknown=EXCLUDE
     )
+
+
+def get_pool_revenue(chain: str, pool: str) -> List[CurvePoolRevenue]:
+    return _get_pool_revenue_snapshots(chain, pool)
 
 
 def get_platform_revenue() -> List[CurveChainRevenue]:
