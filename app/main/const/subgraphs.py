@@ -1,3 +1,5 @@
+import os
+
 CHAIN_MAINNET = "mainnet"
 CHAIN_ARBITRUM = "arbitrum"
 CHAIN_AVALANCHE = "avalanche"
@@ -7,6 +9,8 @@ CHAIN_MATIC = "matic"
 CHAIN_MOONBEAM = "moonbeam"
 CHAIN_OPTIMISM = "optimism"
 CHAIN_XDAI = "xdai"
+
+SUBGRAPHS_API_KEY = os.getenv("GRAPH_API_KEY")
 
 CHAINS = [
     CHAIN_MAINNET,
@@ -44,9 +48,7 @@ SUBGRAPH_XDAI_API_DEV = (
     "https://api.thegraph.com/subgraphs/name/convex-community/volume-xdai-test"
 )
 
-CONVEX_POOLS_SUBGRAPH_PROD = (
-    "https://api.thegraph.com/subgraphs/name/convex-community/curve-pools"
-)
+CONVEX_POOLS_SUBGRAPH_PROD = f"https://gateway.thegraph.com/api/{SUBGRAPHS_API_KEY}/subgraphs/id/6x6tQirWcrrESPPQU5cRkbtZnGBEAKHZrpJ7he9xqeth"
 CONVEX_POOLS_SUBGRAPH_DEV = (
     "https://api.thegraph.com/subgraphs/name/convex-community/curve-pools"
 )
