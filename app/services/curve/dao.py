@@ -37,7 +37,9 @@ def get_all_proposals() -> List[DaoProposal]:
   proposals(first: 1000) {
   voteId
   voteType
-  creator
+  creator {
+    id
+  }
   startDate
   snapshotBlock
   ipfsMetadata
@@ -51,9 +53,16 @@ def get_all_proposals() -> List[DaoProposal]:
   }
 }
   """
-
+    proposals = _query(query, "proposals")
+    proposals = [
+        {
+            **proposal,
+            "creator": proposal["creator"]["id"],
+        }
+        for proposal in proposals
+    ]
     return DaoProposalSchema(many=True).load(
-        _query(query, "proposals"),
+        proposals,
         unknown=EXCLUDE,
     )
 
@@ -67,7 +76,9 @@ def get_proposal_details(
     tx
     voteId
     voteType
-    creator
+    creator {
+        id
+    }
     startDate
     snapshotBlock
     ipfsMetadata
@@ -79,7 +90,9 @@ def get_proposal_details(
     votes(first: 1000) {
       tx
       voteId
-      voter
+      voter {
+        id
+      }
       supports
       stake
     }
@@ -95,6 +108,10 @@ def get_proposal_details(
     if len(query_res) == 0 or "script" not in query_res[0]:
         return None
     proposal: MutableMapping[str, Any] = dict(query_res[0])
+    proposal["creator"] = proposal["creator"]["id"]
+    proposal["votes"] = [
+        {**vote, "voter": vote["voter"]["id"]} for vote in proposal["votes"]
+    ]
     proposal["script"] = parse_data(proposal["script"])
     return DaoDetailedProposalSchema().load(
         proposal,
@@ -153,7 +170,9 @@ def get_user_votes(user: str) -> List[DaoVote]:
     votes(first: 1000 where: {voter: "%s"} orderBy: stake, orderDirection: asc) {
       tx
       voteId
-      voter
+      voter {
+        id
+      }
       supports
       stake
     }
@@ -161,6 +180,7 @@ def get_user_votes(user: str) -> List[DaoVote]:
     """
     query = query_template % user
     query_res = _query(query, "votes")
+    query_res = [{**vote, "voter": vote["voter"]["id"]} for vote in query_res]
     return DaoVoteSchema(many=True).load(
         query_res,
         unknown=EXCLUDE,
