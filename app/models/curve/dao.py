@@ -18,11 +18,11 @@ class DaoProposal:
     snapshotBlock: int
     ipfsMetadata: str
     metadata: str
-    votesFor: int
-    votesAgainst: int
+    votesFor: str
+    votesAgainst: str
     voteCount: int
-    supportRequired: int
-    minAcceptQuorum: int
+    supportRequired: str
+    minAcceptQuorum: str
     executed: bool
 
 
@@ -44,7 +44,7 @@ DaoVoteSchema = marshmallow_dataclass.class_schema(DaoVote)
 @dataclass
 class DaoDetailedProposal(DaoProposal):
     tx: str
-    creatorVotingPower: int
+    creatorVotingPower: str
     script: str
     votes: List[DaoVote]
 
@@ -68,7 +68,7 @@ class UserLock:
     lockStart: int
     unlockTime: int
     type: str
-    totalLocked: int
+    totalLocked: str
     timestamp: int
 
 
@@ -79,7 +79,7 @@ UserLockSchema = marshmallow_dataclass.class_schema(UserLock)
 class UserBalance:
     unlockTime: int
     lockStart: int
-    crvLocked: int
+    crvLocked: str
     startTx: str
 
 
@@ -91,7 +91,7 @@ class Gauge:
     address: str
     name: str
     type: int
-    weight: int
+    weight: str
 
 
 GaugeSchema = marshmallow_dataclass.class_schema(Gauge)
