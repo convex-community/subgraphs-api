@@ -49,6 +49,7 @@ def get_all_proposals() -> List[DaoProposal]:
   voteCount
   supportRequired
   minAcceptQuorum
+  totalSupply
   executed
   }
 }
@@ -98,6 +99,7 @@ def get_proposal_details(
     }
     supportRequired
     minAcceptQuorum
+    totalSupply
     executed
     script
     }
@@ -203,6 +205,7 @@ def get_user_proposals(user: str) -> List[DaoProposal]:
   voteCount
   supportRequired
   minAcceptQuorum
+  totalSupply
   executed
   }
 }

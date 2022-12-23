@@ -23,6 +23,7 @@ class DaoProposal:
     voteCount: int
     supportRequired: str
     minAcceptQuorum: str
+    totalSupply: str
     executed: bool
 
 
