@@ -10,8 +10,9 @@ from models.curve.snapshot import (
     CurvePoolReserveSnapshot,
     CurvePoolReserveSchema,
 )
+from services.modules.utils import append_offset_and_limit
 from services.query import query_db, get_container
-from typing import List
+from typing import List, Optional
 from marshmallow import EXCLUDE
 
 
@@ -19,8 +20,14 @@ def _exec_query(query: str) -> List:
     return query_db(get_container("CurvePoolSnapshots"), query)
 
 
-def get_pool_snapshots(chain: str, pool: str) -> List[CurvePoolSnapshot]:
+def get_pool_snapshots(
+    chain: str,
+    pool: str,
+    offset: Optional[int] = None,
+    limit: Optional[int] = None,
+) -> List[CurvePoolSnapshot]:
     query = f"SELECT * FROM CurvePoolSnapshots as c WHERE c.pool = '{pool.lower()}' AND c.chain = '{chain}' ORDER BY c.timestamp DESC"
+    query = append_offset_and_limit(query, offset, limit)
     return CurvePoolSnapshotSchema(many=True).load(
         _exec_query(query), unknown=EXCLUDE
     )
