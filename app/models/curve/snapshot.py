@@ -11,12 +11,14 @@ class CurvePoolSnapshot:
     pool: str
     chain: str
     virtualPrice: float
+    A: int
     lpPriceUSD: float
     tvl: float
     fee: float
     adminFee: float
     totalDailyFeesUSD: float
     reserves: List[int]
+    normalizedReserves: List[int]
     reservesUSD: List[float]
     volume: float
     volumeUSD: float
