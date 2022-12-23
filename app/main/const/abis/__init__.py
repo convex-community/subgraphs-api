@@ -22,6 +22,9 @@ STABLE_SWAP_PROXY_ABI = json.load(
 CRYPTO_SWAP_PROXY_ABI = json.load(
     open(os.path.join(location, "CryptoSwapOwnerProxy.json"), "r")
 )
+CRYPTO_SWAP_ABI = json.load(
+    open(os.path.join(location, "CryptoSwap.json"), "r")
+)
 LP_BURNER_ABI = json.load(open(os.path.join(location, "LPBurner.json"), "r"))
 ROLES_ABI = json.load(open(os.path.join(location, "Roles.json"), "r"))
 
