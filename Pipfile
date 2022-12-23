@@ -52,6 +52,8 @@ web3-input-decoder = "*"
 hexbytes = "*"
 types-requests = "*"
 pandas-stubs = "*"
+gmpy2 = "*"
+web3 = "*"
 
 [dev-packages]
 
