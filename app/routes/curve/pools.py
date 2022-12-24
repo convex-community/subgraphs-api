@@ -291,11 +291,10 @@ class V2BondingCurve(Resource):
 @api.doc(description="Get the bonding curve of a specific pool")
 @api.param("chain", "Chain to query for")
 @api.param("pool", "Pool to query volume for")
-@api.param("resolution", "Number of data points")
 @api.response(404, "Chain or pool not found")
 class PoolBondingCurve(Resource):
     @api.marshal_list_with(bonding, envelope="curves")
     @cache.cached(timeout=60)
     @check_exists
-    def get(self, chain, pool, resolution):
-        return get_bonding_curves(chain, pool, resolution)
+    def get(self, chain, pool):
+        return get_bonding_curves(chain, pool, 1000)

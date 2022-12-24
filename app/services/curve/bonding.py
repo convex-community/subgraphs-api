@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Union
 
 import numpy as np
 
@@ -13,7 +13,7 @@ from services.modules.stableswap import get_stable_d, get_stable_y
 
 
 def get_v1_curve(
-    A: int, xp: List[str], coins: List[str], resolution: int
+    A: int, xp: Union[List[str], List[int]], coins: List[str], resolution: int
 ) -> List[CurvePoolBondingCurve]:
     res = []
     xp = [mpz(x) for x in xp]
@@ -40,7 +40,11 @@ def get_v1_curve(
 
 
 def get_v2_curve(
-    A: int, gamma: int, xp: List[str], coins: List[str], resolution: int
+    A: int,
+    gamma: int,
+    xp: Union[List[str], List[int]],
+    coins: List[str],
+    resolution: int,
 ) -> List[CurvePoolBondingCurve]:
     """
 
