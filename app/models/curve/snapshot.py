@@ -17,8 +17,8 @@ class CurvePoolSnapshot:
     fee: float
     adminFee: float
     totalDailyFeesUSD: float
-    reserves: List[str]
-    normalizedReserves: List[str]
+    reserves: List[int]
+    normalizedReserves: List[int]
     reservesUSD: List[float]
     volume: float
     volumeUSD: float
@@ -68,7 +68,7 @@ CurvePoolTVLSnapshotSchema = marshmallow_dataclass.class_schema(
 
 @dataclass
 class CurvePoolReserveSnapshot:
-    reserves: List[str]
+    reserves: List[int]
     reservesUSD: List[float]
     timestamp: int
 
