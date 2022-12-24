@@ -4,24 +4,19 @@ import numpy as np
 
 from itertools import combinations
 
-from web3 import Web3, HTTPProvider
+from gmpy2 import mpz
 
-from main.const import (
-    CHAIN_MAINNET,
-    CHAIN_MATIC,
-    CHAIN_ARBITRUM,
-    CHAIN_OPTIMISM,
-)
-from main.const.abis import CRYPTO_SWAP_ABI
 from models.curve.bonding import CurvePoolBondingCurve
 from services.curve import get_pool_snapshots, get_pool_metadata
+from services.modules.cryptoswap import get_crypto_d, get_crypto_y
 from services.modules.stableswap import get_stable_d, get_stable_y
 
 
 def get_v1_curve(
-    A: int, xp: List[int], coins: List[str], resolution: int
+    A: int, xp: List[str], coins: List[str], resolution: int
 ) -> List[CurvePoolBondingCurve]:
     res = []
+    xp = [mpz(x) for x in xp]
     D = get_stable_d(xp, A)
     xp = [D // len(xp) for _ in xp]
     truncate = 0.0005
@@ -44,19 +39,53 @@ def get_v1_curve(
     return res
 
 
+def get_v2_curve(
+    A: int, gamma: int, xp: List[str], coins: List[str], resolution: int
+) -> List[CurvePoolBondingCurve]:
+    """
+
+    :param A: Amplification param
+    :param gamma: gamma
+    :param xp: Normalized to units of D!
+    :param coins: list of coin names
+    :param resolution: data points to return
+    :return: bounding curve for each coin pair
+    """
+    res = []
+    xp = [mpz(x) for x in xp]
+    D = get_crypto_d(A, gamma, xp)
+    truncate = 0.1
+    combos = list(combinations(range(len(coins)), 2))
+    for combo in combos:
+        i, j = combo
+        xn = np.linspace(
+            int(D * truncate), int(D * (1 / truncate)), resolution
+        )
+        xpi = [D // len(xp) for _ in xp]
+        xpi[i] = 0
+        xrange = []
+        for x in xn:
+            xpi[j] = x
+            xrange.append(get_crypto_y(A, gamma, xpi, D, i))
+
+        xpj = [D // len(xp) for _ in xp]
+        xpj[j] = 0
+        yrange = []
+        for x in xrange:
+            xpj[i] = x
+            yrange.append(get_crypto_y(A, gamma, xpj, D, j))
+
+        res.append(
+            CurvePoolBondingCurve(
+                coin0=coins[i], coin1=coins[j], x=xrange, y=yrange
+            )
+        )
+    return res
+
+
 # temp fix until gamma values are stored on subgraph
 def get_gamma(pool: str, chain: str) -> int:
-    endpoint_map = {
-        CHAIN_MAINNET: "https://eth-mainnet.g.alchemy.com/v2/fRfkh05hxMr1ruv1A9ptgDxk1UDEBoGP",
-        CHAIN_MATIC: "https://polygon-mainnet.g.alchemy.com/v2/bUZ6f1AjZt6Ex6-IUDUdX88ASVRmOz13",
-        CHAIN_ARBITRUM: "https://arb-mainnet.g.alchemy.com/v2/m4sG_ELr8JLm7TCSHXAICm6SwrCpaxsh",
-        CHAIN_OPTIMISM: "https://opt-mainnet.g.alchemy.com/v2/zcqeE7qSHKUNH7X4DKnk8Pn3lO6fgxmH",
-    }
-    if chain not in endpoint_map:
-        return 145000000000000  # yolo
-    web3 = Web3(HTTPProvider(endpoint_map[chain]))
-    contract = web3.eth.contract(pool, abi=CRYPTO_SWAP_ABI)
-    return contract.functions.gamma().call()
+    return 145000000000000
 
 
 def get_bonding_curves(

@@ -1,4 +1,5 @@
 from typing import List
+from gmpy2 import mpz
 
 A_MULTIPLIER = 10000
 
@@ -8,10 +9,10 @@ def _geometric_mean(unsorted_x, sort=True):
     (x[0] * x[1] * ...) ** (1/N)
     """
     n = len(unsorted_x)
-    x = unsorted_x
+    x = unsorted_x[:]
     if sort:
-        x = sorted(x)
-    D = x[0]
+        x = sorted(x, reverse=True)
+    D = mpz(x[0])
     for i in range(255):
         D_prev = D
         tmp = 10**18
@@ -30,9 +31,9 @@ def _geometric_mean(unsorted_x, sort=True):
 def get_crypto_d(ANN, gamma, x_unsorted):
     n = len(x_unsorted)
     # Initial value of invariant D is that for constant-product invariant
-    x = sorted(x_unsorted)
+    x = sorted(x_unsorted, reverse=True)
 
-    D = n * _geometric_mean(x, False)
+    D = mpz(n * _geometric_mean(x, False))
     S = 0
     for x_i in x:
         S += x_i
@@ -93,7 +94,7 @@ def get_crypto_d(ANN, gamma, x_unsorted):
                 assert (frac > 10**16 - 1) and (
                     frac < 10**20 + 1
                 )  # dev: unsafe values x[i]
-            return D
+            return int(D)
 
 
 def get_crypto_y(ANN, gamma, x, D, i):
@@ -106,9 +107,9 @@ def get_crypto_y(ANN, gamma, x, D, i):
     K0_i = 10**18
     S_i = 0
 
-    x_sorted: List[int] = x
+    x_sorted: List[int] = x[:]
     x_sorted[i] = 0
-    x_sorted = sorted(x_sorted)  # From high to low
+    x_sorted = sorted(x_sorted, reverse=True)  # From high to low
 
     convergence_limit = max(max(x_sorted[0] / 10**14, D / 10**14), 100)
     for j in range(2, n + 1):
