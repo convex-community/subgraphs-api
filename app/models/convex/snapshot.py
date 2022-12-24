@@ -11,12 +11,12 @@ class ConvexPoolSnapshot:
     poolid: str
     poolName: str
     withdrawalCount: int
-    withdrawalVolume: int
+    withdrawalVolume: str
     withdrawalValue: float
     depositCount: int
-    depositVolume: int
+    depositVolume: str
     depositValue: float
-    lpTokenBalance: int
+    lpTokenBalance: str
     lpTokenVirtualPrice: float
     lpTokenUSDPrice: float
     tvl: float
