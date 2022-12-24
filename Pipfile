@@ -48,10 +48,11 @@ strawberry-graphql = "*"
 flask-caching = "*"
 pre-commit = "*"
 flask-cors = "*"
-web3-input-decoder = "*"
+web3-input-decoder = "==0.1.7"
 hexbytes = "*"
 types-requests = "*"
 pandas-stubs = "*"
+gmpy2 = "*"
 
 [dev-packages]
 

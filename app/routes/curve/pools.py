@@ -1,4 +1,8 @@
-from flask_restx import Resource, Namespace
+from typing import List
+
+from flask_restx import Resource, Namespace, fields, reqparse
+
+from models.curve.bonding import CurvePoolBondingCurve
 from routes import cache
 from main.const import CHAINS
 from models.curve.snapshot import (
@@ -7,6 +11,11 @@ from models.curve.snapshot import (
     CurvePoolFeeSnapshot,
     CurvePoolTVLSnapshot,
     CurvePoolReserveSnapshot,
+)
+from services.curve.bonding import (
+    get_v1_curve,
+    get_v2_curve,
+    get_bonding_curves,
 )
 from services.curve.snapshot import (
     get_pool_snapshots,
@@ -30,8 +39,82 @@ snapshots = api.model("Pool Snapshot", convert_marshmallow(CurvePoolSnapshot))
 volume = api.model("Pool Volume", convert_marshmallow(CurvePoolVolumeSnapshot))
 fees = api.model("Pool Fees", convert_marshmallow(CurvePoolFeeSnapshot))
 tvl = api.model("Pool TVL", convert_marshmallow(CurvePoolTVLSnapshot))
+bonding = api.model(
+    "Pool Bonding Curves", convert_marshmallow(CurvePoolBondingCurve)
+)
 reserves = api.model(
     "Pool Reserves", convert_marshmallow(CurvePoolReserveSnapshot)
+)
+
+v1_parser = reqparse.RequestParser()
+v1_parser.add_argument(
+    "A",
+    type=int,
+    help="Amplification parameter",
+    required=True,
+    location="form",
+)
+v1_parser.add_argument(
+    "xp",
+    type=str,
+    help="List of reserves (normalized to 18 decimals)",
+    action="split",
+    required=True,
+    location="form",
+)
+v1_parser.add_argument(
+    "coins",
+    type=str,
+    help="List of asset names",
+    action="split",
+    required=True,
+    location="form",
+)
+v1_parser.add_argument(
+    "resolution",
+    type=int,
+    help="Number of data points",
+    default=1000,
+    location="form",
+)
+
+v2_parser = reqparse.RequestParser()
+v2_parser.add_argument(
+    "A",
+    type=int,
+    help="Amplification parameter",
+    required=True,
+    location="form",
+)
+v2_parser.add_argument(
+    "gamma",
+    type=int,
+    help="Amplification parameter",
+    required=True,
+    location="form",
+)
+v2_parser.add_argument(
+    "xp",
+    type=str,
+    help="List of reserves (normalized to invariant)",
+    action="split",
+    required=True,
+    location="form",
+)
+v2_parser.add_argument(
+    "coins",
+    type=str,
+    help="List of asset names",
+    action="split",
+    required=True,
+    location="form",
+)
+v2_parser.add_argument(
+    "resolution",
+    type=int,
+    help="Number of data points",
+    default=1000,
+    location="form",
 )
 
 
@@ -180,3 +263,38 @@ class PoolEmissions(Resource):
     def get(self, chain, pool):
         print(chain)
         return pool
+
+
+@api.route("/curve/v1")
+@api.doc(description="Get the bonding curve of a v1 pool based on its params")
+@api.expect(v1_parser)
+class V1BondingCurve(Resource):
+    @api.marshal_list_with(bonding, envelope="curves")
+    @cache.cached(timeout=60)
+    def post(self):
+        args = v1_parser.parse_args()
+        return get_v1_curve(**args)
+
+
+@api.route("/curve/v2")
+@api.doc(description="Get the bonding curve of a v2 pool based on its params")
+@api.expect(v2_parser)
+class V2BondingCurve(Resource):
+    @api.marshal_list_with(bonding, envelope="curves")
+    @cache.cached(timeout=60)
+    def post(self):
+        args = v2_parser.parse_args()
+        return get_v2_curve(**args)
+
+
+@api.route('/<string:chain>/curve/<regex("[A-z0-9]+"):pool>')
+@api.doc(description="Get the bonding curve of a specific pool")
+@api.param("chain", "Chain to query for")
+@api.param("pool", "Pool to query volume for")
+@api.response(404, "Chain or pool not found")
+class PoolBondingCurve(Resource):
+    @api.marshal_list_with(bonding, envelope="curves")
+    @cache.cached(timeout=60)
+    @check_exists
+    def get(self, chain, pool):
+        return get_bonding_curves(chain, pool, 1000)

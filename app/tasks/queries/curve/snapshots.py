@@ -15,12 +15,14 @@ GRAPH_CURVE_POOL_SNAPSHOT_QUERY = """
         id
     }
     virtualPrice
+    A
     lpPriceUSD
     tvl
     fee
     adminFee
     totalDailyFeesUSD
     reserves
+    normalizedReserves
     reservesUSD
     baseApr
     rebaseApr
