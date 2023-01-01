@@ -80,20 +80,11 @@ def get_crypto_d(ANN, gamma, x_unsorted):
         else:
             D = (D_minus - D_plus) / 2
 
-        diff = 0
         if D > D_prev:
             diff = D - D_prev
         else:
             diff = D_prev - D
-        if diff * 10**14 < max(
-            10**16, D
-        ):  # Could reduce precision for gas efficiency here
-            # Test that we are safe with the next newton_y
-            for _x in x:
-                frac = _x * 10**18 / D
-                assert (frac > 10**16 - 1) and (
-                    frac < 10**20 + 1
-                )  # dev: unsafe values x[i]
+        if diff * 10**14 < max(10**16, D):
             return int(D)
 
 
@@ -159,14 +150,9 @@ def get_crypto_y(ANN, gamma, x, D, i):
         else:
             y = y_plus - y_minus
 
-        diff = 0
         if y > y_prev:
             diff = y - y_prev
         else:
             diff = y_prev - y
         if diff < max(convergence_limit, y / 10**14):
-            frac = y * 10**18 / D
-            assert (frac > 10**16 - 1) and (
-                frac < 10**20 + 1
-            )  # dev: unsafe value for y
             return y
