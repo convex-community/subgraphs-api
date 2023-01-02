@@ -270,7 +270,6 @@ class PoolEmissions(Resource):
 @api.expect(v1_parser)
 class V1BondingCurve(Resource):
     @api.marshal_list_with(bonding, envelope="curves")
-    @cache.cached(timeout=60)
     def post(self):
         args = v1_parser.parse_args()
         return get_v1_curve(**args)
@@ -281,7 +280,6 @@ class V1BondingCurve(Resource):
 @api.expect(v2_parser)
 class V2BondingCurve(Resource):
     @api.marshal_list_with(bonding, envelope="curves")
-    @cache.cached(timeout=60)
     def post(self):
         args = v2_parser.parse_args()
         return get_v2_curve(**args)
