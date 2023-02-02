@@ -15,3 +15,33 @@ class CurvePoolIlCalcData:
 CurvePoolIlCalcDataSchema = marshmallow_dataclass.class_schema(
     CurvePoolIlCalcData
 )
+
+
+@dataclass
+class LpHodlXyk:
+    curve: float
+    hodl: float
+    xyk: float
+    timestamp: int
+
+
+@dataclass
+class ConvexAprData:
+    crvApr: float
+    cvxApr: float
+    timestamp: int
+
+
+ConvexAprDataSchema = marshmallow_dataclass.class_schema(ConvexAprData)
+
+
+@dataclass
+class CurveReturnSeries:
+    curve: float
+    hodl: float
+    xyk: float
+    curve_rewards: float
+    timestamp: int
+
+
+CurveReturnSeriesSchema = marshmallow_dataclass.class_schema(CurveReturnSeries)
