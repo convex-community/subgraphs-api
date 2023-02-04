@@ -1,8 +1,9 @@
 from typing import List
-
+import time
 from flask_restx import Resource, Namespace, fields, reqparse
 
 from models.curve.bonding import CurvePoolBondingCurve
+from models.curve.returns import CurveReturnSeries
 from routes import cache
 from main.const import CHAINS
 from models.curve.snapshot import (
@@ -17,6 +18,7 @@ from services.curve.bonding import (
     get_v2_curve,
     get_bonding_curves,
 )
+from services.curve.returns import get_returns
 from services.curve.snapshot import (
     get_pool_snapshots,
     get_pool_volume_snapshots,
@@ -45,6 +47,7 @@ bonding = api.model(
 reserves = api.model(
     "Pool Reserves", convert_marshmallow(CurvePoolReserveSnapshot)
 )
+returns = api.model("Pool Returns", convert_marshmallow(CurveReturnSeries))
 
 v1_parser = reqparse.RequestParser()
 v1_parser.add_argument(
@@ -114,6 +117,30 @@ v2_parser.add_argument(
     type=int,
     help="Number of data points",
     default=1000,
+    location="form",
+)
+
+
+il_parser = reqparse.RequestParser()
+il_parser.add_argument(
+    "start_date",
+    type=int,
+    help="Starting date",
+    default=1577836800,
+    location="form",
+)
+il_parser.add_argument(
+    "end_date",
+    type=int,
+    help="End date",
+    default=int(time.time()),
+    location="form",
+)
+il_parser.add_argument(
+    "lp_tokens",
+    type=str,
+    help="Number of LP Tokens (18 decimals)",
+    default="1000000000000000000",
     location="form",
 )
 
@@ -296,3 +323,21 @@ class PoolBondingCurve(Resource):
     @check_exists
     def get(self, chain, pool):
         return get_bonding_curves(chain, pool, 1000)
+
+
+@api.route('/<string:chain>/returns/<regex("[A-z0-9]+"):pool>')
+@api.doc(description="Get IL/yield info for a specific pool")
+@api.param("chain", "Chain to query for")
+@api.param("pool", "Pool to query volume for")
+@api.expect(il_parser)
+@api.response(404, "Chain or pool not found")
+class PoolReturnsInfo(Resource):
+    @api.marshal_list_with(returns, envelope="returns")
+    @cache.cached(timeout=60)
+    @check_exists
+    def post(self, chain, pool):
+        args = il_parser.parse_args()
+        data = get_returns(chain, pool.lower(), **args)
+        if data:
+            return data
+        api.abort(404)
