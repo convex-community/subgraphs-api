@@ -1,7 +1,9 @@
 from dataclasses import dataclass
+from marshmallow import Schema, fields
+
+import marshmallow.fields
 import marshmallow_dataclass
 import strawberry
-from typing import List
 
 
 @strawberry.type
@@ -29,9 +31,27 @@ class ConvexPoolSnapshot:
     block: int
 
 
-ConvexPoolSnapshotSchema = marshmallow_dataclass.class_schema(
-    ConvexPoolSnapshot
-)
+class ConvexPoolSnapshotSchema(Schema):
+    id = fields.Str()
+    poolid = fields.Str()
+    poolName = fields.Str()
+    withdrawalCount = fields.Int()
+    withdrawalVolume = fields.Int()
+    withdrawalValue = fields.Float()
+    depositCount = fields.Int()
+    depositVolume = fields.Int()
+    depositValue = fields.Float()
+    lpTokenBalance = fields.Int()
+    lpTokenVirtualPrice = fields.Float()
+    lpTokenUSDPrice = fields.Float()
+    tvl = fields.Float()
+    curveTvlRatio = fields.Float()
+    baseApr = fields.Float(allow_nan=True)
+    crvApr = fields.Float()
+    cvxApr = fields.Float()
+    extraRewardsApr = fields.Float()
+    timestamp = fields.Int()
+    block = fields.Int()
 
 
 @dataclass
