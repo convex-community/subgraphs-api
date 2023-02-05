@@ -1,7 +1,5 @@
 from dataclasses import dataclass
 from marshmallow import Schema, fields
-
-import marshmallow.fields
 import marshmallow_dataclass
 import strawberry
 
@@ -12,6 +10,7 @@ class ConvexPoolSnapshot:
     id: str
     poolid: str
     poolName: str
+    swap: str
     withdrawalCount: int
     withdrawalVolume: int
     withdrawalValue: float
@@ -35,6 +34,7 @@ class ConvexPoolSnapshotSchema(Schema):
     id = fields.Str()
     poolid = fields.Str()
     poolName = fields.Str()
+    swap = fields.Str()
     withdrawalCount = fields.Int()
     withdrawalVolume = fields.Int()
     withdrawalValue = fields.Float()

@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from main.const import DAY
 from models.curve.returns import (
     CurvePoolIlCalcDataSchema,
@@ -9,7 +11,7 @@ from models.curve.returns import (
     CurveReturnSeriesSchema,
 )
 from services.query import query_db, get_container
-from typing import List, Union
+from typing import List, Union, Optional
 from marshmallow import EXCLUDE
 import pandas as pd
 import numpy as np
@@ -26,7 +28,7 @@ def _exec_convex_query(query: str) -> List:
 def _get_curve_base_data(
     end_date: int, start_date: int, chain: str, pool: str
 ) -> List[CurvePoolIlCalcData]:
-    query = f"SELECT c.lpPriceUSD, c.normalizedReserves, c.reservesUSD, c.tvl, c.timestamp FROM CurvePoolSnapshots as c WHERE c.chain = '{chain}' AND c.pool = '{pool}' AND c.timestamp <= { end_date } AND c.timestamp >= { start_date }"
+    query = f"SELECT c.lpPriceUSD, c.normalizedReserves, c.reservesUSD, c.tvl, c.timestamp FROM CurvePoolSnapshots as c WHERE c.chain = '{chain}' AND c.pool = '{pool}' AND c.timestamp <= { end_date } AND c.timestamp >= { start_date } ORDER BY c.timestamp ASC"
     return CurvePoolIlCalcDataSchema(many=True).load(
         _exec_curve_query(query), unknown=EXCLUDE
     )
@@ -35,7 +37,7 @@ def _get_curve_base_data(
 def _get_convex_apr_data(
     end_date: int, start_date: int, pool: str
 ) -> List[ConvexAprData]:
-    query = f"SELECT c.crvApr, c.cvxApr, c.timestamp FROM CurvePoolSnapshots as c WHERE c.pool = '{pool}' AND c.timestamp <= { end_date } AND c.timestamp >= { start_date }"
+    query = f"SELECT c.crvApr, c.cvxApr, c.timestamp FROM ConvexPoolSnapshots as c WHERE c.swap = '{pool}' AND c.timestamp <= { end_date } AND c.timestamp >= { start_date } ORDER BY c.timestamp ASC"
     return ConvexAprDataSchema(many=True).load(
         _exec_convex_query(query), unknown=EXCLUDE
     )
@@ -57,7 +59,7 @@ def _get_prices(snapshot: CurvePoolIlCalcData) -> List[float]:
     :return: list of pool's tokens' prices in USD
     """
     return [
-        r_usd / (snapshot.normalizedReserves[i]) / 1e18
+        r_usd / ((snapshot.normalizedReserves[i]) * 1e-18)
         for i, r_usd in enumerate(snapshot.reservesUSD)
     ]
 
@@ -70,7 +72,7 @@ def _calc_hodl_ratios(snapshot: CurvePoolIlCalcData) -> List[float]:
     :return: proportion of each token in pool
     """
     supply = snapshot.tvl / snapshot.lpPriceUSD  # lptoken supply
-    return [r * 1e-18 / supply for r in snapshot.normalizedReserves]
+    return [(r * 1e-18) / supply for r in snapshot.normalizedReserves]
 
 
 def compute_series(snapshots: List[CurvePoolIlCalcData]) -> List[LpHodlXyk]:
@@ -114,18 +116,23 @@ def compute_series(snapshots: List[CurvePoolIlCalcData]) -> List[LpHodlXyk]:
 
 def get_returns(
     chain: str, pool: str, start_date: int, end_date: int, lp_tokens: str
-) -> CurveReturnSeries:
-    lp_prices = compute_series(
-        _get_curve_base_data(end_date, start_date, chain, pool)
-    )
+) -> Optional[CurveReturnSeries]:
+
+    curve_data = _get_curve_base_data(end_date, start_date, chain, pool)
+    convex_data = _get_convex_apr_data(end_date, start_date, pool)
+
+    if not (curve_data and convex_data):
+        return None
+    lp_prices = compute_series(curve_data)
     lp_df = pd.DataFrame(lp_prices)
-    ret_df = pd.DataFrame(_get_convex_apr_data(end_date, start_date, pool))
+    ret_df = pd.DataFrame(convex_data)
     # ensure timestamps have similar rounding
-    ret_df.timestamp["timestamp"] = ret_df["timestamp"] // DAY * DAY
-    lp_df.timestamp["timestamp"] = lp_df["timestamp"] // DAY * DAY
+    ret_df["timestamp"] = ret_df["timestamp"] // DAY * DAY
+    lp_df["timestamp"] = lp_df["timestamp"] // DAY * DAY
+    lp_token_amount = Decimal(lp_tokens) * Decimal(1e-18)
     # series have been calculated for one unit of lp token
-    lp_df[["curve", "hold", "xyk"]] = (
-        lp_df[["curve", "hold", "xyk"]] * lp_tokens
+    lp_df[["curve", "hodl", "xyk"]] = lp_df[["curve", "hodl", "xyk"]] * float(
+        lp_token_amount
     )
     lp_df.set_index("timestamp", inplace=True)
     ret_df.set_index("timestamp", inplace=True)
