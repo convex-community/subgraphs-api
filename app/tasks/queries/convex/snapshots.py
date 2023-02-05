@@ -14,6 +14,7 @@ GRAPH_CONVEX_POOL_SNAPSHOTS_QUERY = """
             id
             poolid {
                 id
+                swap
             }
             poolName
             withdrawalCount
@@ -48,6 +49,7 @@ def _flatten(
             **snapshot,
             "id": re.sub(r"\W+", "", snapshot["id"]),
             "poolid": snapshot["poolid"]["id"],
+            "swap": snapshot["poolid"]["swap"],
         }
         for pool_snapshots in pools
         for snapshot in pool_snapshots[attribute]
