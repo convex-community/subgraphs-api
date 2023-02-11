@@ -27,8 +27,16 @@ def get_database():
     return database
 
 
-def get_container(container_name):
+def get_container(container_name, clear_existing=False):
     database = get_database()
+    if clear_existing:
+        try:
+            database.delete_container(
+                container_name, partition_key=PartitionKey(path="/id")
+            )
+        except Exception as e:
+            logger.warning(e)
+
     try:
         container = database.create_container(
             id=container_name, partition_key=PartitionKey(path="/id")

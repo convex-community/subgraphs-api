@@ -2,7 +2,7 @@ from flask_restx import Resource, Namespace
 from routes import cache
 from models.convex.revenue import (
     ConvexCumulativeRevenue,
-    ConvexHistoricalRevenueSnapshot,
+    ConvexRevenueSnapshot,
 )
 from services.convex.revenue import (
     get_platform_revenue_snapshots,
@@ -17,7 +17,7 @@ total_rev = api.model(
 )
 rev_snapshots = api.model(
     "Platform Revenue Snapshots",
-    convert_marshmallow(ConvexHistoricalRevenueSnapshot),
+    convert_marshmallow(ConvexRevenueSnapshot),
 )
 
 

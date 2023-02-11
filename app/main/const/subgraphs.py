@@ -50,7 +50,8 @@ SUBGRAPH_XDAI_API_DEV = (
 
 CONVEX_POOLS_SUBGRAPH_PROD = f"https://gateway.thegraph.com/api/{SUBGRAPHS_API_KEY}/subgraphs/id/6x6tQirWcrrESPPQU5cRkbtZnGBEAKHZrpJ7he9xqeth"
 CONVEX_POOLS_SUBGRAPH_DEV = (
-    "https://api.thegraph.com/subgraphs/name/convex-community/curve-pools"
+    "https://api.thegraph.com/subgraphs/id/QmNT9P1DTBBtrPxWhDAZPJgrtQPTej5uFFBv9dkfo4ZGRm"
+    # "https://api.thegraph.com/subgraphs/name/convex-community/curve-pools"
 )
 
 CURVE_SUBGRAPHS_PROD = {
