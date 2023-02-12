@@ -45,7 +45,6 @@ def check_exists(func):
 @api.doc(description="Get all time platform revenue")
 class CumulativeRevenue(Resource):
     @api.marshal_list_with(total_rev, envelope="revenue")
-    @cache.cached()
     def get(self):
         return get_platform_total_revenue()
 
@@ -55,7 +54,6 @@ class CumulativeRevenue(Resource):
 @api.expect(revenue_parser)
 class RevenueSnapshots(Resource):
     @api.marshal_list_with(rev_snapshots, envelope="revenue")
-    @cache.cached()
     def get(self):
         args = revenue_parser.parse_args()
         return get_platform_revenue_snapshots(**args)

@@ -12,7 +12,7 @@ CUMULATIVE_CONTAINER_NAME = "ConvexCumulativePlatformRevenue"
 
 
 def update_convex_revenue_snapshots(pools: List[ConvexRevenueSnapshot]):
-    container = get_container(CONTAINER_NAME)
+    container = get_container(CONTAINER_NAME, clear_existing=False)
     for pool in pools:
         container.upsert_item(ConvexRevenueSnapshotSchema().dump(pool))
 

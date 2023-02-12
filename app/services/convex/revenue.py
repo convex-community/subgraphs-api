@@ -29,19 +29,13 @@ def get_platform_revenue_snapshots(
     res = _exec_query(query, "ConvexPlatformRevenue")
     if groupby != "d":
         df = pd.DataFrame(res)
-        df["timestamp"] = pd.to_datetime(
-            df["timestamp"], format="%m/%d/%y %I:%M%p"
-        )
+        df["timestamp"] = pd.to_datetime(df["timestamp"], unit="s")
         df = df.groupby(
             pd.Grouper(key="timestamp", freq=GROUPER_MAPPING.get(groupby, "w"))
-        )
+        ).sum()
         df.reset_index(inplace=True)
-        df["timestamp"] = df["timestamp"].astype(int)
+        df["timestamp"] = df["timestamp"].astype(int) // int(1e9)
         df["id"] = df["timestamp"].astype(str)
         res = df.to_dict(orient="records")
 
-    import logging
-
-    logger = logging.getLogger()
-    logger.error(res)
     return ConvexRevenueSnapshotSchema(many=True).load(res, unknown=EXCLUDE)
