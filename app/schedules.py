@@ -23,6 +23,10 @@ convex_pool_tasks = {
         "task": "tasks.populate.populate_convex_revenue_snapshots",
         "schedule": crontab(minute=0, hour="*/12"),
     },
+    "populate-convex-cumulative-revenue": {
+        "task": "tasks.populate.populate_convex_cumulative_revenue",
+        "schedule": crontab(minute=0, hour="*/12"),
+    },
 }
 
 curve_pool_tasks = {

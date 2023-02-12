@@ -1,27 +1,30 @@
 from dataclasses import dataclass
 import marshmallow_dataclass
 import strawberry
-from typing import List
 
 
 @strawberry.type
 @dataclass
 class ConvexRevenueSnapshot:
     id: str
-    crvRevenueToLpProvidersAmount: int
-    crvRevenueToCvxCrvStakersAmount: int
-    crvRevenueToCvxStakersAmount: int
-    crvRevenueToCallersAmount: int
-    crvRevenueToPlatformAmount: int
-    totalCrvRevenue: int
-
-    crvRevenueToLpProvidersAmountCumulative: int
-    crvRevenueToCvxCrvStakersAmountCumulative: int
-    crvRevenueToCvxStakersAmountCumulative: int
-    crvRevenueToCallersAmountCumulative: int
-    crvRevenueToPlatformAmountCumulative: int
-    totalCrvRevenueCumulative: int
-
+    crvRevenueToLpProvidersAmount: float
+    cvxRevenueToLpProvidersAmount: float
+    crvRevenueToCvxCrvStakersAmount: float
+    cvxRevenueToCvxCrvStakersAmount: float
+    threeCrvRevenueToCvxCrvStakersAmount: float
+    crvRevenueToCvxStakersAmount: float
+    crvRevenueToCallersAmount: float
+    crvRevenueToPlatformAmount: float
+    totalCrvRevenue: float
+    fxsRevenueToCvxStakersAmount: float
+    fxsRevenueToCvxFxsStakersAmount: float
+    fxsRevenueToLpProvidersAmount: float
+    fxsRevenueToCallersAmount: float
+    fxsRevenueToPlatformAmount: float
+    totalFxsRevenue: float
+    bribeRevenue: float
+    cvxPrice: float
+    fxsPrice: float
     crvPrice: float
     timestamp: int
 
@@ -33,31 +36,24 @@ ConvexRevenueSnapshotSchema = marshmallow_dataclass.class_schema(
 
 @dataclass
 class ConvexCumulativeRevenue:
-    crvRevenueToLpProvidersAmountCumulative: int
-    crvRevenueToCvxCrvStakersAmountCumulative: int
-    crvRevenueToCvxStakersAmountCumulative: int
-    crvRevenueToCallersAmountCumulative: int
-    crvRevenueToPlatformAmountCumulative: int
-    totalCrvRevenueCumulative: int
-    crvPrice: float
+    totalCrvRevenueToLpProviders: float
+    totalCvxRevenueToLpProviders: float
+    totalFxsRevenueToLpProviders: float
+    totalCrvRevenueToCvxCrvStakers: float
+    totalCvxRevenueToCvxCrvStakers: float
+    totalThreeCrvRevenueToCvxCrvStakers: float
+    totalFxsRevenueToCvxFxsStakers: float
+    totalCrvRevenueToCvxStakers: float
+    totalFxsRevenueToCvxStakers: float
+    totalCrvRevenueToCallers: float
+    totalFxsRevenueToCallers: float
+    totalCrvRevenueToPlatform: float
+    totalFxsRevenueToPlatform: float
+    totalCrvRevenue: float
+    totalFxsRevenue: float
+    totalBribeRevenue: float
 
 
 ConvexCumulativeRevenueSchema = marshmallow_dataclass.class_schema(
     ConvexCumulativeRevenue
-)
-
-
-@dataclass
-class ConvexHistoricalRevenueSnapshot:
-    crvRevenueToLpProvidersAmount: int
-    crvRevenueToCvxCrvStakersAmount: int
-    crvRevenueToCvxStakersAmount: int
-    crvRevenueToCallersAmount: int
-    crvRevenueToPlatformAmount: int
-    crvPrice: float
-    timestamp: int
-
-
-ConvexHistoricalRevenueSnapshotSchema = marshmallow_dataclass.class_schema(
-    ConvexHistoricalRevenueSnapshot
 )
