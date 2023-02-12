@@ -32,7 +32,7 @@ def get_platform_revenue_snapshots(
         df["timestamp"] = pd.to_datetime(df["timestamp"], unit="s")
         df = df.groupby(
             pd.Grouper(key="timestamp", freq=GROUPER_MAPPING.get(groupby, "w"))
-        ).sum()
+        ).sum(numeric_only=True)
         df.reset_index(inplace=True)
         df["timestamp"] = df["timestamp"].astype(int) // int(1e9)
         df["id"] = df["timestamp"].astype(str)
