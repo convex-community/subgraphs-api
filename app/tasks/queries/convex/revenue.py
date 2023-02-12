@@ -76,5 +76,5 @@ def get_convex_cumulative_revenue() -> List[ConvexCumulativeRevenue]:
     )
     if data is None:
         return []
-    pools = data.get("platform", [])
+    pools = data.get("platforms", [])
     return ConvexCumulativeRevenueSchema(many=True).load(pools)
