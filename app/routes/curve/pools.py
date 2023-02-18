@@ -127,21 +127,21 @@ il_parser.add_argument(
     type=int,
     help="Starting date",
     default=1577836800,
-    location="form",
+    location="args",
 )
 il_parser.add_argument(
     "end_date",
     type=int,
     help="End date",
     default=int(time.time()),
-    location="form",
+    location="args",
 )
 il_parser.add_argument(
     "lp_tokens",
     type=str,
     help="Number of LP Tokens (18 decimals)",
     default="1000000000000000000",
-    location="form",
+    location="args",
 )
 
 
@@ -333,9 +333,9 @@ class PoolBondingCurve(Resource):
 @api.response(404, "Chain or pool not found")
 class PoolReturnsInfo(Resource):
     @api.marshal_list_with(returns, envelope="returns")
-    @cache.cached(timeout=60)
+    @cache.cached(timeout=1)
     @check_exists
-    def post(self, chain, pool):
+    def get(self, chain, pool):
         args = il_parser.parse_args()
         data = get_returns(chain, pool.lower(), **args)
         if data:
