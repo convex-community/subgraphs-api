@@ -24,16 +24,32 @@ CHAINS = [
     CHAIN_XDAI,
 ]
 
-SUBGRAPH_MAINNET_API_PROD = "https://api.thegraph.com/subgraphs/name/convex-community/volume-mainnet-test"
-SUBGRAPH_ARBITRUM_API_PROD = "https://api.thegraph.com/subgraphs/name/convex-community/volume-arbitrum-test"
-SUBGRAPH_AVALANCHE_API_PROD = "https://api.thegraph.com/subgraphs/name/convex-community/volume-avalanche-test"
-SUBGRAPH_FANTOM_API_PROD = "https://api.thegraph.com/subgraphs/name/convex-community/volume-fantom-test"
-SUBGRAPH_HARMONY_API_PROD = "https://api.thegraph.com/subgraphs/name/convex-community/volume-harmony-test"
-SUBGRAPH_MATIC_API_PROD = "https://api.thegraph.com/subgraphs/name/convex-community/volume-matic-test"
-SUBGRAPH_MOONBEAM_API_PROD = "https://api.thegraph.com/subgraphs/name/convex-community/volume-moonbeam-test"
-SUBGRAPH_OPTIMISM_API_PROD = "https://api.thegraph.com/subgraphs/name/convex-community/volume-optimism-test"
+SUBGRAPH_MAINNET_API_PROD = (
+    "https://api.thegraph.com/subgraphs/name/convex-community/volume-mainnet"
+)
+SUBGRAPH_ARBITRUM_API_PROD = (
+    "https://api.thegraph.com/subgraphs/name/convex-community/volume-arbitrum"
+)
+SUBGRAPH_AVALANCHE_API_PROD = (
+    "https://api.thegraph.com/subgraphs/name/convex-community/volume-avalanche"
+)
+SUBGRAPH_FANTOM_API_PROD = (
+    "https://api.thegraph.com/subgraphs/name/convex-community/volume-fantom"
+)
+SUBGRAPH_HARMONY_API_PROD = (
+    "https://api.thegraph.com/subgraphs/name/convex-community/volume-harmony"
+)
+SUBGRAPH_MATIC_API_PROD = (
+    "https://api.thegraph.com/subgraphs/name/convex-community/volume-matic"
+)
+SUBGRAPH_MOONBEAM_API_PROD = (
+    "https://api.thegraph.com/subgraphs/name/convex-community/volume-moonbeam"
+)
+SUBGRAPH_OPTIMISM_API_PROD = (
+    "https://api.thegraph.com/subgraphs/name/convex-community/volume-optimism"
+)
 SUBGRAPH_XDAI_API_PROD = (
-    "https://api.thegraph.com/subgraphs/name/convex-community/volume-xdai-test"
+    "https://api.thegraph.com/subgraphs/name/convex-community/volume-xdai"
 )
 
 SUBGRAPH_MAINNET_API_DEV = "https://api.thegraph.com/subgraphs/name/convex-community/volume-mainnet-test"
