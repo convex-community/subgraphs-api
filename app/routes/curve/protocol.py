@@ -74,7 +74,6 @@ class RegistryList(Resource):
 @api.param("top", "Number of top pools to single out")
 @api.response(404, "Not found")
 class TopPoolList(Resource):
-    @cache.cached()
     @api.marshal_list_with(top_pools, envelope="revenue")
     def get(self, top):
         return get_top_pools(top)
@@ -85,7 +84,6 @@ class TopPoolList(Resource):
 @api.param("chain", "Name of the chain to query for")
 @api.response(404, "Not found")
 class ChainTopPoolList(Resource):
-    @cache.cached()
     @check_exists
     @api.marshal_list_with(chain_top_pools, envelope="revenue")
     def get(self, chain, top):
@@ -111,7 +109,6 @@ class ChainPoolRevenue(Resource):
 @api.doc(description="Get total revenue accumulated on each chain")
 @api.response(404, "Chain or pool not found")
 class RevenueByChain(Resource):
-    @cache.cached()
     @api.marshal_list_with(chain_rev, envelope="revenue")
     def get(self):
         return get_platform_revenue()
