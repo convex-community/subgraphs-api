@@ -141,7 +141,7 @@ def get_returns(
     logger = logging.getLogger(__name__)
     logger.error(ret_df)
     logger.warning(lp_df)
-    rewards_df = lp_df.join(ret_df, how="inner")
+    rewards_df = lp_df.join(ret_df, how="outer").fillna(0)
     logger.warning(rewards_df)
     rewards_df["crvReturns"] = (
         lp_df["curve"] * (ret_df["crvApr"] / 365)
