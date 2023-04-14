@@ -144,13 +144,13 @@ def get_returns(
     rewards_df = lp_df.join(ret_df, how="outer").fillna(0)
     logger.warning(rewards_df)
     rewards_df["crvReturns"] = (
-        lp_df["curve"] * (ret_df["crvApr"] / 365)
+        rewards_df["curve"] * (rewards_df["crvApr"] / 365)
     ).cumsum()
     rewards_df["cvxReturns"] = (
-        lp_df["curve"] * (ret_df["cvxApr"] / 365)
+        rewards_df["curve"] * (rewards_df["cvxApr"] / 365)
     ).cumsum()
     rewards_df["extraReturns"] = (
-        lp_df["curve"] * (ret_df["extraRewardsApr"] / 365)
+        rewards_df["curve"] * (rewards_df["extraRewardsApr"] / 365)
     ).cumsum()
     rewards_df["inclRewards"] = (
         rewards_df["curve"]
