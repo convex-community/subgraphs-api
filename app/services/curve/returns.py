@@ -37,7 +37,7 @@ def _get_curve_base_data(
 def _get_convex_apr_data(
     end_date: int, start_date: int, pool: str
 ) -> List[ConvexAprData]:
-    query = f"SELECT c.crvApr, c.cvxApr, c.timestamp FROM ConvexPoolSnapshots as c WHERE c.swap = '{pool}' AND c.timestamp <= { end_date } AND c.timestamp >= { start_date } ORDER BY c.timestamp ASC"
+    query = f"SELECT c.crvApr, c.cvxApr, c.extraRewardsApr, c.timestamp FROM ConvexPoolSnapshots as c WHERE c.swap = '{pool}' AND c.timestamp <= { end_date } AND c.timestamp >= { start_date } ORDER BY c.timestamp ASC"
     return ConvexAprDataSchema(many=True).load(
         _exec_convex_query(query), unknown=EXCLUDE
     )
@@ -136,17 +136,27 @@ def get_returns(
     )
     lp_df.set_index("timestamp", inplace=True)
     ret_df.set_index("timestamp", inplace=True)
+    import logging
+
+    logger = logging.getLogger(__name__)
+    logger.error(ret_df)
+    logger.warning(lp_df)
     rewards_df = lp_df.join(ret_df, how="inner")
+    logger.warning(rewards_df)
     rewards_df["crvReturns"] = (
         lp_df["curve"] * (ret_df["crvApr"] / 365)
     ).cumsum()
     rewards_df["cvxReturns"] = (
         lp_df["curve"] * (ret_df["cvxApr"] / 365)
     ).cumsum()
+    rewards_df["extraReturns"] = (
+        lp_df["curve"] * (ret_df["extraRewardsApr"] / 365)
+    ).cumsum()
     rewards_df["inclRewards"] = (
         rewards_df["curve"]
         + rewards_df["cvxReturns"]
         + rewards_df["crvReturns"]
+        + rewards_df["extraReturns"]
     )
 
     # compute differentials as they're easier to visualize
@@ -156,6 +166,5 @@ def get_returns(
     final_df["curve_rewards"] = rewards_df["inclRewards"] - rewards_df["hodl"]
     final_df["hodl"] = 0
     final_df["timestamp"] = rewards_df.index
-
     data = final_df.reset_index(drop=True).to_dict("records")
     return CurveReturnSeriesSchema(many=True).load(data, unknown=EXCLUDE)

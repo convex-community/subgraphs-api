@@ -29,6 +29,7 @@ class LpHodlXyk:
 class ConvexAprData:
     crvApr: float
     cvxApr: float
+    extraRewardsApr: float
     timestamp: int
 
 
