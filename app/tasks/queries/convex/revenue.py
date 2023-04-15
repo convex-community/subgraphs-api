@@ -28,6 +28,7 @@ GRAPH_CONVEX_REVENUE_SNAPSHOTS_QUERY = """
   fxsRevenueToCallersAmount
   fxsRevenueToPlatformAmount
   totalFxsRevenue
+  otherRevenue
   bribeRevenue
   cvxPrice
   crvPrice
@@ -54,6 +55,7 @@ GRAPH_CONVEX_CUMULATIVE_REVENUE_SNAPSHOTS_QUERY = """
     totalFxsRevenueToPlatform
     totalCrvRevenue
     totalFxsRevenue
+    totalOtherRevenue
     totalBribeRevenue
   }
 }

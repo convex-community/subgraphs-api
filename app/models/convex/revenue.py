@@ -22,6 +22,7 @@ class ConvexRevenueSnapshot:
     fxsRevenueToCallersAmount: float
     fxsRevenueToPlatformAmount: float
     totalFxsRevenue: float
+    otherRevenue: float
     bribeRevenue: float
     cvxPrice: float
     fxsPrice: float
@@ -51,6 +52,7 @@ class ConvexCumulativeRevenue:
     totalFxsRevenueToPlatform: float
     totalCrvRevenue: float
     totalFxsRevenue: float
+    totalOtherRevenue: float
     totalBribeRevenue: float
 
 

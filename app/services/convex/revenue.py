@@ -17,7 +17,7 @@ def _exec_query(query: str, container: str) -> List:
 
 
 def get_platform_total_revenue() -> List[ConvexCumulativeRevenue]:
-    query = f"SELECT c.totalCrvRevenueToLpProviders, c.totalCvxRevenueToLpProviders, c.totalFxsRevenueToLpProviders, c.totalCrvRevenueToCvxCrvStakers, c.totalCvxRevenueToCvxCrvStakers, c.totalThreeCrvRevenueToCvxCrvStakers, c.totalFxsRevenueToCvxFxsStakers, c.totalCrvRevenueToCvxStakers, c.totalFxsRevenueToCvxStakers, c.totalCrvRevenueToCallers, c.totalFxsRevenueToCallers, c.totalCrvRevenueToPlatform, c.totalFxsRevenueToPlatform, c.totalCrvRevenue, c.totalFxsRevenue, c.totalBribeRevenue FROM ConvexCumulativePlatformRevenue as c"
+    query = f"SELECT c.totalCrvRevenueToLpProviders, c.totalCvxRevenueToLpProviders, c.totalFxsRevenueToLpProviders, c.totalCrvRevenueToCvxCrvStakers, c.totalCvxRevenueToCvxCrvStakers, c.totalThreeCrvRevenueToCvxCrvStakers, c.totalFxsRevenueToCvxFxsStakers, c.totalCrvRevenueToCvxStakers, c.totalFxsRevenueToCvxStakers, c.totalCrvRevenueToCallers, c.totalFxsRevenueToCallers, c.totalCrvRevenueToPlatform, c.totalFxsRevenueToPlatform, c.totalCrvRevenue, c.totalFxsRevenue, c.totalBribeRevenue, c.totalOtherRevenue, FROM ConvexCumulativePlatformRevenue as c"
     res = _exec_query(query, "ConvexCumulativePlatformRevenue")
     return ConvexCumulativeRevenueSchema(many=True).load(res, unknown=EXCLUDE)
 
@@ -25,7 +25,7 @@ def get_platform_total_revenue() -> List[ConvexCumulativeRevenue]:
 def get_platform_revenue_snapshots(
     groupby: str = "w",
 ) -> List[ConvexRevenueSnapshot]:
-    query = f"SELECT c.id, c.crvRevenueToLpProvidersAmount, c.cvxRevenueToLpProvidersAmount, c.crvRevenueToCvxCrvStakersAmount, c.cvxRevenueToCvxCrvStakersAmount, c.threeCrvRevenueToCvxCrvStakersAmount, c.crvRevenueToCvxStakersAmount, c.crvRevenueToCallersAmount, c.crvRevenueToPlatformAmount, c.totalCrvRevenue, c.fxsRevenueToCvxStakersAmount, c.fxsRevenueToCvxFxsStakersAmount, c.fxsRevenueToLpProvidersAmount, c.fxsRevenueToCallersAmount, c.fxsRevenueToPlatformAmount, c.totalFxsRevenue, c.bribeRevenue, c.crvPrice, c.cvxPrice, c.fxsPrice, c.timestamp FROM ConvexPlatformRevenue as c ORDER BY c.timestamp DESC"
+    query = f"SELECT c.id, c.crvRevenueToLpProvidersAmount, c.cvxRevenueToLpProvidersAmount, c.crvRevenueToCvxCrvStakersAmount, c.cvxRevenueToCvxCrvStakersAmount, c.threeCrvRevenueToCvxCrvStakersAmount, c.crvRevenueToCvxStakersAmount, c.crvRevenueToCallersAmount, c.crvRevenueToPlatformAmount, c.totalCrvRevenue, c.fxsRevenueToCvxStakersAmount, c.fxsRevenueToCvxFxsStakersAmount, c.fxsRevenueToLpProvidersAmount, c.fxsRevenueToCallersAmount, c.fxsRevenueToPlatformAmount, c.totalFxsRevenue, c.bribeRevenue, c.otherRevenue, c.crvPrice, c.cvxPrice, c.fxsPrice, c.timestamp FROM ConvexPlatformRevenue as c ORDER BY c.timestamp DESC"
     res = _exec_query(query, "ConvexPlatformRevenue")
     if groupby != "d":
         df = pd.DataFrame(res)
