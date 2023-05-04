@@ -64,7 +64,7 @@ class ProposalList(Resource):
 @api.response(404, "Proposal not found")
 class DetailedOwnershipProposal(Resource):
     @api.marshal_with(detailed_proposal)
-    @cache.cached(timeout=60 * 2)
+    # @cache.cached(timeout=60 * 2)
     def get(self, voteid):
         proposal = get_proposal_details(voteid, OWNERSHIP)
         if not proposal:

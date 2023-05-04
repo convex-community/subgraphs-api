@@ -25,6 +25,9 @@ CRYPTO_SWAP_PROXY_ABI = json.load(
 CRYPTO_SWAP_ABI = json.load(
     open(os.path.join(location, "CryptoSwap.json"), "r")
 )
+FACTORY_OWNER_ABI = json.load(
+    open(os.path.join(location, "FactoryOwner.json"), "r")
+)
 LP_BURNER_ABI = json.load(open(os.path.join(location, "LPBurner.json"), "r"))
 ROLES_ABI = json.load(open(os.path.join(location, "Roles.json"), "r"))
 
@@ -41,6 +44,9 @@ STABLE_SWAP_PROXIES = [
     "0x3f4232107ff437bcd7ea9abc134ad553efeddaff",
     "0x6e8f6d1da6232d5e40b0b8758a0145d6c5123eb7",
 ]
+STABLE_SWAP_FACTORY_PROXIES = [
+    "0x742c3cf9af45f91b109a81efeaf11535ecde9571",
+]
 CRYPTO_SWAP_PROXIES = ["0x5a8fdc979ba9b6179916404414f7ba4d8b77c8a1"]
 
 ABI_MAP = {
@@ -55,3 +61,6 @@ ABI_MAP = {
 }
 ABI_MAP.update({proxy: STABLE_SWAP_PROXY_ABI for proxy in STABLE_SWAP_PROXIES})
 ABI_MAP.update({proxy: CRYPTO_SWAP_PROXY_ABI for proxy in CRYPTO_SWAP_PROXIES})
+ABI_MAP.update(
+    {proxy: FACTORY_OWNER_ABI for proxy in STABLE_SWAP_FACTORY_PROXIES}
+)
