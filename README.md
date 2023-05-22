@@ -9,11 +9,12 @@ Create an `.env` file with the following variables:
 
 ```
 API_ENV= ('dev' or 'prod')
-DB_ENDPOINT= (Cosmos db endpoint: https://xxxx.azure.com:443)
-DB_KEY= (Database key)
-DB_NAME= (Database name)
 REDIS_PASSWORD= (Redis DB Passwrod)
 GRAPH_API_KEY= (API Key for decentralized subgraphs)
+PG_USER= (Postgres username)
+PG_PASS = (Postgress password)
+PGA_MAIL = (PGAdmin email)
+PGA_PASS = (PGAdmin password)
 ```
 
 And for letsencrypt with production deployment:

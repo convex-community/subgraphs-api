@@ -76,3 +76,28 @@ services:
     command: redis-server --requirepass ${REDIS_PASSWORD}
     ports:
       - "6379:6379"
+  db:
+    image: postgres:13
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: $PG_USER
+      POSTGRES_PASSWORD: $PG_PASS
+      POSTGRES_DB: postgres
+    volumes:
+      - local_pgdata:/var/lib/postgresql/data
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: always
+    ports:
+      - "5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: $PGA_MAIL
+      PGADMIN_DEFAULT_PASSWORD: $PGA_PASS
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+
+volumes:
+  local_pgdata:
+  pgadmin-data:
