@@ -52,6 +52,10 @@ hexbytes = "*"
 types-requests = "*"
 pandas-stubs = "*"
 gmpy2 = "*"
+sqlalchemy = "*"
+psycopg2 = "*"
+marshmallow-sqlalchemy = "*"
+flask-sqlalchemy = "*"
 
 [dev-packages]
 
