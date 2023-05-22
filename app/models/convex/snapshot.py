@@ -1,10 +1,8 @@
 from dataclasses import dataclass
 from marshmallow import Schema, fields
 import marshmallow_dataclass
-import strawberry
 
 
-@strawberry.type
 @dataclass
 class ConvexPoolSnapshot:
     id: str

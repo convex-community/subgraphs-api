@@ -2,13 +2,11 @@ from dataclasses import dataclass
 from typing import List
 
 import marshmallow_dataclass
-import strawberry
 from flask_restx import fields
 
 from utils import convert_marshmallow
 
 
-@strawberry.type
 @dataclass
 class DaoProposal:
     voteId: int

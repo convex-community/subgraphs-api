@@ -1,10 +1,8 @@
 from dataclasses import dataclass
 import marshmallow_dataclass
-import strawberry
 from typing import List
 
 
-@strawberry.type
 @dataclass
 class ConvexPool:
     id: str

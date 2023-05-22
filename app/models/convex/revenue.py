@@ -1,9 +1,7 @@
 from dataclasses import dataclass
 import marshmallow_dataclass
-import strawberry
 
 
-@strawberry.type
 @dataclass
 class ConvexRevenueSnapshot:
     id: str
