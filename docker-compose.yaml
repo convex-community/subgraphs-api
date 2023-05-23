@@ -21,9 +21,11 @@ services:
       context: ./app
       dockerfile: Dockerfile
     restart: always
+    entrypoint: [ "/entrypoint.sh" ]
     command: gunicorn --bind 0.0.0.0:5000 app:app
     depends_on:
       - redis
+      - db
     volumes: ['./app:/app']
     environment:
       CELERY_BROKER_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
@@ -38,6 +40,7 @@ services:
     command: celery -A app.celery worker --loglevel INFO -E
     depends_on:
       - redis
+      - db
     volumes: ['./app:/app']
     env_file:
       - .env

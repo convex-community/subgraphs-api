@@ -12,10 +12,12 @@ COPY . /app
 WORKDIR /app
 
 RUN apt-get update && apt-get install --no-install-recommends -y \
-    gcc libc-dev libpq-dev python-dev && \
+    gcc libc-dev libpq-dev python-dev netcat && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 RUN pip install -U setuptools pip
 RUN pip install -r requirements.txt
+COPY ./entrypoint.sh /
+RUN chmod +x /entrypoint.sh
 
 EXPOSE 5001

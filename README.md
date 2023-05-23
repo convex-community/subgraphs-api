@@ -14,6 +14,7 @@ GRAPH_API_KEY= (API Key for decentralized subgraphs)
 PG_USER= (Postgres username)
 PG_PASS = (Postgres password)
 PG_DATABASE = (Postgres DB name)
+PG_HOST = (Postgres DB Host)
 PGA_MAIL = (PGAdmin email)
 PGA_PASS = (PGAdmin password)
 ```
