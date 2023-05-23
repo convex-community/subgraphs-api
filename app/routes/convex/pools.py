@@ -11,16 +11,16 @@ from services.convex.snapshot import (
     get_pool_apr_snapshots,
 )
 from services.convex.pool import get_pool_names
-from utils import convert_marshmallow
+from utils import convert_schema
 from models.convex.pool import ConvexPool, ConvexPoolName
 from services.convex.pool import get_all_pool_metadata, get_pool_metadata
 
 api = Namespace("pools", description="Pools endpoints")
-names = api.model("Pool Name", convert_marshmallow(ConvexPoolName))
-metadata = api.model("Pool Metadata", convert_marshmallow(ConvexPool))
-snapshot = api.model("Pool Snapshot", convert_marshmallow(ConvexPoolSnapshot))
-tvl = api.model("Pool TVL", convert_marshmallow(ConvexPoolTVLSnapshot))
-apr = api.model("Pool APR", convert_marshmallow(ConvexPoolAPRSnapshot))
+names = api.model("Pool Name", convert_schema(ConvexPoolName))
+metadata = api.model("Pool Metadata", convert_schema(ConvexPool))
+snapshot = api.model("Pool Snapshot", convert_schema(ConvexPoolSnapshot))
+tvl = api.model("Pool TVL", convert_schema(ConvexPoolTVLSnapshot))
+apr = api.model("Pool APR", convert_schema(ConvexPoolAPRSnapshot))
 
 
 def check_exists(func):
