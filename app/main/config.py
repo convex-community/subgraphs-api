@@ -16,6 +16,12 @@ class Config:
     DB_ENDPOINT = os.getenv("DB_ENDPOINT")
     DB_KEY = os.getenv("DB_KEY")
     DB_NAME = os.getenv("DB_NAME")
+    PG_USER = os.getenv("PG_USER")
+    PG_PASS = os.getenv("PG_PASS")
+    PG_DATABASE = os.getenv("PG_DATABASE")
+    SQLALCHEMY_DATABASE_URI = (
+        f"postgresql://{PG_USER}:{PG_PASS}@127.0.01:5432/{PG_DATABASE}"
+    )
 
 
 class DevelopmentConfig(Config):
