@@ -1,36 +1,65 @@
 from models.convex.snapshot import (
-    ConvexPoolSnapshotSchema,
     ConvexPoolSnapshot,
     ConvexPoolAPRSnapshot,
     ConvexPoolAPRSnapshotSchema,
     ConvexPoolTVLSnapshotSchema,
     ConvexPoolTVLSnapshot,
 )
-from services.query import query_db, get_container
 from typing import List
-from marshmallow import EXCLUDE
-
-
-def _exec_query(query: str) -> List:
-    return query_db(get_container("ConvexPoolSnapshots"), query)
+from sqlalchemy import desc
+from main import db
 
 
 def get_pool_snapshots(pool: int) -> List[ConvexPoolSnapshot]:
-    query = f"SELECT * FROM ConvexPoolSnapshots as c WHERE c.poolid = '{pool}' ORDER BY c.timestamp DESC"
-    return ConvexPoolSnapshotSchema(many=True).load(
-        _exec_query(query), unknown=EXCLUDE
+    return (
+        db.session.query(ConvexPoolSnapshot)
+        .filter(ConvexPoolSnapshot.poolid == str(pool))
+        .order_by(desc(ConvexPoolSnapshot.timestamp))
+        .all()
     )
 
 
 def get_pool_tvl_snapshots(pool: int) -> List[ConvexPoolTVLSnapshot]:
-    query = f"SELECT c.tvl, c.curveTvlRatio, c.timestamp FROM ConvexPoolSnapshots as c WHERE c.poolid = '{pool}' ORDER BY c.timestamp DESC"
-    return ConvexPoolTVLSnapshotSchema(many=True).load(
-        _exec_query(query), unknown=EXCLUDE
+    result = (
+        db.session.query(
+            ConvexPoolSnapshot.tvl,
+            ConvexPoolSnapshot.curveTvlRatio,
+            ConvexPoolSnapshot.timestamp,
+        )
+        .filter(ConvexPoolSnapshot.poolid == str(pool))
+        .order_by(desc(ConvexPoolSnapshot.timestamp))
+        .all()
     )
+    return [
+        ConvexPoolTVLSnapshotSchema().load(
+            {"tvl": r[0], "curveTvlRatio": r[1], "timestamp": r[2]}
+        )
+        for r in result
+    ]
 
 
 def get_pool_apr_snapshots(pool: int) -> List[ConvexPoolAPRSnapshot]:
-    query = f"SELECT c.baseApr, c.crvApr, c.cvxApr, c.extraRewardsApr, c.timestamp FROM ConvexPoolSnapshots as c WHERE c.poolid = '{pool}' ORDER BY c.timestamp DESC"
-    return ConvexPoolAPRSnapshotSchema(many=True).load(
-        _exec_query(query), unknown=EXCLUDE
+    result = (
+        db.session.query(
+            ConvexPoolSnapshot.baseApr,
+            ConvexPoolSnapshot.crvApr,
+            ConvexPoolSnapshot.cvxApr,
+            ConvexPoolSnapshot.extraRewardsApr,
+            ConvexPoolSnapshot.timestamp,
+        )
+        .filter(ConvexPoolSnapshot.poolid == str(pool))
+        .order_by(desc(ConvexPoolSnapshot.timestamp))
+        .all()
     )
+    return [
+        ConvexPoolAPRSnapshotSchema().load(
+            {
+                "baseApr": r[0],
+                "crvApr": r[1],
+                "cvxApr": r[2],
+                "extraRewardsApr": r[3],
+                "timestamp": r[4],
+            }
+        )
+        for r in result
+    ]

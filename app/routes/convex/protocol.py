@@ -1,5 +1,4 @@
 from flask_restx import Resource, Namespace, reqparse
-from routes import cache
 from models.convex.revenue import (
     ConvexCumulativeRevenue,
     ConvexRevenueSnapshot,

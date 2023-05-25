@@ -38,7 +38,7 @@ def check_exists(func):
 @api.response(404, "Pool not found")
 class PoolList(Resource):
     @api.marshal_list_with(names, envelope="pools")
-    @cache.cached(timeout=60 * 15)
+    @cache.cached(timeout=60)
     @check_exists
     def get(self):
         return get_pool_names()
@@ -49,7 +49,7 @@ class PoolList(Resource):
 @api.response(404, "Pool not found")
 class PoolMetadata(Resource):
     @api.marshal_list_with(metadata, envelope="pools")
-    @cache.cached(timeout=60 * 15)
+    @cache.cached(timeout=60)
     @check_exists
     def get(self):
         return get_all_pool_metadata()
@@ -61,7 +61,7 @@ class PoolMetadata(Resource):
 @api.response(404, "Pool not found")
 class Pool(Resource):
     @api.marshal_with(metadata, envelope="pools")
-    @cache.cached(timeout=60 * 15)
+    @cache.cached(timeout=60)
     @check_exists
     def get(self, poolid):
         return get_pool_metadata(poolid)
