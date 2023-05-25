@@ -13,20 +13,20 @@ result_serializer = "json"
 convex_pool_tasks = {
     "populate-convex-pools": {
         "task": "tasks.populate.populate_convex_pools",
-        "schedule": crontab(minute="*/2"),  # , hour="*/12"),
+        "schedule": crontab(minute=0, hour="*/12"),
     },
-    # "populate-convex-pools-snapshots": {
-    #     "task": "tasks.populate.populate_convex_pool_snapshots",
-    #     "schedule": crontab(minute=0, hour="*/12"),
-    # },
-    # "populate-convex-revenue-snapshots": {
-    #     "task": "tasks.populate.populate_convex_revenue_snapshots",
-    #     "schedule": crontab(minute=0, hour="*/12"),
-    # },
-    # "populate-convex-cumulative-revenue": {
-    #     "task": "tasks.populate.populate_convex_cumulative_revenue",
-    #     "schedule": crontab(minute=0, hour="*/12"),
-    # },
+    "populate-convex-pools-snapshots": {
+        "task": "tasks.populate.populate_convex_pool_snapshots",
+        "schedule": crontab(minute=0, hour="*/12"),
+    },
+    "populate-convex-revenue-snapshots": {
+        "task": "tasks.populate.populate_convex_revenue_snapshots",
+        "schedule": crontab(minute=0, hour="*/12"),
+    },
+    "populate-convex-cumulative-revenue": {
+        "task": "tasks.populate.populate_convex_cumulative_revenue",
+        "schedule": crontab(minute=0, hour="*/12"),
+    },
 }
 
 curve_pool_tasks = {

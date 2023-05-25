@@ -4,6 +4,7 @@ import re
 from models.convex.snapshot import ConvexPoolSnapshotSchema
 from tasks.queries.graph import grt_convex_pools_query
 from celery.utils.log import get_task_logger
+from main import db
 
 logger = get_task_logger(__name__)
 
@@ -62,4 +63,4 @@ def get_convex_pool_snapshots() -> List[ConvexPool]:
     if data is None:
         return []
     pools = _flatten(data, "snapshots")
-    return ConvexPoolSnapshotSchema(many=True).load(pools)
+    return ConvexPoolSnapshotSchema(many=True, session=db.session).load(pools)

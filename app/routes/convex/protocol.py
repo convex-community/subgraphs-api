@@ -8,16 +8,16 @@ from services.convex.revenue import (
     get_platform_revenue_snapshots,
     get_platform_total_revenue,
 )
-from utils import convert_marshmallow
+from utils import convert_schema
 
 
 api = Namespace("platform", description="Platform endpoints")
 total_rev = api.model(
-    "Platform Total Revenue", convert_marshmallow(ConvexCumulativeRevenue)
+    "Platform Total Revenue", convert_schema(ConvexCumulativeRevenue)
 )
 rev_snapshots = api.model(
     "Platform Revenue Snapshots",
-    convert_marshmallow(ConvexRevenueSnapshot),
+    convert_schema(ConvexRevenueSnapshot),
 )
 
 revenue_parser = reqparse.RequestParser()

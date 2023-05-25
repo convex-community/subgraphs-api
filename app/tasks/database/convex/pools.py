@@ -1,15 +1,6 @@
-from models.convex.pool import ConvexPool, ConvexPoolSchema
-from tasks.database.client import get_container
+from models.convex.pool import ConvexPool
 from typing import List
 from main import db
-
-CONTAINER_NAME = "ConvexPools"
-#
-#
-# def update_convex_pools(pools: List[ConvexPool]):
-#     container = get_container(CONTAINER_NAME)
-#     for pool in pools:
-#         container.upsert_item(ConvexPoolSchema().dump(pool))
 
 
 def update_convex_pools(pools: List[ConvexPool]):

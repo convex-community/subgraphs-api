@@ -1,7 +1,15 @@
 from flask_restx.fields import List
 from werkzeug.routing import BaseConverter
 from sqlalchemy.orm.decl_api import DeclarativeMeta
-from sqlalchemy import String, Integer, Float, Boolean, ARRAY
+from sqlalchemy import (
+    String,
+    Numeric,
+    Integer,
+    Float,
+    Boolean,
+    ARRAY,
+    BigInteger,
+)
 from flask_restx import fields
 from sqlalchemy import inspect
 from dataclasses import is_dataclass
@@ -18,6 +26,8 @@ TYPE_MAP = {
 SQL_TYPE_MAP = {
     String: fields.String,
     Integer: fields.Integer,
+    BigInteger: fields.Integer,
+    Numeric: fields.Float,
     Float: fields.Float,
     Boolean: fields.Boolean,
     ARRAY: fields.List,

@@ -1,4 +1,4 @@
-from typing import List, Mapping, Any, Optional
+from typing import List
 from models.convex.revenue import (
     ConvexRevenueSnapshotSchema,
     ConvexRevenueSnapshot,
@@ -7,6 +7,7 @@ from models.convex.revenue import (
 )
 from tasks.queries.graph import grt_convex_pools_query
 from celery.utils.log import get_task_logger
+from main import db
 
 logger = get_task_logger(__name__)
 
@@ -68,15 +69,20 @@ def get_convex_revenue_snapshots() -> List[ConvexRevenueSnapshot]:
     if data is None:
         return []
     pools = data.get("dailyRevenueSnapshots", [])
-    return ConvexRevenueSnapshotSchema(many=True).load(pools)
+    return ConvexRevenueSnapshotSchema(many=True, session=db.session).load(
+        pools
+    )
 
 
-def get_convex_cumulative_revenue() -> List[ConvexCumulativeRevenue]:
+def get_convex_cumulative_revenue() -> ConvexCumulativeRevenue:
     logger.info(f"Querying Convex Cumulative Revenue")
     data = grt_convex_pools_query(
         GRAPH_CONVEX_CUMULATIVE_REVENUE_SNAPSHOTS_QUERY
     )
-    if data is None:
-        return []
-    pools = data.get("platforms", [])
-    return ConvexCumulativeRevenueSchema(many=True).load(pools)
+    revenue = []
+    if data is not None and "platforms" in data:
+        revenue = data["platforms"]
+    if revenue:
+        revenue = revenue[0]  # type: ignore
+        revenue["id"] = "platform_rev"  # type: ignore
+    return ConvexCumulativeRevenueSchema(session=db.session).load(revenue)

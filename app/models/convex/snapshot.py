@@ -1,55 +1,40 @@
 from dataclasses import dataclass
-from marshmallow import Schema, fields
+from sqlalchemy import Column, Integer, Numeric, String, Float
+from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 import marshmallow_dataclass
+from main import db
 
 
-@dataclass
-class ConvexPoolSnapshot:
-    id: str
-    poolid: str
-    poolName: str
-    swap: str
-    withdrawalCount: int
-    withdrawalVolume: int
-    withdrawalValue: float
-    depositCount: int
-    depositVolume: int
-    depositValue: float
-    lpTokenBalance: int
-    lpTokenVirtualPrice: float
-    lpTokenUSDPrice: float
-    tvl: float
-    curveTvlRatio: float
-    baseApr: float
-    crvApr: float
-    cvxApr: float
-    extraRewardsApr: float
-    timestamp: int
-    block: int
+class ConvexPoolSnapshot(db.Model):
+    __tablename__ = "convex_pool_snapshot"
+
+    id = Column(String, primary_key=True)
+    poolid = Column(String)
+    poolName = Column(String)
+    swap = Column(String)
+    withdrawalCount = Column(Numeric)
+    withdrawalVolume = Column(Numeric)
+    withdrawalValue = Column(Float)
+    depositCount = Column(Integer)
+    depositVolume = Column(Numeric)
+    depositValue = Column(Float)
+    lpTokenBalance = Column(Numeric)
+    lpTokenVirtualPrice = Column(Float)
+    lpTokenUSDPrice = Column(Float)
+    tvl = Column(Float)
+    curveTvlRatio = Column(Float)
+    baseApr = Column(Float)
+    crvApr = Column(Float)
+    cvxApr = Column(Float)
+    extraRewardsApr = Column(Float)
+    timestamp = Column(Integer)
+    block = Column(Integer)
 
 
-class ConvexPoolSnapshotSchema(Schema):
-    id = fields.Str()
-    poolid = fields.Str()
-    poolName = fields.Str()
-    swap = fields.Str()
-    withdrawalCount = fields.Int()
-    withdrawalVolume = fields.Int()
-    withdrawalValue = fields.Float()
-    depositCount = fields.Int()
-    depositVolume = fields.Int()
-    depositValue = fields.Float()
-    lpTokenBalance = fields.Int()
-    lpTokenVirtualPrice = fields.Float()
-    lpTokenUSDPrice = fields.Float()
-    tvl = fields.Float()
-    curveTvlRatio = fields.Float()
-    baseApr = fields.Float(allow_nan=True)
-    crvApr = fields.Float()
-    cvxApr = fields.Float()
-    extraRewardsApr = fields.Float()
-    timestamp = fields.Int()
-    block = fields.Int()
+class ConvexPoolSnapshotSchema(SQLAlchemyAutoSchema):
+    class Meta:
+        model = ConvexPoolSnapshot
+        load_instance = True  # Optional: deserialize to model instances
 
 
 @dataclass
