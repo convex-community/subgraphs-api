@@ -14,16 +14,16 @@ from services.curve.revenue import (
     get_top_chain_pools,
     get_pool_revenue,
 )
-from utils import convert_marshmallow
+from utils import convert_schema
 
 api = Namespace("protocol", description="Protocol endpoints")
-pool_rev = api.model("Pool Revenue", convert_marshmallow(CurvePoolRevenue))
-chain_rev = api.model("Chain Revenue", convert_marshmallow(CurveChainRevenue))
+pool_rev = api.model("Pool Revenue", convert_schema(CurvePoolRevenue))
+chain_rev = api.model("Chain Revenue", convert_schema(CurveChainRevenue))
 top_pools = api.model(
-    "Top Pools", convert_marshmallow(CurveHistoricalPoolCumulativeRevenue)
+    "Top Pools", convert_schema(CurveHistoricalPoolCumulativeRevenue)
 )
 chain_top_pools = api.model(
-    "Chain Top Pools", convert_marshmallow(CurveChainTopPoolRevenue)
+    "Chain Top Pools", convert_schema(CurveChainTopPoolRevenue)
 )
 chains = api.model("Supported Chains", {"chains": fields.List(fields.String)})
 

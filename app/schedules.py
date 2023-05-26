@@ -48,5 +48,5 @@ curve_pool_snapshot_tasks = {
 }
 
 beat_schedule = (
-    convex_pool_tasks  # | curve_pool_tasks | curve_pool_snapshot_tasks
+    convex_pool_tasks | curve_pool_tasks | curve_pool_snapshot_tasks
 )

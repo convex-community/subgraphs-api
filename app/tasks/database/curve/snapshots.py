@@ -1,11 +1,17 @@
-from tasks.database.client import get_container
+from sqlalchemy.exc import SQLAlchemyError
 from typing import List
 from models.curve.snapshot import CurvePoolSnapshot, CurvePoolSnapshotSchema
+from main import db
+import logging
 
-CONTAINER_NAME = "CurvePoolSnapshots"
+logger = logging.getLogger(__name__)
 
 
 def update_curve_pool_snapshots(snapshots: List[CurvePoolSnapshot]):
-    container = get_container(CONTAINER_NAME)
     for snapshot in snapshots:
-        container.upsert_item(CurvePoolSnapshotSchema().dump(snapshot))
+        db.session.merge(snapshot)
+    try:
+        db.session.commit()
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        logger.error("Database error:", exc_info=e)

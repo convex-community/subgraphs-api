@@ -2,6 +2,7 @@ from models.curve.pool import CurvePool, CurvePoolSchema
 from typing import List
 from tasks.queries.graph import grt_curve_pools_query
 from celery.utils.log import get_task_logger
+from main import db
 
 logger = get_task_logger(__name__)
 
@@ -36,4 +37,4 @@ def get_curve_pools(chain: str) -> List[CurvePool]:
         {**d, "id": d["id"] + f"-{chain}", "chain": chain}
         for d in data["pools"]
     ]
-    return CurvePoolSchema(many=True).load(pools)
+    return CurvePoolSchema(many=True, session=db.session).load(pools)

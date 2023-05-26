@@ -4,7 +4,7 @@ from typing import List
 import marshmallow_dataclass
 from flask_restx import fields
 
-from utils import convert_marshmallow
+from utils import convert_schema
 
 
 @dataclass
@@ -48,8 +48,8 @@ class DaoDetailedProposal(DaoProposal):
     votes: List[DaoVote]
 
 
-flask_restx_dao_vote = convert_marshmallow(DaoVote)
-flask_restx_dao_proposal_details = convert_marshmallow(DaoProposal)
+flask_restx_dao_vote = convert_schema(DaoVote)
+flask_restx_dao_proposal_details = convert_schema(DaoProposal)
 
 flask_restx_dao_proposal_details["tx"] = fields.String()
 flask_restx_dao_proposal_details["creatorVotingPower"] = fields.Integer()
