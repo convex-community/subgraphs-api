@@ -14,6 +14,8 @@ class CurvePool(db.Model):
     address = Column(String)
     name = Column(String)
     symbol = Column(String)
+    poolType = Column(String)
+    assetType = Column(Integer)
     chain = Column(String)
     lpToken = Column(String)
     coins = Column(ARRAY(String))
