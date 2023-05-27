@@ -13,6 +13,7 @@ class Config:
     CELERY_RESULT_BACKEND = os.getenv(
         "CELERY_RESULT_BACKEND", "redis://localhost:6379"
     )
+
     DB_ENDPOINT = os.getenv("DB_ENDPOINT")
     DB_KEY = os.getenv("DB_KEY")
     DB_NAME = os.getenv("DB_NAME")

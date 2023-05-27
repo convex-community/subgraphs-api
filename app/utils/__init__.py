@@ -78,3 +78,7 @@ class RegexConverter(BaseConverter):
     def __init__(self, url_map, *items):
         super(RegexConverter, self).__init__(url_map)
         self.regex = items[0]
+
+
+def shortify_pool_name(x: str) -> str:
+    return str(x).split(": ")[-1].split(".fi ")[-1]

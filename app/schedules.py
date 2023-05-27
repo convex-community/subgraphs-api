@@ -2,7 +2,7 @@ from celery.schedules import crontab
 from main.const import CHAINS
 
 
-imports = "tasks.populate"
+imports = ("tasks.populate", "tasks.queries.curve.rankings")
 result_expires = 30
 timezone = "UTC"
 
@@ -29,10 +29,21 @@ convex_pool_tasks = {
     },
 }
 
+ranking_tasks = {
+    "rankings-daily": {
+        "task": "tasks.populate.populate_daily_rankings",
+        "schedule": crontab(minute=0, hour="*/12"),
+    },
+    "rankings-hourly": {
+        "task": "tasks.populate.populate_hourly_rankings",
+        "schedule": crontab(minute="*/10"),
+    },
+}
+
 curve_pool_tasks = {
     f"populate-curve-pools-{chain}": {
         "task": "tasks.populate.populate_curve_pools",
-        "schedule": crontab(minute=0, hour="*/12"),
+        "schedule": crontab(minute=0, hour="*/2"),
         "args": (chain,),
     }
     for chain in CHAINS
@@ -48,5 +59,8 @@ curve_pool_snapshot_tasks = {
 }
 
 beat_schedule = (
-    convex_pool_tasks | curve_pool_tasks | curve_pool_snapshot_tasks
+    convex_pool_tasks
+    | curve_pool_tasks
+    | curve_pool_snapshot_tasks
+    | ranking_tasks
 )

@@ -5,6 +5,7 @@ from routes.curve import crv_blueprint
 from routes.convex import cvx_blueprint
 from routes import cache
 from tasks.celery import make_celery
+from celery.signals import worker_ready
 import schedules
 from utils import RegexConverter
 from flask_cors import CORS
@@ -23,6 +24,17 @@ celery.config_from_object(schedules)
 app.register_blueprint(cvx_blueprint)
 app.register_blueprint(crv_blueprint)
 CORS(app)
+
+
+@worker_ready.connect
+def at_start(sender, **k):
+    with sender.app.connection() as conn:  # noqa
+        sender.app.send_task(
+            "tasks.populate.populate_hourly_rankings", connection=conn
+        )
+        sender.app.send_task(
+            "tasks.populate.populate_daily_rankings", connection=conn
+        )
 
 
 if __name__ == "__main__":

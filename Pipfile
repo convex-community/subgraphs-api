@@ -57,6 +57,7 @@ marshmallow-sqlalchemy = "*"
 flask-sqlalchemy = "==3.0.3"
 flask-migrate = "*"
 matplotlib = "*"
+types-redis = "*"
 
 [dev-packages]
 
