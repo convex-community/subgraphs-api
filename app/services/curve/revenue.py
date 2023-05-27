@@ -12,15 +12,10 @@ from models.curve.revenue import (
 from main import db
 from models.curve.snapshot import CurvePoolSnapshot
 from services.curve.pool import get_all_pool_names
-from services.query import query_db, get_container
 from typing import List, Mapping, Union
 from marshmallow import EXCLUDE
 import pandas as pd
 from datetime import datetime
-
-
-def _exec_query(query: str) -> List:
-    return query_db(get_container("CurvePoolSnapshots"), query)
 
 
 def _get_all_revenue_snapshots() -> List[CurvePoolRevenue]:

@@ -14,6 +14,8 @@ GRAPH_CURVE_POOL_QUERY = """
         name
         symbol
         lpToken
+        poolType
+        assetType
         coins
         coinNames
         isV2

@@ -11,14 +11,9 @@ from models.curve.snapshot import (
     CurvePoolReserveSchema,
 )
 from services.modules.utils import append_offset_and_limit
-from services.query import query_db, get_container
 from typing import List, Optional
 from marshmallow import EXCLUDE
 from main import db
-
-
-def _exec_query(query: str) -> List:
-    return query_db(get_container("CurvePoolSnapshots"), query)
 
 
 def get_pool_snapshots(

@@ -1,6 +1,7 @@
 from decimal import Decimal
 
 from main.const import DAY
+from models.convex.snapshot import ConvexPoolSnapshot
 from models.curve.returns import (
     CurvePoolIlCalcDataSchema,
     ConvexAprDataSchema,
@@ -10,37 +11,68 @@ from models.curve.returns import (
     CurveReturnSeries,
     CurveReturnSeriesSchema,
 )
-from services.query import query_db, get_container
+from main import db
 from typing import List, Union, Optional
 from marshmallow import EXCLUDE
 import pandas as pd
 import numpy as np
+from sqlalchemy import and_
 
-
-def _exec_curve_query(query: str) -> List:
-    return query_db(get_container("CurvePoolSnapshots"), query)
-
-
-def _exec_convex_query(query: str) -> List:
-    return query_db(get_container("ConvexPoolSnapshots"), query)
+from models.curve.snapshot import CurvePoolSnapshot
 
 
 def _get_curve_base_data(
     end_date: int, start_date: int, chain: str, pool: str
 ) -> List[CurvePoolIlCalcData]:
-    query = f"SELECT c.lpPriceUSD, c.normalizedReserves, c.reservesUSD, c.tvl, c.timestamp FROM CurvePoolSnapshots as c WHERE c.chain = '{chain}' AND c.pool = '{pool}' AND c.timestamp <= { end_date } AND c.timestamp >= { start_date } ORDER BY c.timestamp ASC"
+    query_results = (
+        db.session.query(
+            CurvePoolSnapshot.lpPriceUSD,
+            CurvePoolSnapshot.normalizedReserves,
+            CurvePoolSnapshot.reservesUSD,
+            CurvePoolSnapshot.tvl,
+            CurvePoolSnapshot.timestamp,
+        )
+        .filter(
+            and_(
+                CurvePoolSnapshot.chain == chain,
+                CurvePoolSnapshot.pool == pool,
+                CurvePoolSnapshot.timestamp <= end_date,
+                CurvePoolSnapshot.timestamp >= start_date,
+            )
+        )
+        .order_by(CurvePoolSnapshot.timestamp.asc())
+        .all()
+    )
+
+    # Convert SQLAlchemy model instances to CurvePoolIlCalcData instances
     return CurvePoolIlCalcDataSchema(many=True).load(
-        _exec_curve_query(query), unknown=EXCLUDE
+        query_results, unknown=EXCLUDE
     )
 
 
 def _get_convex_apr_data(
     end_date: int, start_date: int, pool: str
 ) -> List[ConvexAprData]:
-    query = f"SELECT c.crvApr, c.cvxApr, c.extraRewardsApr, c.timestamp FROM ConvexPoolSnapshots as c WHERE c.swap = '{pool}' AND c.timestamp <= { end_date } AND c.timestamp >= { start_date } ORDER BY c.timestamp ASC"
-    return ConvexAprDataSchema(many=True).load(
-        _exec_convex_query(query), unknown=EXCLUDE
+    query_results = (
+        db.session.query(
+            ConvexPoolSnapshot.crvApr,
+            ConvexPoolSnapshot.cvxApr,
+            ConvexPoolSnapshot.extraRewardsApr,
+            ConvexPoolSnapshot.timestamp,
+        )
+        .filter(
+            and_(
+                ConvexPoolSnapshot.swap == pool,
+                ConvexPoolSnapshot.timestamp <= end_date,
+                ConvexPoolSnapshot.timestamp >= start_date,
+            )
+        )
+        .order_by(ConvexPoolSnapshot.timestamp.asc())
+        .all()
     )
+
+    # Convert SQLAlchemy model instances to ConvexAprData instances
+    return ConvexAprDataSchema(many=True).load(query_results, unknown=EXCLUDE)
 
 
 def gmean(x: List[Union[float, int]]):
