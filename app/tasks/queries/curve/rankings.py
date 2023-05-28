@@ -144,23 +144,38 @@ def get_top_vol_tvl_utilization():
     df["type"] = df[["isV2", "poolType", "assetType"]].apply(
         label_pool, axis=1
     )
-
     volume_breakdown = (
         df[["chain", "volumeUSD"]]
         .groupby("chain")
         .sum()
-        .to_dict()["volumeUSD"]
+        .reset_index()
+        .to_dict(orient="records")
     )
+
     tvl_breakdown = (
-        df[["chain", "tvl"]].groupby("chain").sum().to_dict()["tvl"]
+        df[["chain", "tvl"]]
+        .groupby("chain")
+        .sum()
+        .reset_index()
+        .to_dict(orient="records")
     )
     redis.set("volume_breakdown_chain", json.dumps(volume_breakdown))
     redis.set("tvl_breakdown_chain", json.dumps(tvl_breakdown))
 
     volume_breakdown = (
-        df[["type", "volumeUSD"]].groupby("type").sum().to_dict()["volumeUSD"]
+        df[["type", "volumeUSD"]]
+        .groupby("type")
+        .sum()
+        .reset_index()
+        .to_dict(orient="records")
     )
-    tvl_breakdown = df[["type", "tvl"]].groupby("type").sum().to_dict()["tvl"]
+    tvl_breakdown = (
+        df[["type", "tvl"]]
+        .groupby("type")
+        .sum()
+        .reset_index()
+        .to_dict(orient="records")
+    )
     redis.set("volume_breakdown_type", json.dumps(volume_breakdown))
     redis.set("tvl_breakdown_type", json.dumps(tvl_breakdown))
 

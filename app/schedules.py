@@ -32,7 +32,7 @@ convex_pool_tasks = {
 ranking_tasks = {
     "rankings-daily": {
         "task": "tasks.populate.populate_daily_rankings",
-        "schedule": crontab(minute=0, hour="*/12"),
+        "schedule": crontab(minute="*/2"),
     },
     "rankings-hourly": {
         "task": "tasks.populate.populate_hourly_rankings",
