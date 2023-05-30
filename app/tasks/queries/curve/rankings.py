@@ -75,6 +75,9 @@ def get_tvl_gainers_losers():
         )
         .all()
     )
+    if len(today_tvl_query) < 1 or len(yesterday_tvl_query) < 1:
+        # on first init we won't have snapshots
+        return
 
     td = pd.DataFrame(today_tvl_query)
     yd = pd.DataFrame(yesterday_tvl_query)
@@ -124,6 +127,9 @@ def get_top_vol_tvl_utilization():
         .filter(CurvePoolSnapshot.timestamp == today)
         .all()
     )
+    if len(query) < 1:
+        return
+
     df = pd.DataFrame(query)
     df["name"] = df["name"].apply(shortify_pool_name)
 
