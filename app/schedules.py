@@ -43,7 +43,7 @@ ranking_tasks = {
 curve_pool_tasks = {
     f"populate-curve-pools-{chain}": {
         "task": "tasks.populate.populate_curve_pools",
-        "schedule": crontab(minute=0, hour="*/2"),
+        "schedule": crontab(minute=0, hour="*/12"),
         "args": (chain,),
     }
     for chain in CHAINS
