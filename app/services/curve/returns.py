@@ -168,13 +168,8 @@ def get_returns(
     )
     lp_df.set_index("timestamp", inplace=True)
     ret_df.set_index("timestamp", inplace=True)
-    import logging
 
-    logger = logging.getLogger(__name__)
-    logger.error(ret_df)
-    logger.warning(lp_df)
     rewards_df = lp_df.join(ret_df, how="outer").fillna(0)
-    logger.warning(rewards_df)
     rewards_df["crvReturns"] = (
         rewards_df["curve"] * (rewards_df["crvApr"] / 365)
     ).cumsum()
