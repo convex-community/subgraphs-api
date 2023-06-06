@@ -12,6 +12,7 @@ from tasks.queries.convex.revenue import (
     get_convex_cumulative_revenue,
 )
 from tasks.queries.convex.snapshots import get_convex_pool_snapshots
+from tasks.queries.curve.crvusd.prices import get_crvusd_prices
 from tasks.queries.curve.pools import get_curve_pools
 from tasks.database.curve.pools import update_curve_pools
 from celery.utils.log import get_task_logger
@@ -73,3 +74,9 @@ def populate_daily_rankings():
 def populate_hourly_rankings():
     logger.info(f"Updating Hourly Ranking Data")
     get_sizeable_trades()
+
+
+@celery.task
+def populate_crvusd_prices():
+    logger.info(f"Updating crvUSD price Data")
+    get_crvusd_prices()

@@ -58,9 +58,17 @@ curve_pool_snapshot_tasks = {
     for chain in CHAINS
 }
 
+crvusd_tasks = {
+    "populate-crvusd-prices": {
+        "task": "tasks.populate.populate_crvusd_prices",
+        "schedule": crontab(minute="*/60"),
+    }
+}
+
 beat_schedule = (
     convex_pool_tasks
     | curve_pool_tasks
     | curve_pool_snapshot_tasks
     | ranking_tasks
+    | crvusd_tasks
 )

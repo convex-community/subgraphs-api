@@ -6,6 +6,7 @@ PARAMETER = "PARAMETER"
 
 DAY = 3600 * 24
 WEEK = 3600 * 24 * 7
+CRVUSD_CONTRACT = "0xf939e0a03fb07f59a73314e73794be0e57ac1b4e"
 
 
 class PoolType(Enum):

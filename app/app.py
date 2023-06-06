@@ -35,6 +35,9 @@ def at_start(sender, **k):
         sender.app.send_task(
             "tasks.populate.populate_daily_rankings", connection=conn
         )
+        sender.app.send_task(
+            "tasks.populate.populate_crvusd_prices", connection=conn
+        )
 
 
 if __name__ == "__main__":
