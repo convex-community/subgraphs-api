@@ -14,7 +14,7 @@ api = Namespace("crvusd", description="crvUSD endpoints")
 names = api.model("Pool Name", convert_schema(CurvePoolName))
 stats = api.model("Pool Stats", convert_schema(CrvUsdPoolStat))
 hist = api.model("Price histogram", convert_schema(CrvUsdPriceHistogram))
-wild = fields.Wildcard(fields.Integer)
+wild = fields.Wildcard(fields.Float)
 prices = api.model("crvUSD prices", {"timestamp": fields.Integer, "*": wild})
 
 
