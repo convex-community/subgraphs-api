@@ -23,9 +23,11 @@ from services.curve.revenue import (
     get_top_chain_pools,
     get_pool_revenue,
 )
+from flask import current_app
 from utils import convert_schema
 from main import redis
 
+debug_cache = int(not current_app.config["DEBUG"])
 api = Namespace("protocol", description="Protocol endpoints")
 pool_rev = api.model("Pool Revenue", convert_schema(CurvePoolRevenue))
 chain_rev = api.model("Chain Revenue", convert_schema(CurveChainRevenue))
@@ -99,6 +101,7 @@ class RegistryList(Resource):
 @api.param("top", "Number of top pools to single out")
 @api.response(404, "Not found")
 class TopPoolList(Resource):
+    @cache.cached(timeout=60 * 15 * debug_cache)
     @api.marshal_list_with(top_pools, envelope="revenue")
     def get(self, top):
         return get_top_pools(top)
@@ -109,6 +112,7 @@ class TopPoolList(Resource):
 @api.param("chain", "Name of the chain to query for")
 @api.response(404, "Not found")
 class ChainTopPoolList(Resource):
+    @cache.cached(timeout=60 * 15 * debug_cache)
     @check_exists
     @api.marshal_list_with(chain_top_pools, envelope="revenue")
     def get(self, chain, top):
@@ -123,7 +127,7 @@ class ChainTopPoolList(Resource):
 @api.param("pool", "Name of the pool to query for")
 @api.response(404, "Not found")
 class ChainPoolRevenue(Resource):
-    @cache.cached()
+    @cache.cached(timeout=60 * 15 * debug_cache)
     @check_exists
     @api.marshal_list_with(pool_rev, envelope="revenue")
     def get(self, chain, pool):
@@ -134,6 +138,7 @@ class ChainPoolRevenue(Resource):
 @api.doc(description="Get total revenue accumulated on each chain")
 @api.response(404, "Chain or pool not found")
 class RevenueByChain(Resource):
+    @cache.cached(timeout=60 * 15 * debug_cache)
     @api.marshal_list_with(chain_rev, envelope="revenue")
     def get(self):
         return get_platform_revenue()
