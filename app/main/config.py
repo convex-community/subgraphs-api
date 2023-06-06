@@ -13,27 +13,38 @@ class Config:
     CELERY_RESULT_BACKEND = os.getenv(
         "CELERY_RESULT_BACKEND", "redis://localhost:6379"
     )
+
     DB_ENDPOINT = os.getenv("DB_ENDPOINT")
     DB_KEY = os.getenv("DB_KEY")
     DB_NAME = os.getenv("DB_NAME")
+    PG_USER = os.getenv("PG_USER")
+    PG_PASS = os.getenv("PG_PASS")
+    PG_HOST = os.getenv("PG_HOST", "localhost")
+    PG_DATABASE = os.getenv("PG_DATABASE")
+    SQLALCHEMY_DATABASE_URI = (
+        f"postgresql://{PG_USER}:{PG_PASS}@{PG_HOST}:5432/{PG_DATABASE}"
+    )
 
 
 class DevelopmentConfig(Config):
     DEBUG = True
     TESTING = False
     SUBGRAPHS = SUBGRAPHS_DEV
+    SESSION_COOKIE_SECURE = False
 
 
 class TestingConfig(Config):
     DEBUG = True
     TESTING = True
     SUBGRAPHS = SUBGRAPHS_DEV
+    SESSION_COOKIE_SECURE = False
 
 
 class ProductionConfig(Config):
     DEBUG = False
     TESTING = False
     SUBGRAPHS = SUBGRAPHS_PROD
+    SESSION_COOKIE_SECURE = True
 
 
 config_by_name = dict(

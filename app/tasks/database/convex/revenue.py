@@ -1,27 +1,18 @@
 from models.convex.revenue import (
-    ConvexRevenueSnapshotSchema,
     ConvexRevenueSnapshot,
     ConvexCumulativeRevenue,
 )
-from tasks.database.client import get_container
 from typing import List
-
-CONTAINER_NAME = "ConvexPlatformRevenue"
-
-CUMULATIVE_CONTAINER_NAME = "ConvexCumulativePlatformRevenue"
+from main import db
 
 
 def update_convex_revenue_snapshots(pools: List[ConvexRevenueSnapshot]):
-    container = get_container(CONTAINER_NAME, clear_existing=False)
     for pool in pools:
-        container.upsert_item(ConvexRevenueSnapshotSchema().dump(pool))
+        db.session.merge(pool)
+    db.session.commit()
 
 
-def update_convex_cumulative_revenue(data: List[ConvexCumulativeRevenue]):
+def update_convex_cumulative_revenue(data: ConvexCumulativeRevenue):
     if data:
-        container = get_container(
-            CUMULATIVE_CONTAINER_NAME, clear_existing=True
-        )
-        upsert_data = data[0].__dict__
-        upsert_data["id"] = "ConvexTotalRevenue"
-        container.upsert_item(upsert_data)
+        db.session.merge(data)
+        db.session.commit()

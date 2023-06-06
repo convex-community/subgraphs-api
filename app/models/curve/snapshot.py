@@ -1,33 +1,39 @@
 from dataclasses import dataclass
 import marshmallow_dataclass
 from typing import List
-import strawberry
+from sqlalchemy import Column, Integer, Float, String, Numeric
+from sqlalchemy.dialects.postgresql import ARRAY
+from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
+from main import db
 
 
-@strawberry.type
-@dataclass
-class CurvePoolSnapshot:
-    id: str
-    pool: str
-    chain: str
-    virtualPrice: float
-    A: int
-    lpPriceUSD: float
-    tvl: float
-    fee: float
-    adminFee: float
-    totalDailyFeesUSD: float
-    reserves: List[int]
-    normalizedReserves: List[int]
-    reservesUSD: List[float]
-    volume: float
-    volumeUSD: float
-    baseApr: float
-    rebaseApr: float
-    timestamp: int
+class CurvePoolSnapshot(db.Model):
+    __tablename__ = "curve_pool_snapshot"
+
+    id = Column(String, primary_key=True)
+    pool = Column(String)
+    chain = Column(String)
+    virtualPrice = Column(Float)
+    A = Column(Numeric)
+    lpPriceUSD = Column(Float)
+    tvl = Column(Float)
+    fee = Column(Float)
+    adminFee = Column(Float)
+    totalDailyFeesUSD = Column(Float)
+    reserves = Column(ARRAY(Numeric))
+    normalizedReserves = Column(ARRAY(Numeric))
+    reservesUSD = Column(ARRAY(Float))
+    volume = Column(Float)
+    volumeUSD = Column(Float)
+    baseApr = Column(Float)
+    rebaseApr = Column(Float)
+    timestamp = Column(Integer)
 
 
-CurvePoolSnapshotSchema = marshmallow_dataclass.class_schema(CurvePoolSnapshot)
+class CurvePoolSnapshotSchema(SQLAlchemyAutoSchema):
+    class Meta:
+        model = CurvePoolSnapshot
+        load_instance = True
 
 
 @dataclass

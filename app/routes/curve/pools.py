@@ -1,6 +1,5 @@
-from typing import List
 import time
-from flask_restx import Resource, Namespace, fields, reqparse
+from flask_restx import Resource, Namespace, reqparse
 
 from models.curve.bonding import CurvePoolBondingCurve
 from models.curve.returns import CurveReturnSeries
@@ -26,7 +25,7 @@ from services.curve.snapshot import (
     get_pool_reserves_snapshots,
     get_pool_tvl_snapshots,
 )
-from utils import convert_marshmallow
+from utils import convert_schema
 from models.curve.pool import CurvePoolName, CurvePool
 from services.curve.pool import (
     get_pool_names,
@@ -35,19 +34,17 @@ from services.curve.pool import (
 )
 
 api = Namespace("pools", description="Pools endpoints")
-names = api.model("Pool Name", convert_marshmallow(CurvePoolName))
-metadata = api.model("Pool Metadata", convert_marshmallow(CurvePool))
-snapshots = api.model("Pool Snapshot", convert_marshmallow(CurvePoolSnapshot))
-volume = api.model("Pool Volume", convert_marshmallow(CurvePoolVolumeSnapshot))
-fees = api.model("Pool Fees", convert_marshmallow(CurvePoolFeeSnapshot))
-tvl = api.model("Pool TVL", convert_marshmallow(CurvePoolTVLSnapshot))
+names = api.model("Pool Name", convert_schema(CurvePoolName))
+metadata = api.model("Pool Metadata", convert_schema(CurvePool))
+snapshots = api.model("Pool Snapshot", convert_schema(CurvePoolSnapshot))
+volume = api.model("Pool Volume", convert_schema(CurvePoolVolumeSnapshot))
+fees = api.model("Pool Fees", convert_schema(CurvePoolFeeSnapshot))
+tvl = api.model("Pool TVL", convert_schema(CurvePoolTVLSnapshot))
 bonding = api.model(
-    "Pool Bonding Curves", convert_marshmallow(CurvePoolBondingCurve)
+    "Pool Bonding Curves", convert_schema(CurvePoolBondingCurve)
 )
-reserves = api.model(
-    "Pool Reserves", convert_marshmallow(CurvePoolReserveSnapshot)
-)
-returns = api.model("Pool Returns", convert_marshmallow(CurveReturnSeries))
+reserves = api.model("Pool Reserves", convert_schema(CurvePoolReserveSnapshot))
+returns = api.model("Pool Returns", convert_schema(CurveReturnSeries))
 
 v1_parser = reqparse.RequestParser()
 v1_parser.add_argument(

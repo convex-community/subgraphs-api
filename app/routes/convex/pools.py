@@ -11,16 +11,16 @@ from services.convex.snapshot import (
     get_pool_apr_snapshots,
 )
 from services.convex.pool import get_pool_names
-from utils import convert_marshmallow
+from utils import convert_schema
 from models.convex.pool import ConvexPool, ConvexPoolName
 from services.convex.pool import get_all_pool_metadata, get_pool_metadata
 
 api = Namespace("pools", description="Pools endpoints")
-names = api.model("Pool Name", convert_marshmallow(ConvexPoolName))
-metadata = api.model("Pool Metadata", convert_marshmallow(ConvexPool))
-snapshot = api.model("Pool Snapshot", convert_marshmallow(ConvexPoolSnapshot))
-tvl = api.model("Pool TVL", convert_marshmallow(ConvexPoolTVLSnapshot))
-apr = api.model("Pool APR", convert_marshmallow(ConvexPoolAPRSnapshot))
+names = api.model("Pool Name", convert_schema(ConvexPoolName))
+metadata = api.model("Pool Metadata", convert_schema(ConvexPool))
+snapshot = api.model("Pool Snapshot", convert_schema(ConvexPoolSnapshot))
+tvl = api.model("Pool TVL", convert_schema(ConvexPoolTVLSnapshot))
+apr = api.model("Pool APR", convert_schema(ConvexPoolAPRSnapshot))
 
 
 def check_exists(func):
@@ -38,7 +38,7 @@ def check_exists(func):
 @api.response(404, "Pool not found")
 class PoolList(Resource):
     @api.marshal_list_with(names, envelope="pools")
-    @cache.cached(timeout=60 * 15)
+    @cache.cached(timeout=60)
     @check_exists
     def get(self):
         return get_pool_names()
@@ -49,7 +49,7 @@ class PoolList(Resource):
 @api.response(404, "Pool not found")
 class PoolMetadata(Resource):
     @api.marshal_list_with(metadata, envelope="pools")
-    @cache.cached(timeout=60 * 15)
+    @cache.cached(timeout=60)
     @check_exists
     def get(self):
         return get_all_pool_metadata()
@@ -61,7 +61,7 @@ class PoolMetadata(Resource):
 @api.response(404, "Pool not found")
 class Pool(Resource):
     @api.marshal_with(metadata, envelope="pools")
-    @cache.cached(timeout=60 * 15)
+    @cache.cached(timeout=60)
     @check_exists
     def get(self, poolid):
         return get_pool_metadata(poolid)

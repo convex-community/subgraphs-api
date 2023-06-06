@@ -1,8 +1,5 @@
 from dataclasses import dataclass
 import marshmallow_dataclass
-from typing import List
-import strawberry
-from flask_restx import fields
 
 
 @dataclass

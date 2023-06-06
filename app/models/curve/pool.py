@@ -1,28 +1,36 @@
 from dataclasses import dataclass
 import marshmallow_dataclass
-import strawberry
 from typing import List
+from sqlalchemy import Column, Integer, Float, String, Boolean
+from sqlalchemy.dialects.postgresql import ARRAY
+from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
+from main import db
 
 
-@strawberry.type
-@dataclass
-class CurvePool:
-    id: str
-    address: str
-    name: str
-    symbol: str
-    chain: str
-    lpToken: str
-    coins: List[str]
-    coinNames: List[str]
-    isV2: bool
-    cumulativeVolumeUSD: float
-    cumulativeFeesUSD: float
-    virtualPrice: float
-    baseApr: float
+class CurvePool(db.Model):
+    __tablename__ = "curve_pool"
+
+    id = Column(String, primary_key=True)
+    address = Column(String)
+    name = Column(String)
+    symbol = Column(String)
+    poolType = Column(String)
+    assetType = Column(Integer)
+    chain = Column(String)
+    lpToken = Column(String)
+    coins = Column(ARRAY(String))
+    coinNames = Column(ARRAY(String))
+    isV2 = Column(Boolean)
+    cumulativeVolumeUSD = Column(Float)
+    cumulativeFeesUSD = Column(Float)
+    virtualPrice = Column(Float)
+    baseApr = Column(Float)
 
 
-CurvePoolSchema = marshmallow_dataclass.class_schema(CurvePool)
+class CurvePoolSchema(SQLAlchemyAutoSchema):
+    class Meta:
+        model = CurvePool
+        load_instance = True
 
 
 @dataclass

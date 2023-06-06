@@ -5,9 +5,8 @@ from routes.curve import crv_blueprint
 from routes.convex import cvx_blueprint
 from routes import cache
 from tasks.celery import make_celery
+from celery.signals import worker_ready
 import schedules
-from strawberry.flask.views import GraphQLView
-from graphq.schema import schema
 from utils import RegexConverter
 from flask_cors import CORS
 
@@ -19,17 +18,23 @@ cache.init_app(app)
 # with app.app_context():
 #    cache.clear()
 
-app.add_url_rule(
-    "/graphql",
-    view_func=GraphQLView.as_view("graphql_view", schema=schema),
-)
-
 api = Api(app=app, doc="/docs")
 celery = make_celery(app)
 celery.config_from_object(schedules)
 app.register_blueprint(cvx_blueprint)
 app.register_blueprint(crv_blueprint)
 CORS(app)
+
+
+@worker_ready.connect
+def at_start(sender, **k):
+    with sender.app.connection() as conn:  # noqa
+        sender.app.send_task(
+            "tasks.populate.populate_hourly_rankings", connection=conn
+        )
+        sender.app.send_task(
+            "tasks.populate.populate_daily_rankings", connection=conn
+        )
 
 
 if __name__ == "__main__":

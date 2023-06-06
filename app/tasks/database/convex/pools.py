@@ -1,11 +1,13 @@
-from models.convex.pool import ConvexPool, ConvexPoolSchema
-from tasks.database.client import get_container
+from models.convex.pool import ConvexPool
 from typing import List
-
-CONTAINER_NAME = "ConvexPools"
+from main import db
 
 
 def update_convex_pools(pools: List[ConvexPool]):
-    container = get_container(CONTAINER_NAME)
-    for pool in pools:
-        container.upsert_item(ConvexPoolSchema().dump(pool))
+    try:
+        for pool in pools:
+            db.session.add(pool)
+        db.session.commit()
+    except Exception as e:
+        print(f"Failed to add pools to database. Error: {e}")
+        db.session.rollback()

@@ -9,43 +9,69 @@ from models.curve.revenue import (
     CurveChainTopPoolRevenue,
     CurveChainTopPoolRevenueSchema,
 )
+from main import db
+from models.curve.snapshot import CurvePoolSnapshot
 from services.curve.pool import get_all_pool_names
-from services.query import query_db, get_container
 from typing import List, Mapping, Union
 from marshmallow import EXCLUDE
 import pandas as pd
 from datetime import datetime
 
 
-def _exec_query(query: str) -> List:
-    return query_db(get_container("CurvePoolSnapshots"), query)
-
-
 def _get_all_revenue_snapshots() -> List[CurvePoolRevenue]:
     # we end 48h before because there are differences between the times
     # each subgraphs take snapshots
     end_date = (int(datetime.now().timestamp() // DAY) * DAY) - DAY
-    query = f"SELECT c.totalDailyFeesUSD, c.pool, c.timestamp, c.chain FROM CurvePoolSnapshots as c WHERE c.timestamp < { end_date }"
-    return CurvePoolRevenueSchema(many=True).load(
-        _exec_query(query), unknown=EXCLUDE
+    result = (
+        db.session.query(
+            CurvePoolSnapshot.totalDailyFeesUSD,
+            CurvePoolSnapshot.pool,
+            CurvePoolSnapshot.timestamp,
+            CurvePoolSnapshot.chain,
+        )
+        .filter(CurvePoolSnapshot.timestamp < end_date)
+        .all()
     )
+    result = [CurvePoolRevenueSchema().load(row._asdict()) for row in result]
+    return result
 
 
 def _get_pool_revenue_snapshots(
     chain: str, pool: str
 ) -> List[CurvePoolRevenue]:
-    query = f"SELECT c.totalDailyFeesUSD, c.pool, c.timestamp, c.chain FROM CurvePoolSnapshots as c WHERE  c.chain = '{chain}' AND c.pool = '{pool}'"
-    return CurvePoolRevenueSchema(many=True).load(
-        _exec_query(query), unknown=EXCLUDE
+    result = (
+        db.session.query(
+            CurvePoolSnapshot.totalDailyFeesUSD,
+            CurvePoolSnapshot.pool,
+            CurvePoolSnapshot.timestamp,
+            CurvePoolSnapshot.chain,
+        )
+        .filter(
+            CurvePoolSnapshot.chain == chain, CurvePoolSnapshot.pool == pool
+        )
+        .all()
     )
+    result = [CurvePoolRevenueSchema().load(row._asdict()) for row in result]
+    return result
 
 
 def _get_all_revenue_snapshots_last_week(chain: str) -> List[CurvePoolRevenue]:
     start_date = (int(datetime.now().timestamp() // DAY) * DAY) - WEEK
-    query = f"SELECT c.totalDailyFeesUSD, c.pool, c.timestamp, c.chain FROM CurvePoolSnapshots as c WHERE c.chain = '{chain}' AND c.timestamp >= {start_date}"
-    return CurvePoolRevenueSchema(many=True).load(
-        _exec_query(query), unknown=EXCLUDE
+    result = (
+        db.session.query(
+            CurvePoolSnapshot.totalDailyFeesUSD,
+            CurvePoolSnapshot.pool,
+            CurvePoolSnapshot.timestamp,
+            CurvePoolSnapshot.chain,
+        )
+        .filter(
+            CurvePoolSnapshot.chain == chain,
+            CurvePoolSnapshot.timestamp >= start_date,
+        )
+        .all()
     )
+    result = [CurvePoolRevenueSchema().load(row._asdict()) for row in result]
+    return result
 
 
 def _merge_rev_and_names(

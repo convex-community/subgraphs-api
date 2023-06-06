@@ -6,36 +6,49 @@ from models.curve.pool import (
     CurvePoolNameChainSchema,
     CurvePoolNameChain,
 )
-from services.query import query_db, get_container
-from typing import List, Mapping
+from main import db
+from typing import List
 from marshmallow import EXCLUDE
 
 
-def _exec_query(query: str) -> List:
-    return query_db(get_container("CurvePools"), query)
-
-
 def get_all_pool_names() -> List[CurvePoolNameChain]:
-    query = f"SELECT c.address, c.chain, c.name FROM CurvePools as c"
-    return CurvePoolNameChainSchema(many=True).load(
-        _exec_query(query), unknown=EXCLUDE
+    result = (
+        db.session.query(CurvePool)
+        .with_entities(CurvePool.address, CurvePool.chain, CurvePool.name)
+        .all()
     )
+
+    result = [CurvePoolNameChainSchema().load(row._asdict()) for row in result]
+
+    return result
 
 
 def get_pool_names(chain: str) -> List[CurvePoolName]:
-    query = f"SELECT c.address, c.name FROM CurvePools as c WHERE c.chain = '{chain}'"
-    return CurvePoolNameSchema(many=True).load(
-        _exec_query(query), unknown=EXCLUDE
+    result = (
+        db.session.query(CurvePool)
+        .with_entities(CurvePool.address, CurvePool.name)
+        .filter(CurvePool.chain == chain)
+        .all()
     )
+
+    result = [CurvePoolNameSchema().load(row._asdict()) for row in result]
+
+    return result
 
 
 def get_all_pool_metadata(chain: str) -> List[CurvePool]:
-    query = f"SELECT * FROM CurvePools as c WHERE c.chain = '{chain}'"
-    return CurvePoolSchema(many=True).load(_exec_query(query), unknown=EXCLUDE)
+    result = db.session.query(CurvePool).filter(CurvePool.chain == chain).all()
+    return CurvePoolSchema(many=True, session=db.session).load(
+        result, unknown=EXCLUDE
+    )
 
 
 def get_pool_metadata(chain: str, pool: str) -> List[CurvePool]:
-    query = (
-        f"SELECT * FROM CurvePools as c WHERE c.id = '{pool.lower()}-{chain}'"
+    result = (
+        db.session.query(CurvePool)
+        .filter(CurvePool.id == f"{pool.lower()}-{chain}")
+        .all()
     )
-    return CurvePoolSchema(many=True).load(_exec_query(query), unknown=EXCLUDE)
+    return CurvePoolSchema(many=True, session=db.session).load(
+        result, unknown=EXCLUDE
+    )

@@ -3,6 +3,7 @@ from typing import List, Mapping, Any
 from tasks.queries.graph import grt_curve_pools_query
 from celery.utils.log import get_task_logger
 import pandas as pd
+from main import db
 
 logger = get_task_logger(__name__)
 
@@ -78,7 +79,9 @@ def get_curve_pool_snapshots(chain: str) -> List[CurvePoolSnapshot]:
     pool_data = get_curve_pool_standard_snapshots(chain)
     vol_data = get_curve_pool_volume_snapshots(chain)
     if not pool_data or not vol_data:
-        logger.warning(f"Empty data returned for curve pool query on {chain}")
+        logger.warning(
+            f"Empty data returned for curve pool snapshot query on {chain}"
+        )
         return []
     df = pd.merge(
         pd.DataFrame(pool_data),
@@ -90,4 +93,6 @@ def get_curve_pool_snapshots(chain: str) -> List[CurvePoolSnapshot]:
         {**d, "id": d["id"] + f"-{chain}", "chain": chain}  # type:ignore
         for d in merged_data
     ]
-    return CurvePoolSnapshotSchema(many=True).load(snapshot_data)
+    return CurvePoolSnapshotSchema(many=True, session=db.session).load(
+        snapshot_data
+    )

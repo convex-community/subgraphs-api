@@ -17,4 +17,4 @@ services:
     volumes: ['./app:/app']
     environment:
       FLASK_ENV: 'development'
-      FLASK_DEBUG: true
+      FLASK_DEBUG: 'true'

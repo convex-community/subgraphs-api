@@ -21,22 +21,20 @@ from services.curve.dao import (
     get_emissions_by_gauge,
     get_emissions_by_pool,
 )
-from utils import convert_marshmallow
+from utils import convert_schema
 from flask_restx import fields
 
 api = Namespace("dao", description="DAO endpoints")
-proposals = api.model("DAO Proposals", convert_marshmallow(DaoProposal))
-votes = api.model("Vote", convert_marshmallow(DaoVote))
-gauges = api.model("Gauge", convert_marshmallow(Gauge))
-emissions = api.model("Emission", convert_marshmallow(Emission))
+proposals = api.model("DAO Proposals", convert_schema(DaoProposal))
+votes = api.model("Vote", convert_schema(DaoVote))
+gauges = api.model("Gauge", convert_schema(Gauge))
+emissions = api.model("Emission", convert_schema(Emission))
 flask_restx_dao_proposal_details["votes"] = fields.List(fields.Nested(votes))
 detailed_proposal = api.model(
     "DAO Proposal Details", flask_restx_dao_proposal_details
 )
-user_locks = api.model(
-    "User vote escrow actions", convert_marshmallow(UserLock)
-)
-user_balance = api.model("User lock balance", convert_marshmallow(UserBalance))
+user_locks = api.model("User vote escrow actions", convert_schema(UserLock))
+user_balance = api.model("User lock balance", convert_schema(UserBalance))
 
 
 def check_exists(func):

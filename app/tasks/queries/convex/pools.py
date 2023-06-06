@@ -1,3 +1,4 @@
+from main import db
 from models.convex.pool import ConvexPool, ConvexPoolSchema
 from typing import List
 from tasks.queries.graph import grt_convex_pools_query
@@ -43,4 +44,4 @@ def get_convex_pools() -> List[ConvexPool]:
         {**d, "extraRewards": [e["contract"] for e in d["extraRewards"]]}
         for d in data["pools"]
     ]
-    return ConvexPoolSchema(many=True).load(pools)
+    return ConvexPoolSchema(many=True, session=db.session).load(pools)
