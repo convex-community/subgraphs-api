@@ -119,11 +119,11 @@ CURVE_DAO_SUBGRAPH_DEV = (
 )
 
 CRVUSD_SUBGRAPH_PROD = (
-    "https://thegraph.com/hosted-service/subgraph/convex-community/crvusd"
+    "https://api.thegraph.com/subgraphs/name/convex-community/crvusd"
 )
 
 CRVUSD_SUBGRAPH_DEV = (
-    "https://thegraph.com/hosted-service/subgraph/convex-community/crvusd"
+    "https://api.thegraph.com/subgraphs/name/convex-community/crvusd"
 )
 
 CURVE_POOLS = "CURVE_POOLS"
