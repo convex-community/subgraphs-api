@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from flask_restx.fields import List
 from werkzeug.routing import BaseConverter
 from sqlalchemy.orm.decl_api import DeclarativeMeta
@@ -82,3 +84,7 @@ class RegexConverter(BaseConverter):
 
 def shortify_pool_name(x: str) -> str:
     return str(x).split(": ")[-1].split(".fi ")[-1]
+
+
+def growth_rate(current, last) -> float:
+    return (current - last) / last

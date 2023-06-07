@@ -158,3 +158,19 @@ CrvUsdPoolStatSchema = marshmallow_dataclass.class_schema(CrvUsdPoolStat)
 class CrvUsdPriceHistogram:
     x: List[float]
     y: List[int]
+
+
+@dataclass
+class MarketInfo:
+    name: str
+    address: str
+    rate: float
+    rateDelta: float
+    borrowed: float
+    borrowedDelta: float
+    totalCollateral: float
+    totalCollateralDelta: float
+    collateral: float
+    stableCoin: float
+    loans: float
+    loansDelta: float
