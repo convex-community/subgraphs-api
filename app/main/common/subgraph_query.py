@@ -10,7 +10,7 @@ def grt_query(
     endpoint: str, query: str
 ) -> Optional[Mapping[str, List[Mapping[str, Any]]]]:
     for i in range(3):
-        r = requests.post(endpoint, json={"query": query}, timeout=300)
+        r = requests.post(endpoint, json={"query": query}, timeout=600)
         try:
             return r.json().get("data", None)
         except (

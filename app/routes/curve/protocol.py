@@ -15,6 +15,7 @@ from models.curve.revenue import (
     CurveHistoricalPoolCumulativeRevenue,
     CurveChainTopPoolRevenue,
     CurvePoolRevenue,
+    CouchCushion,
 )
 from routes import cache
 from services.curve.revenue import (
@@ -22,6 +23,7 @@ from services.curve.revenue import (
     get_top_pools,
     get_top_chain_pools,
     get_pool_revenue,
+    check_couch_cushion,
 )
 from utils import convert_schema
 from main import redis
@@ -51,6 +53,18 @@ chain_vol = api.model(
     "Volume Distribution by Chain", convert_schema(ChainVolume)
 )
 large_trades = api.model("Largest trades", convert_schema(LargeTrades))
+couch = api.model(
+    "Check couch cushions",
+    {
+        "pool": fields.String(),
+        "address": fields.String(),
+        "coins": fields.List(fields.String),
+        "coinNames": fields.String(),
+        "balance": fields.List(fields.Float),
+        "value": fields.List(fields.Float),
+        "totalUSD": fields.Float(),
+    },
+)
 
 
 def check_exists(func):
@@ -205,3 +219,17 @@ class SizeableTrades(Resource):
     @api.marshal_list_with(large_trades, envelope="large_trades")
     def get(self):
         return json.loads(redis.get("sizeable_trades"))
+
+
+@api.route("/couch/cushions")
+@api.doc(description="Check under the cushions on all chain's couches")
+class CheckCushions(Resource):
+    @api.marshal_list_with(couch, envelope="cushions")
+    def get(self):
+        cushions = check_couch_cushion()
+
+        import logging
+
+        logger = logging.getLogger(__name__)
+        logger.warning("RESULTS", convert_schema(CouchCushion))
+        return cushions

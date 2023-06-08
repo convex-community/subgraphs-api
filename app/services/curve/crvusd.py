@@ -72,11 +72,6 @@ def get_crv_usd_pool_stats() -> list[CrvUsdPoolStat]:
 
 def get_crvusd_markets() -> List[MarketInfo]:
 
-    import logging
-
-    logger = logging.getLogger(__name__)
-    logger.error("test")
-
     now = time.time()
     one_day_ago = now - timedelta(days=1).total_seconds()
 

@@ -10,7 +10,7 @@ logger = get_task_logger(__name__)
 
 GRAPH_CURVE_POOL_SNAPSHOT_QUERY = """
 { pools(first: 1000) {
-  dailyPoolSnapshots(first: 1000 orderBy: timestamp orderDirection: desc) {
+  dailyPoolSnapshots(first: 500 orderBy: timestamp orderDirection: desc) {
     id
     pool {
         id
@@ -37,7 +37,7 @@ GRAPH_CURVE_POOL_SNAPSHOT_QUERY = """
 
 GRAPH_CURVE_VOLUME_SNAPSHOT_QUERY = """
 { pools(first: 1000) {
-  swapVolumeSnapshots(first: 1000 orderBy: timestamp orderDirection: desc where: {period: 86400}) {
+  swapVolumeSnapshots(first: 500 orderBy: timestamp orderDirection: desc where: {period: 86400}) {
     pool {
         id
     }

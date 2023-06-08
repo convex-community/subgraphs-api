@@ -1,5 +1,18 @@
 from enum import Enum
 
+from main.const import (
+    CHAIN_MATIC,
+    CHAIN_MAINNET,
+    CHAIN_ARBITRUM,
+    CHAIN_FANTOM,
+    CHAIN_OPTIMISM,
+    CHAIN_AVALANCHE,
+    CHAIN_XDAI,
+    CHAIN_CELO,
+    CHAIN_AURORA,
+    CHAIN_HARMONY,
+    CHAIN_MOONBEAM,
+)
 
 OWNERSHIP = "OWNERSHIP"
 PARAMETER = "PARAMETER"
@@ -18,3 +31,32 @@ class PoolType(Enum):
     LENDING = "LENDING"
     CRVUSD = "CRVUSD"
     TRICRYPTO_FACTORY = "TRICRYPTO_FACTORY"
+
+
+MULTICALL_CONTRACTS = {
+    CHAIN_MAINNET: "0x5BA1e12693Dc8F9c48aAD8770482f4739bEeD696",
+    CHAIN_MATIC: "0x275617327c958bD06b5D6b871E7f491D76113dd8",
+    CHAIN_ARBITRUM: "0x842eC2c7D803033Edf55E478F461FC547Bc54EB2",
+    CHAIN_FANTOM: "0xD98e3dBE5950Ca8Ce5a4b59630a5652110403E5c",
+    CHAIN_OPTIMISM: "0x142E2FEaC30d7fc3b61f9EE85FCCad8e560154cc",
+    CHAIN_AVALANCHE: "0x8755b94F88D120AB2Cc13b1f6582329b067C760d",
+    CHAIN_XDAI: "0xb5b692a88BDFc81ca69dcB1d924f59f0413A602a",
+    CHAIN_CELO: "0x75F59534dd892c1f8a7B172D639FA854D529ada3",
+    CHAIN_AURORA: "0x49eb1F160e167aa7bA96BdD88B6C1f2ffda5212A",
+    CHAIN_HARMONY: "0x34b415f4D3B332515E66F70595ace1dcF36254c5",
+    CHAIN_MOONBEAM: "0x83e3b61886770de2F64AAcaD2724ED4f08F7f36B",
+}
+
+PUBLIC_RPCS = {
+    CHAIN_MAINNET: "https://eth.llamarpc.com",
+    CHAIN_MATIC: "https://polygon.llamarpc.com",
+    CHAIN_ARBITRUM: "https://arb1.arbitrum.io/rpc",
+    CHAIN_FANTOM: "https://rpcapi.fantom.network",
+    CHAIN_OPTIMISM: "https://mainnet.optimism.io",
+    CHAIN_AVALANCHE: "https://rpc.ankr.com/avalanche",
+    CHAIN_XDAI: "https://rpc.gnosischain.com",
+    CHAIN_CELO: "https://forno.celo.org",
+    CHAIN_AURORA: "https://mainnet.aurora.dev",
+    CHAIN_HARMONY: "https://api.harmony.one",
+    CHAIN_MOONBEAM: "https://rpc.api.moonbeam.network",
+}
