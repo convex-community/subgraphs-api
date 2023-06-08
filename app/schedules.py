@@ -52,7 +52,7 @@ curve_pool_tasks = {
 curve_couch_tasks = {
     "populate-couch-info": {
         "task": "tasks.populate.populate_couch_info",
-        "schedule": crontab(minute="*/3"),
+        "schedule": crontab(minute="*/60"),
     },
 }
 
