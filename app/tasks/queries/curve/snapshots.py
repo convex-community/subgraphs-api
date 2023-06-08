@@ -26,6 +26,8 @@ GRAPH_CURVE_POOL_SNAPSHOT_QUERY = """
     normalizedReserves
     reservesUSD
     baseApr
+    xcpProfit
+    xcpProfitA
     rebaseApr
     timestamp
   }
