@@ -20,6 +20,7 @@ class CurvePool(db.Model):
     lpToken = Column(String)
     coins = Column(ARRAY(String))
     coinNames = Column(ARRAY(String))
+    coinDecimals = Column(ARRAY(Integer))
     isV2 = Column(Boolean)
     cumulativeVolumeUSD = Column(Float)
     cumulativeFeesUSD = Column(Float)
