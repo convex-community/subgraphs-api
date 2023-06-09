@@ -10,6 +10,7 @@ from main.const import (
     REGISTRIES,
     CHAINS,
     CHAIN_AVALANCHE,
+    CHAIN_HARMONY,
 )
 from main.const.abis import CURVE_POOL_V1_ABI, MULTICALL2_ABI, REGISTRY_V1_ABI
 from models.curve.pool import CurvePool
@@ -71,7 +72,7 @@ def get_valid_curve_pools():
     )
     df = pd.DataFrame(result)
     # we filter dead pools
-    return df[(df["tvl"] > 0) & (df["volumeUSD"] > 1000)].drop_duplicates("id")
+    return df[(df["tvl"] > 0) & (df["volumeUSD"] > 100)].drop_duplicates("id")
 
 
 def get_v1_factory_cushions(df, chain):
@@ -196,7 +197,11 @@ def get_v2_cushions(df):
 
 def get_v1_registry_cushions(df, chain):
     registry_pools = df[
-        (df["poolType"].isin([PoolType.REGISTRY_V1.value]))
+        (
+            df["poolType"].isin(
+                [PoolType.REGISTRY_V1.value, PoolType.LENDING.value]
+            )
+        )
         & (df["chain"] == chain)
         & (~df["isV2"])
     ]
@@ -296,6 +301,9 @@ def get_v1_registry_cushions(df, chain):
 def get_v1(df):
     res = []
     for chain in CHAINS:
+        # no multicall on harmony
+        if chain == CHAIN_HARMONY:
+            continue
         try:
             v1_factory = get_v1_factory_cushions(df, chain)
             if v1_factory is not None:
