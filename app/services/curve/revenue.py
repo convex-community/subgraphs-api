@@ -198,7 +198,7 @@ def check_couch_cushion() -> List[dict]:
             "pool": r.name,
             "address": r.address,
             "coins": r.coins,
-            "coinNames": r.coinNames if not r.isV2 else "LP Token",
+            "coinNames": r.coinNames if not r.isV2 else ["LP Token"],
             "balance": r.balance,
             "value": r.value,
             "totalUSD": r.totalUSD,

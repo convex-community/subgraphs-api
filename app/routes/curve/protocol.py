@@ -53,18 +53,7 @@ chain_vol = api.model(
     "Volume Distribution by Chain", convert_schema(ChainVolume)
 )
 large_trades = api.model("Largest trades", convert_schema(LargeTrades))
-couch = api.model(
-    "Check couch cushions",
-    {
-        "pool": fields.String(),
-        "address": fields.String(),
-        "coins": fields.List(fields.String),
-        "coinNames": fields.String(),
-        "balance": fields.List(fields.Float),
-        "value": fields.List(fields.Float),
-        "totalUSD": fields.Float(),
-    },
-)
+couch = api.model("Check couch cushions", convert_schema(CouchCushion))
 
 
 def check_exists(func):
@@ -227,9 +216,4 @@ class CheckCushions(Resource):
     @api.marshal_list_with(couch, envelope="cushions")
     def get(self):
         cushions = check_couch_cushion()
-
-        import logging
-
-        logger = logging.getLogger(__name__)
-        logger.warning("RESULTS", convert_schema(CouchCushion))
         return cushions
