@@ -99,6 +99,7 @@ class VolumeSnapshot(db.Model):
     swapVolumeUsd = Column(Numeric)
     depositVolumeUsd = Column(Numeric)
     totalVolumeUsd = Column(Numeric)
+    period = Column(Integer)
     count = Column(Integer)
     timestamp = Column(Integer)
 

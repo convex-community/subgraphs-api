@@ -33,6 +33,7 @@ MARKET_QUERY = """
         swapVolumeUSD
         depositVolumeUSD
         totalVolumeUSD
+        period
         count
         timestamp
       }
@@ -161,6 +162,7 @@ def update_crvusd_market_data():
                 swapVolumeUsd=vol_snapshot["swapVolumeUSD"],
                 depositVolumeUsd=vol_snapshot["depositVolumeUSD"],
                 totalVolumeUsd=vol_snapshot["totalVolumeUSD"],
+                period=vol_snapshot["period"],
                 count=vol_snapshot["count"],
                 timestamp=vol_snapshot["timestamp"],
             )
