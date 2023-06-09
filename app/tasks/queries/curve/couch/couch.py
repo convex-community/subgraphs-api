@@ -152,10 +152,9 @@ def get_v1_factory_cushions(df, chain):
         )
         .tolist()
     )
-    r = requests.get(
-        "https://coins.llama.fi/prices/current/" + ",".join(coin_list)
-    )
-    dl_prices = pd.DataFrame(r.json()["coins"]).transpose()
+    dl_prices = pd.DataFrame(
+        get_defi_llama_prices(list(coin_list))
+    ).transpose()
     dl_prices.index = dl_prices.index.map(lambda x: x.split(":")[-1])
     balances["value"] = (
         balances["coin"].map(dl_prices["price"]) * balances["balance"]
@@ -193,6 +192,17 @@ def get_v2_cushions(df):
     return v2_pools[
         ["name", "address", "chain", "coinNames", "balance", "value"]
     ]
+
+
+def get_defi_llama_prices(coin_list):
+    res = {}
+    for i in range(0, len(coin_list), 100):
+        partial_list = coin_list[i : i + 100]
+        r = requests.get(
+            "https://coins.llama.fi/prices/current/" + ",".join(partial_list)
+        )
+        res = {**res, **r.json()["coins"]}
+    return res
 
 
 def get_v1_registry_cushions(df, chain):
@@ -279,10 +289,10 @@ def get_v1_registry_cushions(df, chain):
         )
         .tolist()
     )
-    r = requests.get(
-        "https://coins.llama.fi/prices/current/" + ",".join(coin_list)
-    )
-    dl_prices = pd.DataFrame(r.json()["coins"]).transpose()
+
+    dl_prices = pd.DataFrame(
+        get_defi_llama_prices(list(coin_list))
+    ).transpose()
     dl_prices.index = dl_prices.index.map(lambda x: x.split(":")[-1])
     balances["value"] = (
         balances["coins"].map(dl_prices["price"]) * balances["balance"]
