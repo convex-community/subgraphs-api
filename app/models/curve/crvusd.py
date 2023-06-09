@@ -174,3 +174,12 @@ class MarketInfo:
     stableCoin: float
     loans: float
     loansDelta: float
+
+
+@dataclass
+class MarketRate:
+    rate: float
+    timestamp: int
+
+
+MarketRateSchema = marshmallow_dataclass.class_schema(MarketRate)

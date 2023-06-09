@@ -6,12 +6,15 @@ from models.curve.crvusd import (
     CrvUsdPoolStat,
     CrvUsdPriceHistogram,
     MarketInfo,
+    MarketRate,
 )
 from models.curve.pool import CurvePoolName
 from services.curve.crvusd import (
     get_crv_usd_pool_names,
     get_crv_usd_pool_stats,
     get_crvusd_markets,
+    get_hourly_market_rates,
+    get_daily_market_rates,
 )
 from utils import convert_schema
 
@@ -22,6 +25,7 @@ hist = api.model("Price histogram", convert_schema(CrvUsdPriceHistogram))
 markets = api.model("Market descriptions", convert_schema(MarketInfo))
 wild = fields.Wildcard(fields.Float)
 prices = api.model("crvUSD prices", {"timestamp": fields.Integer, "*": wild})
+rates = api.model("Market rates", convert_schema(MarketRate))
 
 
 @api.route("/pools")
@@ -62,3 +66,21 @@ class MarketList(Resource):
     @api.marshal_list_with(markets, envelope="markets")
     def get(self):
         return get_crvusd_markets()
+
+
+@api.route('/markets/<regex("[A-z0-9]+"):market>/rate/hourly')
+@api.doc(description="Get historical hourly rate over past 5 days")
+@api.param("market", "Market to query for")
+class MarketHourlyRate(Resource):
+    @api.marshal_list_with(rates, envelope="rates")
+    def get(self, market):
+        return get_hourly_market_rates(market)
+
+
+@api.route('/markets/<regex("[A-z0-9]+"):market>/rate/daily')
+@api.doc(description="Get average daily rate history")
+@api.param("market", "Market to query for")
+class MarketDailyRate(Resource):
+    @api.marshal_list_with(rates, envelope="rates")
+    def get(self, market):
+        return get_daily_market_rates(market)

@@ -1,6 +1,6 @@
 from typing import List
 
-from sqlalchemy import func
+from sqlalchemy import func, Date, cast
 
 from main import db
 from models.curve.crvusd import (
@@ -9,15 +9,54 @@ from models.curve.crvusd import (
     Market,
     Snapshot,
     MarketInfo,
+    MarketRate,
+    MarketRateSchema,
 )
 from models.curve.pool import CurvePoolName, CurvePool, CurvePoolNameSchema
 from main.const import PoolType
 from models.curve.snapshot import CurvePoolSnapshot
 from sqlalchemy import desc, and_
-from datetime import timedelta
+from datetime import timedelta, datetime
 import time
 
 from utils import growth_rate
+
+
+def get_hourly_market_rates(market: str) -> list[MarketRate]:
+    result = (
+        db.session.query(Snapshot.rate, Snapshot.timestamp)
+        .join(Market)
+        .filter(Snapshot.marketId == market)
+        .order_by(desc(Snapshot.timestamp))
+        .limit(120)
+        .all()
+    )
+    return [MarketRateSchema().load(row._asdict()) for row in result]
+
+
+def get_daily_market_rates(market: str) -> list[MarketRate]:
+    timestamp_label = cast(func.to_timestamp(Snapshot.timestamp), Date).label(
+        "timestamp"
+    )
+    result = (
+        db.session.query(
+            timestamp_label, func.avg(Snapshot.rate).label("rate")
+        )
+        .join(Market)
+        .filter(Snapshot.marketId == market)
+        .group_by(timestamp_label)
+        .order_by(desc(timestamp_label))
+        .all()
+    )
+    return [
+        MarketRate(
+            rate=rate,
+            timestamp=int(
+                datetime.combine(timestamp, datetime.min.time()).timestamp()
+            ),
+        )
+        for timestamp, rate in result
+    ]
 
 
 def get_crv_usd_pool_names() -> list[CurvePoolName]:
