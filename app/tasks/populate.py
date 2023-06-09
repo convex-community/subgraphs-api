@@ -13,6 +13,7 @@ from tasks.queries.convex.revenue import (
 )
 from tasks.queries.convex.snapshots import get_convex_pool_snapshots
 from tasks.queries.curve.couch.couch import check_cushions
+from tasks.queries.curve.crvusd.health import update_user_states_and_health
 from tasks.queries.curve.crvusd.markets import update_crvusd_market_data
 from tasks.queries.curve.crvusd.prices import get_crvusd_prices
 from tasks.queries.curve.pools import get_curve_pools
@@ -94,3 +95,9 @@ def populate_crvusd_market_data():
 def populate_couch_info():
     logger.info(f"Updating Curve Couch Info")
     check_cushions()
+
+
+@celery.task
+def populate_user_states():
+    logger.info(f"Updating User States")
+    update_user_states_and_health()

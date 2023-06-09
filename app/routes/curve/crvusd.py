@@ -1,14 +1,15 @@
-from flask_restx import Resource, Namespace, fields
+from flask_restx import Resource, Namespace, fields, reqparse
 import json
 from main import redis  # type: ignore
 
 from models.curve.crvusd import (
     CrvUsdPoolStat,
-    CrvUsdPriceHistogram,
+    Histogram,
     MarketInfo,
     MarketRate,
     MarketVolume,
     MarketLoans,
+    UserStateData,
 )
 from models.curve.pool import CurvePoolName
 from services.curve.crvusd import (
@@ -19,19 +20,38 @@ from services.curve.crvusd import (
     get_daily_market_rates,
     get_daily_market_volume,
     get_daily_market_loans,
+    get_latest_user_states,
+    get_user_health_histogram,
 )
 from utils import convert_schema
 
 api = Namespace("crvusd", description="crvUSD endpoints")
 names = api.model("Pool Name", convert_schema(CurvePoolName))
 stats = api.model("Pool Stats", convert_schema(CrvUsdPoolStat))
-hist = api.model("Price histogram", convert_schema(CrvUsdPriceHistogram))
+hist = api.model("Histogram", convert_schema(Histogram))
 markets = api.model("Market descriptions", convert_schema(MarketInfo))
 wild = fields.Wildcard(fields.Float)
 prices = api.model("crvUSD prices", {"timestamp": fields.Integer, "*": wild})
 rates = api.model("Market historical rates", convert_schema(MarketRate))
 volume = api.model("Market historical volume", convert_schema(MarketVolume))
 loans = api.model("Market historical loan number", convert_schema(MarketLoans))
+states = api.model("User states", convert_schema(UserStateData))
+
+pagination = reqparse.RequestParser()
+pagination.add_argument(
+    "offset",
+    type=int,
+    help="Offset (for pagination)",
+    required=True,
+    location="args",
+)
+pagination.add_argument(
+    "limit",
+    type=int,
+    help="Limit (for pagination)",
+    required=True,
+    location="args",
+)
 
 
 @api.route("/pools")
@@ -108,3 +128,23 @@ class DailyMarketLoans(Resource):
     @api.marshal_list_with(loans, envelope="loans")
     def get(self, market):
         return get_daily_market_loans(market)
+
+
+@api.route('/markets/<regex("[A-z0-9]+"):market>/users/states')
+@api.doc(description="Get latest user states")
+@api.param("market", "Market to query for")
+@api.expect(pagination)
+class UserRecentStates(Resource):
+    @api.marshal_list_with(states, envelope="states")
+    def get(self, market):
+        args = pagination.parse_args()
+        return get_latest_user_states(market, **args)
+
+
+@api.route('/markets/<regex("[A-z0-9]+"):market>/users/health/hist')
+@api.doc(description="Get histogram of users health ratio")
+@api.param("market", "Market to query for")
+class UserHealthHist(Resource):
+    @api.marshal_with(hist)
+    def get(self, market):
+        return get_user_health_histogram(market)

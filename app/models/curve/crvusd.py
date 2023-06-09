@@ -156,7 +156,7 @@ CrvUsdPoolStatSchema = marshmallow_dataclass.class_schema(CrvUsdPoolStat)
 
 
 @dataclass
-class CrvUsdPriceHistogram:
+class Histogram:
     x: List[float]
     y: List[int]
 
@@ -199,3 +199,31 @@ MarketVolumeSchema = marshmallow_dataclass.class_schema(MarketVolume)
 class MarketLoans:
     nLoans: int
     timestamp: int
+
+
+class UserState(db.Model):
+    __tablename__ = "user_states"
+    id = Column(String, primary_key=True)
+    index = Column(Integer)
+    user = Column(String)
+    marketId = Column(String, ForeignKey("market.id"))
+    market = relationship("Market")
+    collateral = Column(Numeric)
+    collateralUsd = Column(Numeric)
+    stableCoin = Column(Numeric)
+    debt = Column(Numeric)
+    N = Column(Numeric)
+    health = Column(Numeric)
+    timestamp = Column(Integer)
+
+
+@dataclass
+class UserStateData:
+    index: int
+    user: str
+    collateral: float
+    collateralUsd: float
+    stableCoin: float
+    debt: float
+    N: int
+    health: float

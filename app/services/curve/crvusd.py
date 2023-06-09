@@ -1,5 +1,6 @@
 from typing import List
-
+import pandas as pd
+import numpy as np
 from sqlalchemy import func, Date, cast
 
 from main import db
@@ -16,6 +17,9 @@ from models.curve.crvusd import (
     VolumeSnapshot,
     MarketLoans,
     Amm,
+    UserStateData,
+    UserState,
+    Histogram,
 )
 from models.curve.pool import CurvePoolName, CurvePool, CurvePoolNameSchema
 from main.const import PoolType, DAY
@@ -25,6 +29,56 @@ from datetime import timedelta, datetime
 import time
 
 from utils import growth_rate
+
+
+def get_user_states(market_id, timestamp, offset=0, limit=None):
+    base_query = db.session.query(UserState).filter(
+        UserState.marketId == market_id
+    )
+    user_states = base_query.filter(UserState.timestamp == timestamp)
+    if user_states.count() == 0:
+        max_timestamp = (
+            base_query.filter(UserState.timestamp < timestamp)
+            .with_entities(func.max(UserState.timestamp))
+            .scalar()
+        )
+        if max_timestamp is not None:
+            user_states = base_query.filter(
+                UserState.timestamp == max_timestamp
+            )
+    user_states = user_states.order_by(UserState.index).offset(offset)
+    if limit is not None:
+        user_states = user_states.limit(limit)
+    user_states = user_states.all()
+
+    return user_states
+
+
+def get_latest_user_states(
+    market: str, offset: int, limit: int
+) -> list[UserStateData]:
+    timestamp = int((time.time() // (15 * 60)) * (15 * 60))
+    results = get_user_states(market, timestamp, offset, limit)
+    return [
+        UserStateData(
+            index=result.index,
+            user=result.user,
+            collateral=result.collateral,
+            collateralUsd=result.collateralUsd,
+            stableCoin=result.stableCoin,
+            debt=result.debt,
+            N=result.N,
+            health=result.health,
+        )
+        for result in results
+    ]
+
+
+def get_user_health_histogram(market: str):
+    timestamp = int((time.time() // (15 * 60)) * (15 * 60))
+    results = get_user_states(market, timestamp)
+    hist = np.histogram([float(result.health) for result in results], bins=100)
+    return Histogram(y=hist[0].tolist(), x=hist[1].tolist())
 
 
 def get_daily_market_volume(market: str) -> list[MarketVolume]:
