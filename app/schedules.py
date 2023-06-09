@@ -76,7 +76,7 @@ crvusd_tasks = {
     },
     "populate-crvusd-user_states": {
         "task": "tasks.populate.populate_user_states",
-        "schedule": crontab(minute="*/2"),
+        "schedule": crontab(minute="*/15"),
     },
 }
 
