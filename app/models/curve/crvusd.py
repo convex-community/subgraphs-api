@@ -193,3 +193,9 @@ class MarketVolume:
 
 
 MarketVolumeSchema = marshmallow_dataclass.class_schema(MarketVolume)
+
+
+@dataclass
+class MarketLoans:
+    nLoans: int
+    timestamp: int

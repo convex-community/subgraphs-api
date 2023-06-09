@@ -1,5 +1,5 @@
 from enum import Enum
-
+import os
 from main.const import (
     CHAIN_MATIC,
     CHAIN_MAINNET,
@@ -60,3 +60,10 @@ PUBLIC_RPCS = {
     CHAIN_HARMONY: "https://api.harmony.one",
     CHAIN_MOONBEAM: "https://rpc.api.moonbeam.network",
 }
+
+ALCHEMY_API_KEY = os.getenv("ALCHEMY_API_KEY", "")
+# this is used for more heavy duty/frequent queries
+# the couch can use public RPCs
+WEB3_ALCHEMY_PROVIDER_URL = (
+    "https://eth-mainnet.g.alchemy.com/v2/" + ALCHEMY_API_KEY
+)

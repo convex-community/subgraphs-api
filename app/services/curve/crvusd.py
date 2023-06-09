@@ -14,6 +14,7 @@ from models.curve.crvusd import (
     MarketVolume,
     MarketVolumeSchema,
     VolumeSnapshot,
+    MarketLoans,
     Amm,
 )
 from models.curve.pool import CurvePoolName, CurvePool, CurvePoolNameSchema
@@ -75,6 +76,29 @@ def get_daily_market_rates(market: str) -> list[MarketRate]:
             ),
         )
         for timestamp, rate in result
+    ]
+
+
+def get_daily_market_loans(market: str) -> list[MarketLoans]:
+    timestamp_label = cast(func.to_timestamp(Snapshot.timestamp), Date).label(
+        "timestamp"
+    )
+    result = (
+        db.session.query(timestamp_label, func.avg(Snapshot.nLoans))
+        .join(Market)
+        .filter(Snapshot.marketId == market)
+        .group_by(timestamp_label)
+        .order_by(desc(timestamp_label))
+        .all()
+    )
+    return [
+        MarketLoans(
+            nLoans=int(loans),
+            timestamp=int(
+                datetime.combine(timestamp, datetime.min.time()).timestamp()
+            ),
+        )
+        for timestamp, loans in result
     ]
 
 

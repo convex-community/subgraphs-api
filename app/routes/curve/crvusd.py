@@ -8,6 +8,7 @@ from models.curve.crvusd import (
     MarketInfo,
     MarketRate,
     MarketVolume,
+    MarketLoans,
 )
 from models.curve.pool import CurvePoolName
 from services.curve.crvusd import (
@@ -17,6 +18,7 @@ from services.curve.crvusd import (
     get_hourly_market_rates,
     get_daily_market_rates,
     get_daily_market_volume,
+    get_daily_market_loans,
 )
 from utils import convert_schema
 
@@ -29,6 +31,7 @@ wild = fields.Wildcard(fields.Float)
 prices = api.model("crvUSD prices", {"timestamp": fields.Integer, "*": wild})
 rates = api.model("Market historical rates", convert_schema(MarketRate))
 volume = api.model("Market historical volume", convert_schema(MarketVolume))
+loans = api.model("Market historical loan number", convert_schema(MarketLoans))
 
 
 @api.route("/pools")
@@ -96,3 +99,12 @@ class DailyMarketVolume(Resource):
     @api.marshal_list_with(volume, envelope="volumes")
     def get(self, market):
         return get_daily_market_volume(market)
+
+
+@api.route('/markets/<regex("[A-z0-9]+"):market>/loans')
+@api.doc(description="Get daily loan # history")
+@api.param("market", "Market to query for")
+class DailyMarketLoans(Resource):
+    @api.marshal_list_with(loans, envelope="loans")
+    def get(self, market):
+        return get_daily_market_loans(market)
