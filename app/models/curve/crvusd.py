@@ -184,3 +184,12 @@ class MarketRate:
 
 
 MarketRateSchema = marshmallow_dataclass.class_schema(MarketRate)
+
+
+@dataclass
+class MarketVolume:
+    swapVolumeUsd: float
+    timestamp: int
+
+
+MarketVolumeSchema = marshmallow_dataclass.class_schema(MarketVolume)

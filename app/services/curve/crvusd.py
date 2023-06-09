@@ -11,15 +11,34 @@ from models.curve.crvusd import (
     MarketInfo,
     MarketRate,
     MarketRateSchema,
+    MarketVolume,
+    MarketVolumeSchema,
+    VolumeSnapshot,
+    Amm,
 )
 from models.curve.pool import CurvePoolName, CurvePool, CurvePoolNameSchema
-from main.const import PoolType
+from main.const import PoolType, DAY
 from models.curve.snapshot import CurvePoolSnapshot
 from sqlalchemy import desc, and_
 from datetime import timedelta, datetime
 import time
 
 from utils import growth_rate
+
+
+def get_daily_market_volume(market: str) -> list[MarketVolume]:
+    result = (
+        db.session.query(
+            VolumeSnapshot.swapVolumeUsd, VolumeSnapshot.timestamp
+        )
+        .join(Amm, Amm.id == VolumeSnapshot.ammId)
+        .join(Market, Market.amm == Amm.id)
+        .filter(Market.id == market)
+        .filter(VolumeSnapshot.period == DAY)
+        .order_by(desc(VolumeSnapshot.timestamp))
+        .all()
+    )
+    return [MarketVolumeSchema().load(row._asdict()) for row in result]
 
 
 def get_hourly_market_rates(market: str) -> list[MarketRate]:
