@@ -28,7 +28,7 @@ MARKET_QUERY = """
       totalSwapVolume
       totalVolume
       totalDepositVolume
-      volumeSnapshots(first: 1000 orderBy: timestamp orderDirection:desc) {
+      volumeSnapshots(first: 1000 orderBy: timestamp orderDirection:desc where: {period: 86400}) {
         id
         swapVolumeUSD
         depositVolumeUSD
