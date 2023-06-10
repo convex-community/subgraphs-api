@@ -75,10 +75,41 @@ def get_latest_user_states(
 
 
 def get_user_health_histogram(market: str):
+    def generate_deciles(df, decimals=3):
+        bins = np.percentile(df.health, np.arange(0, 110, 10))
+        labels = [
+            f"[{round(el * 100, decimals) if i != 0 else 0}, {round(bins[i + 1] * 100, decimals) if i < len(bins) - 2 else 1})"
+            for i, el in enumerate(bins[:-1])
+        ]
+        return pd.cut(
+            df["health"].apply(lambda x: round(x, decimals)),
+            bins=bins,
+            labels=labels,
+        )
+
     timestamp = int((time.time() // (15 * 60)) * (15 * 60))
-    results = get_user_states(market, timestamp)
-    hist = np.histogram([float(result.health) for result in results], bins=100)
-    return Histogram(y=hist[0].tolist(), x=hist[1].tolist())
+    states = get_user_states(market, timestamp)
+    results = pd.DataFrame([s.__dict__ for s in states])
+    results[
+        ["health", "debt", "collateral", "collateralUsd", "stableCoin"]
+    ] = results[
+        ["health", "debt", "collateral", "collateralUsd", "stableCoin"]
+    ].astype(
+        float
+    )
+
+    try:
+        results["interval"] = generate_deciles(results)
+    except ValueError:
+        results["interval"] = generate_deciles(results, 10)
+    return (
+        results[
+            ["debt", "collateral", "collateralUsd", "stableCoin", "interval"]
+        ]
+        .groupby("interval")
+        .sum()
+        .to_dict("index")
+    )
 
 
 def get_daily_market_volume(market: str) -> list[MarketVolume]:

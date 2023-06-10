@@ -1,4 +1,4 @@
-from flask_restx import Resource, Namespace, fields, reqparse
+from flask_restx import Resource, Namespace, fields, reqparse, Model
 import json
 from main import redis  # type: ignore
 
@@ -36,7 +36,19 @@ rates = api.model("Market historical rates", convert_schema(MarketRate))
 volume = api.model("Market historical volume", convert_schema(MarketVolume))
 loans = api.model("Market historical loan number", convert_schema(MarketLoans))
 states = api.model("User states", convert_schema(UserStateData))
-
+interval_data_model = api.model(
+    "IntervalData",
+    {
+        "debt": fields.Float,
+        "collateral": fields.Float,
+        "collateralUsd": fields.Float,
+        "stableCoin": fields.Float,
+    },
+)
+deciles = api.model(
+    "Health ratio deciles",
+    {"*": fields.Wildcard(fields.Nested(interval_data_model))},
+)
 pagination = reqparse.RequestParser()
 pagination.add_argument(
     "offset",
@@ -141,10 +153,10 @@ class UserRecentStates(Resource):
         return get_latest_user_states(market, **args)
 
 
-@api.route('/markets/<regex("[A-z0-9]+"):market>/users/health/hist')
+@api.route('/markets/<regex("[A-z0-9]+"):market>/users/health/deciles')
 @api.doc(description="Get histogram of users health ratio")
 @api.param("market", "Market to query for")
-class UserHealthHist(Resource):
-    @api.marshal_with(hist)
+class UserHealthDeciles(Resource):
+    @api.marshal_list_with(deciles, envelope="deciles")
     def get(self, market):
         return get_user_health_histogram(market)
