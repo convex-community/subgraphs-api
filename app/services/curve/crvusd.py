@@ -436,35 +436,41 @@ def get_keepers_debt():
     ]
 
 
-def get_pending_fees_from_snapshot() -> List[CrvUsdFeesBreakdown]:
-    subquery = (
-        db.session.query(
-            Snapshot.marketId,
-            func.max(Snapshot.timestamp).label("max_timestamp"),
-        )
-        .group_by(Snapshot.marketId)
-        .subquery()
+def get_pending_fees_from_snapshot(
+    market_id=None,
+) -> List[CrvUsdFeesBreakdown]:
+    subquery = db.session.query(
+        Snapshot.marketId,
+        func.max(Snapshot.timestamp).label("max_timestamp"),
+    ).group_by(Snapshot.marketId)
+
+    # If a market_id is specified, add a where clause to the subquery
+    if market_id is not None:
+        subquery = subquery.filter(Snapshot.marketId == market_id)
+
+    subquery = subquery.subquery()
+
+    query = db.session.query(
+        Snapshot.marketId,
+        Snapshot.crvUsdAdminFees,
+        Snapshot.adminBorrowingFees,
+        label(
+            "collateralAdminFeesUsd",
+            Snapshot.collateralAdminFees * Snapshot.oraclePrice,
+        ),
+    ).join(
+        subquery,
+        and_(
+            Snapshot.marketId == subquery.c.marketId,
+            Snapshot.timestamp == subquery.c.max_timestamp,
+        ),
     )
 
-    results = (
-        db.session.query(
-            Snapshot.marketId,
-            Snapshot.crvUsdAdminFees,
-            Snapshot.adminBorrowingFees,
-            label(
-                "collateralAdminFeesUsd",
-                Snapshot.collateralAdminFees * Snapshot.oraclePrice,
-            ),
-        )
-        .join(
-            subquery,
-            and_(
-                Snapshot.marketId == subquery.c.marketId,
-                Snapshot.timestamp == subquery.c.max_timestamp,
-            ),
-        )
-        .all()
-    )
+    # If a market_id is specified, add a where clause to the query
+    if market_id is not None:
+        query = query.filter(Snapshot.marketId == market_id)
+
+    results = query.all()
 
     return [
         CrvUsdFeesBreakdown(
@@ -477,26 +483,28 @@ def get_pending_fees_from_snapshot() -> List[CrvUsdFeesBreakdown]:
     ]
 
 
-def get_total_collected_fees():
-    results = (
-        db.session.query(
-            CollectedFees.marketId,
-            func.coalesce(func.sum(CollectedFees.borrowingFees), 0).label(
-                "total_borrowingFees"
-            ),
-            func.coalesce(func.sum(CollectedFees.ammCollateralFees), 0).label(
-                "total_ammCollateralFees"
-            ),
-            func.coalesce(
-                func.sum(CollectedFees.ammCollateralFeesUsd), 0
-            ).label("total_ammCollateralFeesUsd"),
-            func.coalesce(func.sum(CollectedFees.ammBorrowingFees), 0).label(
-                "total_ammBorrowingFees"
-            ),
-        )
-        .group_by(CollectedFees.marketId)
-        .all()
+def get_total_collected_fees(market_id=None):
+    query = db.session.query(
+        CollectedFees.marketId,
+        func.coalesce(func.sum(CollectedFees.borrowingFees), 0).label(
+            "total_borrowingFees"
+        ),
+        func.coalesce(func.sum(CollectedFees.ammCollateralFees), 0).label(
+            "total_ammCollateralFees"
+        ),
+        func.coalesce(func.sum(CollectedFees.ammCollateralFeesUsd), 0).label(
+            "total_ammCollateralFeesUsd"
+        ),
+        func.coalesce(func.sum(CollectedFees.ammBorrowingFees), 0).label(
+            "total_ammBorrowingFees"
+        ),
     )
+
+    # If a market_id is specified, add a where clause to the query
+    if market_id is not None:
+        query = query.filter(CollectedFees.marketId == market_id)
+
+    results = query.group_by(CollectedFees.marketId).all()
 
     return [
         CrvUsdFeesBreakdown(
@@ -509,7 +517,7 @@ def get_total_collected_fees():
     ]
 
 
-def get_aggregated_fees():
+def get_aggregated_fees(market_id=None):
     pending = sum(
         [
             (
@@ -517,7 +525,7 @@ def get_aggregated_fees():
                 + c.adminBorrowingFees
                 + c.collateralAdminFeesUsd
             )
-            for c in get_pending_fees_from_snapshot()
+            for c in get_pending_fees_from_snapshot(market_id)
         ]
     )
     collected = sum(
@@ -527,14 +535,14 @@ def get_aggregated_fees():
                 + c.adminBorrowingFees
                 + c.collateralAdminFeesUsd
             )
-            for c in get_total_collected_fees()
+            for c in get_total_collected_fees(market_id)
         ]
     )
     return CrvUsdFees(pending=pending, collected=collected)
 
 
-def get_fees_breakdown():
+def get_fees_breakdown(market_id=None):
     return {
-        "pending": get_pending_fees_from_snapshot(),
-        "collected": get_total_collected_fees(),
+        "pending": get_pending_fees_from_snapshot(market_id),
+        "collected": get_total_collected_fees(market_id),
     }

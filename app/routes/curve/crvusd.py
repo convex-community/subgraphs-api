@@ -1,4 +1,4 @@
-from flask_restx import Resource, Namespace, fields, reqparse, Model
+from flask_restx import Resource, Namespace, fields, reqparse, Model, marshal
 import json
 from main import redis  # type: ignore
 
@@ -13,6 +13,7 @@ from models.curve.crvusd import (
     TotalSupply,
     KeepersDebt,
     CrvUsdFees,
+    CrvUsdFeesBreakdown,
 )
 from models.curve.pool import CurvePoolName
 from services.curve.crvusd import (
@@ -28,6 +29,9 @@ from services.curve.crvusd import (
     get_historical_supply,
     get_keepers_debt,
     get_aggregated_fees,
+    get_fees_breakdown,
+    get_pending_fees_from_snapshot,
+    get_total_collected_fees,
 )
 from utils import convert_schema
 
@@ -40,6 +44,14 @@ wild = fields.Wildcard(fields.Float)
 prices = api.model("crvUSD prices", {"timestamp": fields.Integer, "*": wild})
 rates = api.model("Market historical rates", convert_schema(MarketRate))
 fees = api.model("Pending and collected fees", convert_schema(CrvUsdFees))
+breakdown = api.model("Fee breakdown", convert_schema(CrvUsdFeesBreakdown))
+detailed_fees = api.model(
+    "Breakdown of pending and collected fees",
+    {
+        "pending": fields.Nested(breakdown),
+        "collected": fields.Nested(breakdown),
+    },
+)
 volume = api.model("Market historical volume", convert_schema(MarketVolume))
 loans = api.model("Market historical loan number", convert_schema(MarketLoans))
 states = api.model("User states", convert_schema(UserStateData))
@@ -190,6 +202,36 @@ class UserHealthDeciles(Resource):
 @api.route("/fees")
 @api.doc(description="Get aggregated pending and collected fees")
 class TotalFees(Resource):
-    @api.marshal_with(fees, envelope="fees")
+    @api.marshal_list_with(fees, envelope="fees")
     def get(self):
         return get_aggregated_fees()
+
+
+@api.route('/markets/<regex("[A-z0-9]+"):market>/fees')
+@api.doc(
+    description="Get aggregated pending and collected fees for a specific market"
+)
+@api.param("market", "Market to query for")
+class MarketTotalFees(Resource):
+    @api.marshal_list_with(fees, envelope="fees")
+    def get(self, market):
+        return get_aggregated_fees(market_id=market)
+
+
+@api.route("/fees/breakdown")
+@api.doc(description="Get breakdown of pending and collected fees")
+class TotalDetailedFees(Resource):
+    @api.marshal_with(detailed_fees)
+    def get(self):
+        return get_fees_breakdown()
+
+
+@api.route('/markets/<regex("[A-z0-9]+"):market>/fees/breakdown')
+@api.doc(
+    description="Get breakdown of pending and collected fees for a specific market"
+)
+@api.param("market", "Market to query for")
+class MarketTotalDetailedFees(Resource):
+    @api.marshal_with(detailed_fees)
+    def get(self, market):
+        return get_fees_breakdown(market_id=market)
