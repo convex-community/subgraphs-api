@@ -1,7 +1,7 @@
 from typing import List
 import pandas as pd
 import numpy as np
-from sqlalchemy import func, Date, cast
+from sqlalchemy import func, Date, cast, Integer, text, literal
 
 from main import db
 from models.curve.crvusd import (
@@ -20,6 +20,8 @@ from models.curve.crvusd import (
     UserStateData,
     UserState,
     Histogram,
+    TotalSupply,
+    TotalSupplySchema,
 )
 from models.curve.pool import CurvePoolName, CurvePool, CurvePoolNameSchema
 from main.const import PoolType, DAY
@@ -333,3 +335,89 @@ def get_crvusd_markets() -> List[MarketInfo]:
             )
         )
     return res
+
+
+def get_historical_supply():
+    snapshot_subquery = (
+        db.session.query(
+            Snapshot.marketId,
+            func.date_trunc(
+                "day", func.to_timestamp(Snapshot.timestamp)
+            ).label("day"),
+            func.max(Snapshot.timestamp).label("last_timestamp"),
+        )
+        .group_by(Snapshot.marketId, "day")
+        .subquery()
+    )
+
+    supply_subquery = db.session.query(
+        Snapshot.marketId,
+        Snapshot.timestamp,
+        (Snapshot.minted - Snapshot.redeemed).label("totalSupply"),
+        Snapshot.totalKeeperDebt.label("keepersDebt"),
+    ).subquery()
+
+    market_results = (
+        db.session.query(
+            Market.collateralName.label("name"),
+            func.extract("epoch", snapshot_subquery.c.day)
+            .cast(Integer)
+            .label("timestamp"),
+            func.sum(supply_subquery.c.totalSupply).label("totalSupply"),
+        )
+        .join(
+            supply_subquery,
+            and_(
+                supply_subquery.c.marketId == snapshot_subquery.c.marketId,
+                supply_subquery.c.timestamp
+                == snapshot_subquery.c.last_timestamp,
+            ),
+        )
+        .join(Market, Market.id == supply_subquery.c.marketId)
+        .group_by(
+            "name",
+            "timestamp",
+            snapshot_subquery.c.day,  # Include 'day' in the GROUP BY clause
+        )
+        .order_by("timestamp")
+        .all()
+    )
+
+    keepers_debt_results = (
+        db.session.query(
+            literal("Keepers debt").label("name"),
+            func.extract("epoch", snapshot_subquery.c.day)
+            .cast(Integer)
+            .label("timestamp"),
+            func.sum(supply_subquery.c.keepersDebt).label("totalSupply"),
+        )
+        .join(
+            supply_subquery,
+            supply_subquery.c.timestamp == snapshot_subquery.c.last_timestamp,
+        )
+        .group_by(
+            "name",
+            "timestamp",
+            snapshot_subquery.c.day,  # Include 'day' in the GROUP BY clause
+        )
+        .order_by("timestamp")
+        .all()
+    )
+
+    results = market_results + keepers_debt_results
+
+    df = pd.DataFrame(results, columns=["name", "timestamp", "totalSupply"])
+    df2 = (
+        df.drop_duplicates()
+        .pivot_table(values=["totalSupply"], columns="name", index="timestamp")
+        .fillna(0)
+        .sort_values("timestamp", ascending=False)
+    )
+    df2.columns = df2.columns.droplevel()
+    df2 = df2.reset_index().melt(
+        id_vars="timestamp", var_name="name", value_name="totalSupply"
+    )
+    df2.sort_values(
+        ["timestamp", "name"], ascending=[False, True], inplace=True
+    )
+    return TotalSupplySchema().load(df2.to_dict("records"), many=True)

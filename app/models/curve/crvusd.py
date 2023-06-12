@@ -227,3 +227,13 @@ class UserStateData:
     debt: float
     N: int
     health: float
+
+
+@dataclass
+class TotalSupply:
+    name: str
+    totalSupply: float
+    timestamp: int
+
+
+TotalSupplySchema = marshmallow_dataclass.class_schema(TotalSupply)

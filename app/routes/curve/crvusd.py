@@ -10,6 +10,7 @@ from models.curve.crvusd import (
     MarketVolume,
     MarketLoans,
     UserStateData,
+    TotalSupply,
 )
 from models.curve.pool import CurvePoolName
 from services.curve.crvusd import (
@@ -22,6 +23,7 @@ from services.curve.crvusd import (
     get_daily_market_loans,
     get_latest_user_states,
     get_user_health_histogram,
+    get_historical_supply,
 )
 from utils import convert_schema
 
@@ -45,6 +47,7 @@ interval_data_model = api.model(
         "stableCoin": fields.Float,
     },
 )
+supply = api.model("crvUSD historical supply", convert_schema(TotalSupply))
 deciles = api.model(
     "Health ratio deciles",
     {"*": fields.Wildcard(fields.Nested(interval_data_model))},
@@ -88,6 +91,14 @@ class UsdPrices(Resource):
     @api.marshal_list_with(prices, envelope="prices")
     def get(self):
         return json.loads(redis.get("crvusd_prices"))
+
+
+@api.route("/supply")
+@api.doc(description="Get historical supply for crvUSD")
+class CrvUsdSupply(Resource):
+    @api.marshal_list_with(supply, envelope="supply")
+    def get(self):
+        return get_historical_supply()
 
 
 @api.route("/prices/hist")
