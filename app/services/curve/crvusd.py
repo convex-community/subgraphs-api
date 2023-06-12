@@ -22,6 +22,8 @@ from models.curve.crvusd import (
     Histogram,
     TotalSupply,
     TotalSupplySchema,
+    PegKeeper,
+    KeepersDebt,
 )
 from models.curve.pool import CurvePoolName, CurvePool, CurvePoolNameSchema
 from main.const import PoolType, DAY
@@ -421,3 +423,11 @@ def get_historical_supply():
         ["timestamp", "name"], ascending=[False, True], inplace=True
     )
     return TotalSupplySchema().load(df2.to_dict("records"), many=True)
+
+
+def get_keepers_debt():
+    keepers = db.session.query(PegKeeper).all()
+    return [
+        KeepersDebt(keeper=keeper.id, debt=float(keeper.debt) * 1e-18)
+        for keeper in keepers
+    ]

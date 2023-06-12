@@ -237,3 +237,9 @@ class TotalSupply:
 
 
 TotalSupplySchema = marshmallow_dataclass.class_schema(TotalSupply)
+
+
+@dataclass
+class KeepersDebt:
+    keeper: str
+    debt: float

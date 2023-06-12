@@ -11,6 +11,7 @@ from models.curve.crvusd import (
     MarketLoans,
     UserStateData,
     TotalSupply,
+    KeepersDebt,
 )
 from models.curve.pool import CurvePoolName
 from services.curve.crvusd import (
@@ -24,6 +25,7 @@ from services.curve.crvusd import (
     get_latest_user_states,
     get_user_health_histogram,
     get_historical_supply,
+    get_keepers_debt,
 )
 from utils import convert_schema
 
@@ -38,6 +40,7 @@ rates = api.model("Market historical rates", convert_schema(MarketRate))
 volume = api.model("Market historical volume", convert_schema(MarketVolume))
 loans = api.model("Market historical loan number", convert_schema(MarketLoans))
 states = api.model("User states", convert_schema(UserStateData))
+keepers = api.model("Keepers debt", convert_schema(KeepersDebt))
 interval_data_model = api.model(
     "IntervalData",
     {
@@ -99,6 +102,14 @@ class CrvUsdSupply(Resource):
     @api.marshal_list_with(supply, envelope="supply")
     def get(self):
         return get_historical_supply()
+
+
+@api.route("/keepers/debt")
+@api.doc(description="Get Keepers debt breakdown")
+class DebtOfKeepers(Resource):
+    @api.marshal_list_with(keepers, envelope="keepers")
+    def get(self):
+        return get_keepers_debt()
 
 
 @api.route("/prices/hist")
