@@ -129,6 +129,7 @@ class Snapshot(db.Model):
     nLoans = Column(Integer)
     crvUsdAdminFees = Column(Numeric)
     collateralAdminFees = Column(Numeric)
+    adminBorrowingFees = Column(Numeric)
     fee = Column(Numeric)
     adminFee = Column(Numeric)
     ammPrice = Column(Numeric)
@@ -140,6 +141,19 @@ class Snapshot(db.Model):
     bandSnapshot = Column(Boolean)
     blockNumber = Column(Integer)
     timestamp = Column(Integer)
+
+
+class CollectedFees(db.Model):
+    __tablename__ = "collectedFees"
+    id = Column(String, primary_key=True)
+    marketId = Column(String, ForeignKey("market.id"))
+    market = relationship("Market")
+    borrowingFees = Column(Float)
+    ammCollateralFees = Column(Float)
+    ammCollateralFeesUsd = Column(Float)
+    ammBorrowingFees = Column(Float)
+    blockNumber = Column(Integer)
+    blockTimestamp = Column(Integer)
 
 
 @dataclass
@@ -243,3 +257,17 @@ TotalSupplySchema = marshmallow_dataclass.class_schema(TotalSupply)
 class KeepersDebt:
     keeper: str
     debt: float
+
+
+@dataclass
+class CrvUsdFees:
+    pending: float
+    collected: float
+
+
+@dataclass
+class CrvUsdFeesBreakdown:
+    market: str
+    crvUsdAdminFees: float
+    adminBorrowingFees: float
+    collateralAdminFeesUsd: float

@@ -7,6 +7,7 @@ from models.curve.crvusd import (
     DebtFraction,
     VolumeSnapshot,
     Snapshot,
+    CollectedFees,
 )
 from tasks.queries.graph import grt_crvusd_query
 
@@ -82,6 +83,7 @@ SNAPSHOT_QUERY = """{
 
   crvUsdAdminFees
   collateralAdminFees
+  adminBorrowingFees
   fee
   adminFee
 
@@ -97,6 +99,23 @@ SNAPSHOT_QUERY = """{
   timestamp
   }
 }"""
+
+COLLECTED_FEES_QUERY = """
+{
+  markets(first: 1000) {
+    id
+    collectedFees(first: 1000 orderBy: blockTimestamp orderDirection: desc) {
+      id
+      ammBorrowingFees
+      ammCollateralFees
+      ammCollateralFeesUsd
+      borrowingFees
+      blockNumber
+      blockTimestamp
+    }
+  }
+}
+"""
 
 
 def update_crvusd_market_data():
@@ -192,6 +211,7 @@ def update_crvusd_market_data():
                 nLoans=snapshot["nLoans"],
                 crvUsdAdminFees=snapshot["crvUsdAdminFees"],
                 collateralAdminFees=snapshot["collateralAdminFees"],
+                adminBorrowingFees=snapshot["adminBorrowingFees"],
                 fee=snapshot["fee"],
                 adminFee=snapshot["adminFee"],
                 ammPrice=snapshot["ammPrice"],
@@ -204,6 +224,21 @@ def update_crvusd_market_data():
                 timestamp=snapshot["timestamp"],
             )
             db.session.merge(new_snapshot)
+        db.session.commit()
+
+        fee_data = grt_crvusd_query(COLLECTED_FEES_QUERY)
+        for market_fees in fee_data["markets"]:
+            for collected in market_fees["collectedFees"]:
+                new_collected_fee = CollectedFees(
+                    id=collected["id"],
+                    marketId=market_fees["id"],
+                    borrowingFees=collected["borrowingFees"],
+                    ammCollateralFees=collected["ammCollateralFees"],
+                    ammBorrowingFees=collected["ammBorrowingFees"],
+                    blockNumber=collected["blockNumber"],
+                    blockTimestamp=collected["blockTimestamp"],
+                )
+                db.session.merge(new_collected_fee)
         db.session.commit()
 
 

@@ -12,6 +12,7 @@ from models.curve.crvusd import (
     UserStateData,
     TotalSupply,
     KeepersDebt,
+    CrvUsdFees,
 )
 from models.curve.pool import CurvePoolName
 from services.curve.crvusd import (
@@ -26,6 +27,7 @@ from services.curve.crvusd import (
     get_user_health_histogram,
     get_historical_supply,
     get_keepers_debt,
+    get_aggregated_fees,
 )
 from utils import convert_schema
 
@@ -37,6 +39,7 @@ markets = api.model("Market descriptions", convert_schema(MarketInfo))
 wild = fields.Wildcard(fields.Float)
 prices = api.model("crvUSD prices", {"timestamp": fields.Integer, "*": wild})
 rates = api.model("Market historical rates", convert_schema(MarketRate))
+fees = api.model("Pending and collected fees", convert_schema(CrvUsdFees))
 volume = api.model("Market historical volume", convert_schema(MarketVolume))
 loans = api.model("Market historical loan number", convert_schema(MarketLoans))
 states = api.model("User states", convert_schema(UserStateData))
@@ -182,3 +185,11 @@ class UserHealthDeciles(Resource):
     @api.marshal_list_with(deciles, envelope="deciles")
     def get(self, market):
         return get_user_health_histogram(market)
+
+
+@api.route("/fees")
+@api.doc(description="Get aggregated pending and collected fees")
+class TotalFees(Resource):
+    @api.marshal_with(fees, envelope="fees")
+    def get(self):
+        return get_aggregated_fees()

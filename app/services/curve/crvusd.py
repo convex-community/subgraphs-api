@@ -1,7 +1,7 @@
 from typing import List
 import pandas as pd
 import numpy as np
-from sqlalchemy import func, Date, cast, Integer, text, literal
+from sqlalchemy import func, Date, cast, Integer, text, literal, label
 
 from main import db
 from models.curve.crvusd import (
@@ -24,6 +24,9 @@ from models.curve.crvusd import (
     TotalSupplySchema,
     PegKeeper,
     KeepersDebt,
+    CollectedFees,
+    CrvUsdFeesBreakdown,
+    CrvUsdFees,
 )
 from models.curve.pool import CurvePoolName, CurvePool, CurvePoolNameSchema
 from main.const import PoolType, DAY
@@ -431,3 +434,107 @@ def get_keepers_debt():
         KeepersDebt(keeper=keeper.id, debt=float(keeper.debt) * 1e-18)
         for keeper in keepers
     ]
+
+
+def get_pending_fees_from_snapshot() -> List[CrvUsdFeesBreakdown]:
+    subquery = (
+        db.session.query(
+            Snapshot.marketId,
+            func.max(Snapshot.timestamp).label("max_timestamp"),
+        )
+        .group_by(Snapshot.marketId)
+        .subquery()
+    )
+
+    results = (
+        db.session.query(
+            Snapshot.marketId,
+            Snapshot.crvUsdAdminFees,
+            Snapshot.adminBorrowingFees,
+            label(
+                "collateralAdminFeesUsd",
+                Snapshot.collateralAdminFees * Snapshot.oraclePrice,
+            ),
+        )
+        .join(
+            subquery,
+            and_(
+                Snapshot.marketId == subquery.c.marketId,
+                Snapshot.timestamp == subquery.c.max_timestamp,
+            ),
+        )
+        .all()
+    )
+
+    return [
+        CrvUsdFeesBreakdown(
+            market=result.marketId,
+            crvUsdAdminFees=result.crvUsdAdminFees,
+            adminBorrowingFees=result.adminBorrowingFees,
+            collateralAdminFeesUsd=result.collateralAdminFeesUsd,
+        )
+        for result in results
+    ]
+
+
+def get_total_collected_fees():
+    results = (
+        db.session.query(
+            CollectedFees.marketId,
+            func.coalesce(func.sum(CollectedFees.borrowingFees), 0).label(
+                "total_borrowingFees"
+            ),
+            func.coalesce(func.sum(CollectedFees.ammCollateralFees), 0).label(
+                "total_ammCollateralFees"
+            ),
+            func.coalesce(
+                func.sum(CollectedFees.ammCollateralFeesUsd), 0
+            ).label("total_ammCollateralFeesUsd"),
+            func.coalesce(func.sum(CollectedFees.ammBorrowingFees), 0).label(
+                "total_ammBorrowingFees"
+            ),
+        )
+        .group_by(CollectedFees.marketId)
+        .all()
+    )
+
+    return [
+        CrvUsdFeesBreakdown(
+            market=result.marketId,
+            crvUsdAdminFees=result.total_borrowingFees,
+            adminBorrowingFees=result.total_ammCollateralFees,
+            collateralAdminFeesUsd=result.total_ammCollateralFeesUsd,
+        )
+        for result in results
+    ]
+
+
+def get_aggregated_fees():
+    pending = sum(
+        [
+            (
+                c.crvUsdAdminFees
+                + c.adminBorrowingFees
+                + c.collateralAdminFeesUsd
+            )
+            for c in get_pending_fees_from_snapshot()
+        ]
+    )
+    collected = sum(
+        [
+            (
+                c.crvUsdAdminFees
+                + c.adminBorrowingFees
+                + c.collateralAdminFeesUsd
+            )
+            for c in get_total_collected_fees()
+        ]
+    )
+    return CrvUsdFees(pending=pending, collected=collected)
+
+
+def get_fees_breakdown():
+    return {
+        "pending": get_pending_fees_from_snapshot(),
+        "collected": get_total_collected_fees(),
+    }
