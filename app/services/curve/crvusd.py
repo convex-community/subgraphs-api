@@ -431,7 +431,9 @@ def get_historical_supply():
 def get_keepers_debt():
     keepers = db.session.query(PegKeeper).all()
     return [
-        KeepersDebt(keeper=keeper.id, debt=float(keeper.debt) * 1e-18)
+        KeepersDebt(
+            keeper=keeper.id, pool=keeper.pool, debt=float(keeper.debt) * 1e-18
+        )
         for keeper in keepers
     ]
 
