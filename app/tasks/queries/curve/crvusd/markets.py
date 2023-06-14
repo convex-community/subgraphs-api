@@ -45,6 +45,7 @@ MARKET_QUERY = """
         id
         active
         debt
+        pool
         totalProfit
         totalProvided
         totalWithdrawn
@@ -157,6 +158,7 @@ def update_crvusd_market_data():
                 policy=new_policy,
                 active=keeper["active"],
                 debt=keeper["debt"],
+                pool=keeper["pool"],
                 totalProvided=keeper["totalProvided"],
                 totalWithdrawn=keeper["totalWithdrawn"],
                 totalProfit=keeper["totalProfit"],

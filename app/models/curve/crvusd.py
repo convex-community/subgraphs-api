@@ -46,6 +46,7 @@ class PegKeeper(db.Model):
     policyId = Column(String, ForeignKey("monetaryPolicy.id"))
     policy = relationship("MonetaryPolicy", back_populates="pegKeepers")
     active = Column(Boolean)
+    pool = Column(String)
     debt = Column(Numeric)
     totalProvided = Column(Numeric)
     totalWithdrawn = Column(Numeric)
@@ -256,6 +257,7 @@ TotalSupplySchema = marshmallow_dataclass.class_schema(TotalSupply)
 @dataclass
 class KeepersDebt:
     keeper: str
+    pool: str
     debt: float
 
 
