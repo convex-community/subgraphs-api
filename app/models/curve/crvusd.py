@@ -181,7 +181,7 @@ class MarketInfo:
     name: str
     address: str
     rate: float
-    rateDelta: float
+    rateAbsDelta: float
     borrowed: float
     borrowedDelta: float
     totalCollateral: float

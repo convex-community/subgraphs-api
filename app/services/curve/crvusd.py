@@ -320,9 +320,7 @@ def get_crvusd_markets() -> List[MarketInfo]:
                 name=market.collateralName,
                 address=market.id,
                 rate=last_snapshot_rate,
-                rateDelta=growth_rate(
-                    last_snapshot_rate, snapshot_one_day_ago_rate
-                ),
+                rateAbsDelta=last_snapshot_rate - snapshot_one_day_ago_rate,
                 borrowed=last_snapshot_totalDebt,
                 borrowedDelta=growth_rate(
                     last_snapshot_totalDebt, snapshot_one_day_ago_totalDebt
