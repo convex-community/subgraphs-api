@@ -184,6 +184,7 @@ def check_couch_cushion() -> List[dict]:
             CurvePool.coins,
             CurvePool.coinNames,
             CurvePool.isV2,
+            CurvePool.id,
             CouchInfo.balance,
             CouchInfo.value,
             CouchInfo.totalUSD,
@@ -197,6 +198,7 @@ def check_couch_cushion() -> List[dict]:
         {
             "pool": r.name,
             "address": r.address,
+            "chain": r.id.split("-")[-1],
             "coins": r.coins,
             "coinNames": r.coinNames if not r.isV2 else ["LP Token"],
             "balance": r.balance,

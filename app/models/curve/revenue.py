@@ -67,6 +67,7 @@ class CouchInfo(db.Model):
 class CouchCushion:
     pool: str
     address: str
+    chain: str
     coins: List[str]
     coinNames: List[str]
     balance: List[float]
