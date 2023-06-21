@@ -14,6 +14,7 @@ from models.curve.crvusd import (
     KeepersDebt,
     CrvUsdFees,
     CrvUsdFeesBreakdown,
+    KeepersProfit,
 )
 from models.curve.pool import CurvePoolName
 from services.curve.crvusd import (
@@ -32,6 +33,7 @@ from services.curve.crvusd import (
     get_fees_breakdown,
     get_pending_fees_from_snapshot,
     get_total_collected_fees,
+    get_keepers_profit,
 )
 from utils import convert_schema
 
@@ -55,7 +57,8 @@ detailed_fees = api.model(
 volume = api.model("Market historical volume", convert_schema(MarketVolume))
 loans = api.model("Market historical loan number", convert_schema(MarketLoans))
 states = api.model("User states", convert_schema(UserStateData))
-keepers = api.model("Keepers debt", convert_schema(KeepersDebt))
+keepers_debt = api.model("Keepers debt", convert_schema(KeepersDebt))
+keepers_profit = api.model("Keepers profit", convert_schema(KeepersProfit))
 interval_data_model = api.model(
     "IntervalData",
     {
@@ -122,9 +125,17 @@ class CrvUsdSupply(Resource):
 @api.route("/keepers/debt")
 @api.doc(description="Get Keepers debt breakdown")
 class DebtOfKeepers(Resource):
-    @api.marshal_list_with(keepers, envelope="keepers")
+    @api.marshal_list_with(keepers_debt, envelope="keepers")
     def get(self):
         return get_keepers_debt()
+
+
+@api.route("/keepers/profit")
+@api.doc(description="Get Keepers total all-time profit")
+class ProfitOfKeepers(Resource):
+    @api.marshal_list_with(keepers_profit, envelope="profit")
+    def get(self):
+        return get_keepers_profit()
 
 
 @api.route("/prices/hist")

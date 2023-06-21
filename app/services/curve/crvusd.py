@@ -27,6 +27,8 @@ from models.curve.crvusd import (
     CollectedFees,
     CrvUsdFeesBreakdown,
     CrvUsdFees,
+    MonetaryPolicy,
+    KeepersProfit,
 )
 from models.curve.pool import CurvePoolName, CurvePool, CurvePoolNameSchema
 from main.const import PoolType, DAY
@@ -431,6 +433,24 @@ def get_keepers_debt():
     return [
         KeepersDebt(
             keeper=keeper.id, pool=keeper.pool, debt=float(keeper.debt) * 1e-18
+        )
+        for keeper in keepers
+    ]
+
+
+def get_keepers_profit():
+    keepers = (
+        db.session.query(PegKeeper, MonetaryPolicy, Market)
+        .join(MonetaryPolicy, PegKeeper.policyId == MonetaryPolicy.id)
+        .join(Market, MonetaryPolicy.market == Market.id)
+        .all()
+    )
+    return [
+        KeepersProfit(
+            keeper=keeper.id,
+            pool=keeper.pool,
+            profit=float(keeper.totalProfit) * 1e-18,
+            market=keeper.Market.id,
         )
         for keeper in keepers
     ]

@@ -262,6 +262,14 @@ class KeepersDebt:
 
 
 @dataclass
+class KeepersProfit:
+    keeper: str
+    pool: str
+    profit: float
+    market: str
+
+
+@dataclass
 class CrvUsdFees:
     pending: float
     collected: float
