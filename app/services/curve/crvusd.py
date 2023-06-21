@@ -447,9 +447,9 @@ def get_keepers_profit():
     )
     return [
         KeepersProfit(
-            keeper=keeper.id,
-            pool=keeper.pool,
-            profit=float(keeper.totalProfit) * 1e-18,
+            keeper=keeper.PegKeeper.id,
+            pool=keeper.PegKeeper.pool,
+            profit=float(keeper.PegKeeper.totalProfit) * 1e-18,
             market=keeper.Market.id,
         )
         for keeper in keepers
