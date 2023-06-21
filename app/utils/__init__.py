@@ -55,12 +55,12 @@ def convert_sqlalchemy(sqla_type):
         if key_type in SQL_TYPE_MAP:
             res[key] = SQL_TYPE_MAP[key_type]
         elif (
-            hasattr(column.type, "__args__")
+            hasattr(column.type, "item_type")
             and isinstance(column.type, ARRAY)
-            and type(column.type.__args__[0]) in SQL_TYPE_MAP
+            and type(column.type.item_type) in SQL_TYPE_MAP
         ):
             res[key] = SQL_TYPE_MAP[ARRAY](
-                SQL_TYPE_MAP[type(column.type.__args__[0])]
+                SQL_TYPE_MAP[type(column.type.item_type)]
             )
     return res
 
