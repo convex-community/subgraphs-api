@@ -10,6 +10,10 @@ from main import db
 from main.const import CHAIN_MAINNET, PoolType, CRVUSD_CONTRACT
 from models.curve.pool import CurvePool
 from tasks.queries.graph import grt_curve_pools_query
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 redis = Redis(
     host="redis", password=os.getenv("REDIS_PASSWORD", ""), port=6379, db=0
@@ -37,16 +41,14 @@ def get_swaps(pool, days=30):
     now = int(time.time())
     current_time = now
     res = []
-    index = 0
     while True:
-        print(index)
-        index += 1
         data = grt_curve_pools_query(
             CHAIN_MAINNET, GRAPH_CRV_USD_PRICES_QUERY % (pool, pool, now)
         )
         coin = [c for c in data["pool"]["coinNames"] if c != "crvUSD"][0]
         swaps = data["swapEvents"]
         if not swaps:
+            logger.warning(f"Found no swaps at time {current_time} for {pool}")
             break
         last_timestamp = int(swaps[-1]["timestamp"])
         if last_timestamp == current_time:
@@ -54,7 +56,7 @@ def get_swaps(pool, days=30):
         current_time = last_timestamp
         res += swaps
         if last_timestamp < now - (days * 24 * 60 * 60):
-            print(f"Went back more than {days} days")
+            logger.warning(f"Went back more than {days} days for {pool}")
             break
     return coin, res
 

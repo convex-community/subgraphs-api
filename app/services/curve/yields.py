@@ -42,8 +42,6 @@ def get_latest_convex_pool_apr() -> List:
         .all()
     )
 
-    import logging
-
     return [
         CrvUsdYield(
             platform="Convex", pool=r[5], apy=r[0] + r[1] + r[2] + r[3]
