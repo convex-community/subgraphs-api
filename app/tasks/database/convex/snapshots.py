@@ -14,7 +14,7 @@ def update_convex_pool_snapshots(pools: List[ConvexPoolSnapshot]):
         if base_apr is None or math.isnan(base_apr) or math.isinf(base_apr):
             logger.error(f"Invalid or inexistant value for baseApr in {pool}")
             continue
-            db.session.merge(pool)
+        db.session.merge(pool)
     try:
         db.session.commit()
     except SQLAlchemyError as e:
