@@ -100,7 +100,11 @@ def get_crvusd_prices():
     res = {}
     for pool in pools:
         coin, swaps = get_swaps(pool, 30)
-        prices = pd.DataFrame(get_prices(swaps))
+        swap_prices = get_prices(swaps)
+        if not swap_prices:
+            logger.info(f"No swaps for pool: {pool}")
+            continue
+        prices = pd.DataFrame(swap_prices)
         prices.columns = ["timestamp", coin]
         prices["timestamp"] = pd.to_datetime(
             prices["timestamp"].astype(int), unit="s"
