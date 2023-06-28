@@ -1,5 +1,6 @@
 from flask_restx import Resource, Namespace, fields, reqparse, Model, marshal
 import json
+from routes import cache
 from main import redis  # type: ignore
 
 from models.curve.crvusd import (
@@ -151,6 +152,7 @@ class PricesHist(Resource):
 @api.route("/yield")
 @api.doc(description="List all yield opportunities for crvusd staking")
 class YieldList(Resource):
+    @cache.cached(timeout=60)
     @api.marshal_list_with(yields, envelope="yields")
     def get(self):
         return get_crv_usd_yields()
