@@ -228,20 +228,20 @@ def update_crvusd_market_data():
             db.session.merge(new_snapshot)
         db.session.commit()
 
-        fee_data = grt_crvusd_query(COLLECTED_FEES_QUERY)
-        for market_fees in fee_data["markets"]:
-            for collected in market_fees["collectedFees"]:
-                new_collected_fee = CollectedFees(
-                    id=collected["id"],
-                    marketId=market_fees["id"],
-                    borrowingFees=collected["borrowingFees"],
-                    ammCollateralFees=collected["ammCollateralFees"],
-                    ammBorrowingFees=collected["ammBorrowingFees"],
-                    blockNumber=collected["blockNumber"],
-                    blockTimestamp=collected["blockTimestamp"],
-                )
-                db.session.merge(new_collected_fee)
-        db.session.commit()
+    fee_data = grt_crvusd_query(COLLECTED_FEES_QUERY)
+    for market_fees in fee_data["markets"]:
+        for collected in market_fees["collectedFees"]:
+            new_collected_fee = CollectedFees(
+                id=collected["id"],
+                marketId=market_fees["id"],
+                borrowingFees=collected["borrowingFees"],
+                ammCollateralFees=collected["ammCollateralFees"],
+                ammBorrowingFees=collected["ammBorrowingFees"],
+                blockNumber=collected["blockNumber"],
+                blockTimestamp=collected["blockTimestamp"],
+            )
+            db.session.merge(new_collected_fee)
+    db.session.commit()
 
 
 def get_market_snapshots(market):

@@ -15,6 +15,7 @@ from models.curve.crvusd import (
     CrvUsdFees,
     CrvUsdFeesBreakdown,
     KeepersProfit,
+    CrvUsdYield,
 )
 from models.curve.pool import CurvePoolName
 from services.curve.crvusd import (
@@ -31,10 +32,9 @@ from services.curve.crvusd import (
     get_keepers_debt,
     get_aggregated_fees,
     get_fees_breakdown,
-    get_pending_fees_from_snapshot,
-    get_total_collected_fees,
     get_keepers_profit,
 )
+from services.curve.yields import get_crv_usd_yields
 from utils import convert_schema
 
 api = Namespace("crvusd", description="crvUSD endpoints")
@@ -69,6 +69,8 @@ interval_data_model = api.model(
     },
 )
 supply = api.model("crvUSD historical supply", convert_schema(TotalSupply))
+yields = api.model("crvUSD yield opportunities", convert_schema(CrvUsdYield))
+
 deciles = api.model(
     "Health ratio deciles",
     {"*": fields.Wildcard(fields.Nested(interval_data_model))},
@@ -144,6 +146,14 @@ class PricesHist(Resource):
     @api.marshal_with(hist)
     def get(self):
         return json.loads(redis.get("crvusd_hist"))
+
+
+@api.route("/yield")
+@api.doc(description="List all yield opportunities for crvusd staking")
+class YieldList(Resource):
+    @api.marshal_list_with(yields, envelope="yields")
+    def get(self):
+        return get_crv_usd_yields()
 
 
 @api.route("/markets")

@@ -281,3 +281,10 @@ class CrvUsdFeesBreakdown:
     crvUsdAdminFees: float
     adminBorrowingFees: float
     collateralAdminFeesUsd: float
+
+
+@dataclass
+class CrvUsdYield:
+    platform: str
+    pool: str
+    apy: float
