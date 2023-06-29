@@ -355,6 +355,17 @@ def get_historical_supply():
         .subquery()
     )
 
+    keepers_snapshot_subquery = (
+        db.session.query(
+            func.date_trunc(
+                "day", func.to_timestamp(Snapshot.timestamp)
+            ).label("day"),
+            func.max(Snapshot.timestamp).label("last_timestamp"),
+        )
+        .group_by("day")
+        .subquery()
+    )
+
     supply_subquery = db.session.query(
         Snapshot.marketId,
         Snapshot.timestamp,
@@ -391,19 +402,20 @@ def get_historical_supply():
     keepers_debt_results = (
         db.session.query(
             literal("Keepers debt").label("name"),
-            func.extract("epoch", snapshot_subquery.c.day)
+            func.extract("epoch", keepers_snapshot_subquery.c.day)
             .cast(Integer)
             .label("timestamp"),
-            func.sum(supply_subquery.c.keepersDebt).label("totalSupply"),
+            Snapshot.totalKeeperDebt.label("totalSupply"),
         )
         .join(
-            supply_subquery,
-            supply_subquery.c.timestamp == snapshot_subquery.c.last_timestamp,
+            Snapshot,
+            Snapshot.timestamp == keepers_snapshot_subquery.c.last_timestamp,
         )
         .group_by(
             "name",
             "timestamp",
-            snapshot_subquery.c.day,  # Include 'day' in the GROUP BY clause
+            keepers_snapshot_subquery.c.day,
+            Snapshot.totalKeeperDebt,
         )
         .order_by("timestamp")
         .all()
