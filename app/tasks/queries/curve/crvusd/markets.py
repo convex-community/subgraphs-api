@@ -27,13 +27,9 @@ MARKET_QUERY = """
       coinDecimals
       basePrice
       totalSwapVolume
-      totalVolume
-      totalDepositVolume
       volumeSnapshots(first: 1000 orderBy: timestamp orderDirection:desc where: {period: 86400}) {
         id
         swapVolumeUSD
-        depositVolumeUSD
-        totalVolumeUSD
         period
         count
         timestamp
@@ -141,8 +137,6 @@ def update_crvusd_market_data():
             coinNames=amm["coinNames"],
             basePrice=amm["basePrice"],
             totalSwapVolume=amm["totalSwapVolume"],
-            totalDepositVolume=amm["totalDepositVolume"],
-            totalVolume=amm["totalVolume"],
         )
 
         new_policy = MonetaryPolicy(
@@ -181,8 +175,6 @@ def update_crvusd_market_data():
                 id=vol_snapshot["id"],
                 amm=new_amm,
                 swapVolumeUsd=vol_snapshot["swapVolumeUSD"],
-                depositVolumeUsd=vol_snapshot["depositVolumeUSD"],
-                totalVolumeUsd=vol_snapshot["totalVolumeUSD"],
                 period=vol_snapshot["period"],
                 count=vol_snapshot["count"],
                 timestamp=vol_snapshot["timestamp"],

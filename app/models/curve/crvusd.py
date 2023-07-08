@@ -87,8 +87,6 @@ class Amm(db.Model):
     coinNames = Column(ARRAY(String))
     basePrice = Column(Float)
     totalSwapVolume = Column(Float)
-    totalDepositVolume = Column(Float)
-    totalVolume = Column(Float)
     volumeSnapshots = relationship("VolumeSnapshot", back_populates="amm")
 
 
@@ -98,8 +96,6 @@ class VolumeSnapshot(db.Model):
     ammId = Column(String, ForeignKey("amm.id"))
     amm = relationship("Amm", back_populates="volumeSnapshots")
     swapVolumeUsd = Column(Numeric)
-    depositVolumeUsd = Column(Numeric)
-    totalVolumeUsd = Column(Numeric)
     period = Column(Integer)
     count = Column(Integer)
     timestamp = Column(Integer)
