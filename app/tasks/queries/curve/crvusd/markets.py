@@ -11,6 +11,24 @@ from models.curve.crvusd import (
 )
 from tasks.queries.graph import grt_crvusd_query
 
+HOURLY_VOLUME_QUERY = """
+{
+  markets(first: 1000) {
+    controller
+    amm {
+      id
+      volumeSnapshots(first: 1000 orderBy: timestamp orderDirection:desc where: {period: 3600}) {
+        id
+        swapVolumeUSD
+        period
+        count
+        timestamp
+      }
+    }
+  }
+}
+"""
+
 MARKET_QUERY = """
 {
   markets(first: 1000) {
@@ -38,13 +56,15 @@ MARKET_QUERY = """
     monetaryPolicy {
       id
       pegKeepers(first: 1000) {
-        id
-        active
-        debt
-        pool
-        totalProfit
-        totalProvided
-        totalWithdrawn
+        pegKeeper {
+          id
+          active
+          debt
+          pool
+          totalProfit
+          totalProvided
+          totalWithdrawn
+        }
       }
     debtFractions(first: 100 orderBy: blockTimestamp orderDirection: desc) {
       id
@@ -146,7 +166,8 @@ def update_crvusd_market_data():
         db.session.merge(new_policy)
         db.session.merge(new_market)
 
-        for keeper in market["monetaryPolicy"]["pegKeepers"]:
+        for keeper_entity in market["monetaryPolicy"]["pegKeepers"]:
+            keeper = keeper_entity["pegKeeper"]
             new_keeper = PegKeeper(
                 id=keeper["id"],
                 policy=new_policy,
@@ -233,6 +254,20 @@ def update_crvusd_market_data():
                 blockTimestamp=collected["blockTimestamp"],
             )
             db.session.merge(new_collected_fee)
+    db.session.commit()
+
+    data = grt_crvusd_query(HOURLY_VOLUME_QUERY)
+    for market in data["markets"]:
+        for vol_snapshot in market["amm"]["volumeSnapshots"]:
+            new_vol_snapshot = VolumeSnapshot(
+                id=vol_snapshot["id"],
+                ammId=market["amm"]["id"],
+                swapVolumeUsd=vol_snapshot["swapVolumeUSD"],
+                period=vol_snapshot["period"],
+                count=vol_snapshot["count"],
+                timestamp=vol_snapshot["timestamp"],
+            )
+            db.session.merge(new_vol_snapshot)
     db.session.commit()
 
 
