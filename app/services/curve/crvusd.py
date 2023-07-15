@@ -121,6 +121,25 @@ def get_user_health_histogram(market: str):
     )
 
 
+def get_volume_snapshot(
+    market_id: str, period: int, start_date: int, end_date: int
+) -> list[MarketVolume]:
+    result = (
+        db.session.query(
+            VolumeSnapshot.swapVolumeUsd, VolumeSnapshot.timestamp
+        )
+        .join(Amm, Amm.id == VolumeSnapshot.ammId)
+        .join(Market, Market.amm == Amm.id)
+        .filter(Market.id == market_id)
+        .filter(VolumeSnapshot.period == period)
+        .filter(VolumeSnapshot.timestamp >= start_date)
+        .filter(VolumeSnapshot.timestamp <= end_date)
+        .order_by(desc(VolumeSnapshot.timestamp))
+        .all()
+    )
+    return [MarketVolumeSchema().load(row._asdict()) for row in result]
+
+
 def get_daily_market_volume(market: str) -> list[MarketVolume]:
     result = (
         db.session.query(

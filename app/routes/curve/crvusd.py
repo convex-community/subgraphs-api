@@ -1,3 +1,5 @@
+import time
+
 from flask_restx import Resource, Namespace, fields, reqparse, Model, marshal
 import json
 from routes import cache
@@ -34,6 +36,7 @@ from services.curve.crvusd import (
     get_aggregated_fees,
     get_fees_breakdown,
     get_keepers_profit,
+    get_volume_snapshot,
 )
 from services.curve.yields import get_crv_usd_yields
 from utils import convert_schema
@@ -89,6 +92,30 @@ pagination.add_argument(
     type=int,
     help="Limit (for pagination)",
     required=True,
+    location="args",
+)
+
+snapshot = reqparse.RequestParser()
+snapshot.add_argument(
+    "period",
+    type=int,
+    choices=(3600, 86400),
+    help="Period (in seconds)",
+    required=True,
+    location="args",
+)
+snapshot.add_argument(
+    "start_date",
+    type=int,
+    help="Starting date",
+    default=0,
+    location="args",
+)
+snapshot.add_argument(
+    "end_date",
+    type=int,
+    help="End date",
+    default=int(time.time()),
     location="args",
 )
 
@@ -258,3 +285,16 @@ class MarketTotalDetailedFees(Resource):
     @api.marshal_with(detailed_fees)
     def get(self, market):
         return get_fees_breakdown(market_id=market)
+
+
+@api.route('/markets/<regex("[A-z0-9]+"):market>/volume/snapshots')
+@api.doc(
+    description="Get volume snapshots per period over specified dates for a market"
+)
+@api.param("market", "Market to query for")
+@api.expect(snapshot)
+class LlammaVolumeSnapshot(Resource):
+    @api.marshal_list_with(volume, envelope="volumes")
+    def get(self, market):
+        args = snapshot.parse_args()
+        return get_volume_snapshot(market_id=market, **args)
