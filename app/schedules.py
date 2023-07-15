@@ -2,7 +2,7 @@ from celery.schedules import crontab
 from main.const import CHAINS
 
 
-imports = ("tasks.populate", "tasks.queries.curve.rankings")
+imports = "tasks.populate"
 result_expires = 30
 timezone = "UTC"
 
@@ -49,6 +49,13 @@ curve_pool_tasks = {
     for chain in CHAINS
 }
 
+curve_couch_tasks = {
+    "populate-couch-info": {
+        "task": "tasks.populate.populate_couch_info",
+        "schedule": crontab(minute="*/60"),
+    },
+}
+
 curve_pool_snapshot_tasks = {
     f"populate-curve-pool-snapshots-{chain}": {
         "task": "tasks.populate.populate_curve_pool_snapshots",
@@ -58,9 +65,26 @@ curve_pool_snapshot_tasks = {
     for chain in CHAINS
 }
 
+crvusd_tasks = {
+    "populate-crvusd-prices": {
+        "task": "tasks.populate.populate_crvusd_prices",
+        "schedule": crontab(minute="*/60"),
+    },
+    "populate-crvusd-market-data": {
+        "task": "tasks.populate.populate_crvusd_market_data",
+        "schedule": crontab(minute="*/2"),
+    },
+    "populate-crvusd-user_states": {
+        "task": "tasks.populate.populate_user_states",
+        "schedule": crontab(minute="*/15"),
+    },
+}
+
 beat_schedule = (
     convex_pool_tasks
     | curve_pool_tasks
+    | curve_couch_tasks
     | curve_pool_snapshot_tasks
     | ranking_tasks
+    | crvusd_tasks
 )

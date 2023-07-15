@@ -12,6 +12,10 @@ from tasks.queries.convex.revenue import (
     get_convex_cumulative_revenue,
 )
 from tasks.queries.convex.snapshots import get_convex_pool_snapshots
+from tasks.queries.curve.couch.couch import check_cushions
+from tasks.queries.curve.crvusd.health import update_user_states_and_health
+from tasks.queries.curve.crvusd.markets import update_crvusd_market_data
+from tasks.queries.curve.crvusd.prices import get_crvusd_prices
 from tasks.queries.curve.pools import get_curve_pools
 from tasks.database.curve.pools import update_curve_pools
 from celery.utils.log import get_task_logger
@@ -73,3 +77,27 @@ def populate_daily_rankings():
 def populate_hourly_rankings():
     logger.info(f"Updating Hourly Ranking Data")
     get_sizeable_trades()
+
+
+@celery.task
+def populate_crvusd_prices():
+    logger.info(f"Updating crvUSD price Data")
+    get_crvusd_prices()
+
+
+@celery.task
+def populate_crvusd_market_data():
+    logger.info(f"Updating crvUSD market Data")
+    update_crvusd_market_data()
+
+
+@celery.task
+def populate_couch_info():
+    logger.info(f"Updating Curve Couch Info")
+    check_cushions()
+
+
+@celery.task
+def populate_user_states():
+    logger.info(f"Updating User States")
+    update_user_states_and_health()

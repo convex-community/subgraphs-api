@@ -28,6 +28,19 @@ CRYPTO_SWAP_ABI = json.load(
 FACTORY_OWNER_ABI = json.load(
     open(os.path.join(location, "FactoryOwner.json"), "r")
 )
+CURVE_POOL_V1_ABI = json.load(
+    open(os.path.join(location, "CurvePoolV1.json"), "r")
+)
+MULTICALL2_ABI = json.load(
+    open(os.path.join(location, "MultiCall2.json"), "r")
+)
+REGISTRY_V1_ABI = json.load(
+    open(os.path.join(location, "RegistryV1.json"), "r")
+)
+CRV_USD_CONTROLLER_ABI = json.load(
+    open(os.path.join(location, "CrvUSDController.json"), "r")
+)
+
 LP_BURNER_ABI = json.load(open(os.path.join(location, "LPBurner.json"), "r"))
 ROLES_ABI = json.load(open(os.path.join(location, "Roles.json"), "r"))
 

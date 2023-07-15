@@ -10,9 +10,7 @@ from models.curve.snapshot import (
     CurvePoolReserveSnapshot,
     CurvePoolReserveSchema,
 )
-from services.modules.utils import append_offset_and_limit
 from typing import List, Optional
-from marshmallow import EXCLUDE
 from main import db
 
 
@@ -37,7 +35,9 @@ def get_pool_snapshots(
         query = query.limit(limit)
 
     result = query.all()
-    result = [CurvePoolSnapshotSchema().load(row._asdict()) for row in result]
+    result = CurvePoolSnapshotSchema(many=True, session=db.session).dump(
+        result
+    )
     return result
 
 

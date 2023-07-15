@@ -15,6 +15,7 @@ from models.curve.revenue import (
     CurveHistoricalPoolCumulativeRevenue,
     CurveChainTopPoolRevenue,
     CurvePoolRevenue,
+    CouchCushion,
 )
 from routes import cache
 from services.curve.revenue import (
@@ -22,6 +23,7 @@ from services.curve.revenue import (
     get_top_pools,
     get_top_chain_pools,
     get_pool_revenue,
+    check_couch_cushion,
 )
 from utils import convert_schema
 from main import redis
@@ -51,6 +53,7 @@ chain_vol = api.model(
     "Volume Distribution by Chain", convert_schema(ChainVolume)
 )
 large_trades = api.model("Largest trades", convert_schema(LargeTrades))
+couch = api.model("Check couch cushions", convert_schema(CouchCushion))
 
 
 def check_exists(func):
@@ -99,6 +102,7 @@ class RegistryList(Resource):
 @api.param("top", "Number of top pools to single out")
 @api.response(404, "Not found")
 class TopPoolList(Resource):
+    @cache.cached(timeout=60 * 15)
     @api.marshal_list_with(top_pools, envelope="revenue")
     def get(self, top):
         return get_top_pools(top)
@@ -109,6 +113,7 @@ class TopPoolList(Resource):
 @api.param("chain", "Name of the chain to query for")
 @api.response(404, "Not found")
 class ChainTopPoolList(Resource):
+    @cache.cached(timeout=60 * 15)
     @check_exists
     @api.marshal_list_with(chain_top_pools, envelope="revenue")
     def get(self, chain, top):
@@ -123,7 +128,7 @@ class ChainTopPoolList(Resource):
 @api.param("pool", "Name of the pool to query for")
 @api.response(404, "Not found")
 class ChainPoolRevenue(Resource):
-    @cache.cached()
+    @cache.cached(timeout=60 * 15)
     @check_exists
     @api.marshal_list_with(pool_rev, envelope="revenue")
     def get(self, chain, pool):
@@ -134,6 +139,7 @@ class ChainPoolRevenue(Resource):
 @api.doc(description="Get total revenue accumulated on each chain")
 @api.response(404, "Chain or pool not found")
 class RevenueByChain(Resource):
+    @cache.cached(timeout=60 * 15)
     @api.marshal_list_with(chain_rev, envelope="revenue")
     def get(self):
         return get_platform_revenue()
@@ -202,3 +208,12 @@ class SizeableTrades(Resource):
     @api.marshal_list_with(large_trades, envelope="large_trades")
     def get(self):
         return json.loads(redis.get("sizeable_trades"))
+
+
+@api.route("/couch/cushions")
+@api.doc(description="Check under the cushions on all chain's couches")
+class CheckCushions(Resource):
+    @api.marshal_list_with(couch, envelope="cushions")
+    def get(self):
+        cushions = check_couch_cushion()
+        return cushions

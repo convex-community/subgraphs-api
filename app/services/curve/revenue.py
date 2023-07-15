@@ -1,4 +1,5 @@
 from main.const import WEEK, DAY
+from models.curve.pool import CurvePool
 from models.curve.revenue import (
     CurvePoolRevenue,
     CurvePoolRevenueSchema,
@@ -8,6 +9,8 @@ from models.curve.revenue import (
     CurveHistoricalPoolCumulativeRevenue,
     CurveChainTopPoolRevenue,
     CurveChainTopPoolRevenueSchema,
+    CouchInfo,
+    CouchCushion,
 )
 from main import db
 from models.curve.snapshot import CurvePoolSnapshot
@@ -171,3 +174,36 @@ def get_platform_revenue() -> List[CurveChainRevenue]:
         .to_dict(orient="records")
     )
     return CurveChainRevenueSchema(many=True).load(data, unknown=EXCLUDE)
+
+
+def check_couch_cushion() -> List[dict]:
+    results = (
+        db.session.query(
+            CurvePool.address,
+            CurvePool.name,
+            CurvePool.coins,
+            CurvePool.coinNames,
+            CurvePool.isV2,
+            CurvePool.id,
+            CouchInfo.balance,
+            CouchInfo.value,
+            CouchInfo.totalUSD,
+        )
+        .join(CouchInfo, CurvePool.id == CouchInfo.poolId)
+        .order_by(CouchInfo.totalUSD.desc())
+        .all()
+    )
+
+    return [
+        {
+            "pool": r.name,
+            "address": r.address,
+            "chain": r.id.split("-")[-1],
+            "coins": r.coins,
+            "coinNames": r.coinNames if not r.isV2 else ["LP Token"],
+            "balance": r.balance,
+            "value": r.value,
+            "totalUSD": r.totalUSD,
+        }
+        for r in results
+    ]

@@ -26,6 +26,8 @@ class CurvePoolSnapshot(db.Model):
     volume = Column(Float)
     volumeUSD = Column(Float)
     baseApr = Column(Float)
+    xcpProfit = Column(Numeric)
+    xcpProfitA = Column(Numeric)
     rebaseApr = Column(Float)
     timestamp = Column(Integer)
 

@@ -1,7 +1,7 @@
 from typing import List, Mapping, Any, Optional
 
 from app import celery
-from main.const import CURVE_POOLS, CONVEX_POOLS
+from main.const import CURVE_POOLS, CONVEX_POOLS, CRVUSD
 from main.common.subgraph_query import grt_query
 from celery.utils.log import get_task_logger
 
@@ -25,5 +25,15 @@ def grt_convex_pools_query(
     endpoint = celery.conf.get("SUBGRAPHS").get(CONVEX_POOLS, {})
     if endpoint is None:
         logger.warning(f"Unable to find an endpoint for {CONVEX_POOLS}")
+        return None
+    return grt_query(endpoint, query)
+
+
+def grt_crvusd_query(
+    query: str,
+) -> Optional[Mapping[str, List[Mapping[str, Any]]]]:
+    endpoint = celery.conf.get("SUBGRAPHS").get(CRVUSD, {})
+    if endpoint is None:
+        logger.warning(f"Unable to find an endpoint for {CRVUSD}")
         return None
     return grt_query(endpoint, query)

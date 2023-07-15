@@ -18,6 +18,7 @@ GRAPH_CURVE_POOL_QUERY = """
         assetType
         coins
         coinNames
+        coinDecimals
         isV2
         cumulativeVolumeUSD
         cumulativeFeesUSD

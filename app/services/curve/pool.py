@@ -38,9 +38,7 @@ def get_pool_names(chain: str) -> List[CurvePoolName]:
 
 def get_all_pool_metadata(chain: str) -> List[CurvePool]:
     result = db.session.query(CurvePool).filter(CurvePool.chain == chain).all()
-    return CurvePoolSchema(many=True, session=db.session).load(
-        result, unknown=EXCLUDE
-    )
+    return CurvePoolSchema(many=True, session=db.session).dump(result)
 
 
 def get_pool_metadata(chain: str, pool: str) -> List[CurvePool]:
@@ -49,6 +47,4 @@ def get_pool_metadata(chain: str, pool: str) -> List[CurvePool]:
         .filter(CurvePool.id == f"{pool.lower()}-{chain}")
         .all()
     )
-    return CurvePoolSchema(many=True, session=db.session).load(
-        result, unknown=EXCLUDE
-    )
+    return CurvePoolSchema(many=True, session=db.session).dump(result)
