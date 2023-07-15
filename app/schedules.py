@@ -72,7 +72,7 @@ crvusd_tasks = {
     },
     "populate-crvusd-market-data": {
         "task": "tasks.populate.populate_crvusd_market_data",
-        "schedule": crontab(minute="*/2"),
+        "schedule": crontab(minute="*/60"),
     },
     "populate-crvusd-user_states": {
         "task": "tasks.populate.populate_user_states",
