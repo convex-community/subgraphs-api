@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 import pandas as pd
 import numpy as np
 from sqlalchemy import func, Date, cast, Integer, text, literal, label
@@ -265,12 +265,18 @@ def get_crv_usd_pool_stats() -> list[CrvUsdPoolStat]:
     return results
 
 
-def get_crvusd_markets() -> List[MarketInfo]:
+def get_crvusd_markets(
+    market_address: Optional[str] = None,
+) -> List[MarketInfo]:
 
     now = time.time()
     one_day_ago = now - timedelta(days=1).total_seconds()
 
-    markets = db.session.query(Market).all()
+    query = db.session.query(Market)
+    if market_address:
+        query = query.filter(Market.address == market_address)
+
+    markets = query.all()
     res = []
     for market in markets:
         last_snapshot = (
