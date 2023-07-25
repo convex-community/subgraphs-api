@@ -274,7 +274,7 @@ def get_crvusd_markets(
 
     query = db.session.query(Market)
     if market_address:
-        query = query.filter(Market.address == market_address)
+        query = query.filter(Market.controller == market_address)
 
     markets = query.all()
     res = []
