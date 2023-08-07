@@ -2,6 +2,8 @@ from models.convex.revenue import (
     ConvexCumulativeRevenue,
     ConvexRevenueSnapshot,
     ConvexRevenueSnapshotSchema,
+    ConvexRevenueSnapshotData,
+    ConvexRevenueSnapshotDataSchema,
 )
 from sqlalchemy import asc
 from typing import List
@@ -18,7 +20,7 @@ def get_platform_total_revenue() -> List[ConvexCumulativeRevenue]:
 
 def get_platform_revenue_snapshots(
     groupby: str = "w",
-) -> List[ConvexRevenueSnapshot]:
+) -> List[ConvexRevenueSnapshotData]:
     res = (
         db.session.query(ConvexRevenueSnapshot)
         .order_by(asc(ConvexRevenueSnapshot.timestamp))
@@ -36,6 +38,6 @@ def get_platform_revenue_snapshots(
         df["id"] = df["timestamp"].astype(str)
         res = df.to_dict(orient="records")
 
-    return ConvexRevenueSnapshotSchema(many=True, session=db.session).load(
-        res, unknown=EXCLUDE
+    return ConvexRevenueSnapshotDataSchema.load(
+        res, unknown=EXCLUDE, many=True
     )

@@ -1,3 +1,6 @@
+from dataclasses import dataclass
+from marshmallow_dataclass import class_schema
+
 from sqlalchemy import Column, Integer, Float, String
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 from main import db
@@ -34,6 +37,31 @@ class ConvexRevenueSnapshotSchema(SQLAlchemyAutoSchema):
     class Meta:
         model = ConvexRevenueSnapshot
         load_instance = True
+
+
+@dataclass
+class ConvexRevenueSnapshotData:
+    crvRevenueToLpProvidersAmount: float
+    cvxRevenueToLpProvidersAmount: float
+    crvRevenueToCvxCrvStakersAmount: float
+    cvxRevenueToCvxCrvStakersAmount: float
+    threeCrvRevenueToCvxCrvStakersAmount: float
+    crvRevenueToCvxStakersAmount: float
+    crvRevenueToCallersAmount: float
+    crvRevenueToPlatformAmount: float
+    totalCrvRevenue: float
+    fxsRevenueToCvxStakersAmount: float
+    fxsRevenueToCvxFxsStakersAmount: float
+    fxsRevenueToLpProvidersAmount: float
+    fxsRevenueToCallersAmount: float
+    fxsRevenueToPlatformAmount: float
+    totalFxsRevenue: float
+    otherRevenue: float
+    bribeRevenue: float
+    timestamp: int
+
+
+ConvexRevenueSnapshotDataSchema = class_schema(ConvexRevenueSnapshotData)()
 
 
 class ConvexCumulativeRevenue(db.Model):

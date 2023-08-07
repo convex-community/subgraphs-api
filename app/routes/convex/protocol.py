@@ -2,6 +2,7 @@ from flask_restx import Resource, Namespace, reqparse
 from models.convex.revenue import (
     ConvexCumulativeRevenue,
     ConvexRevenueSnapshot,
+    ConvexRevenueSnapshotData,
 )
 from services.convex.revenue import (
     get_platform_revenue_snapshots,
@@ -16,7 +17,7 @@ total_rev = api.model(
 )
 rev_snapshots = api.model(
     "Platform Revenue Snapshots",
-    convert_schema(ConvexRevenueSnapshot),
+    convert_schema(ConvexRevenueSnapshotData),
 )
 
 revenue_parser = reqparse.RequestParser()
