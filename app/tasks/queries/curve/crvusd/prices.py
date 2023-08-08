@@ -121,7 +121,7 @@ def get_crvusd_prices():
 
     cg_prices = get_cg_prices()
     final_df = pd.merge(
-        cg_prices, crv_prices, on="timestamp", how="left"
+        cg_prices, crv_prices, on="timestamp", how="inner"
     ).fillna(method="ffill")
     final_df["timestamp"] = final_df["timestamp"].apply(
         lambda x: int(x.timestamp())
