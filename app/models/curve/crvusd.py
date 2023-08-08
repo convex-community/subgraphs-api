@@ -298,3 +298,11 @@ class CrvUsdYield:
     platform: str
     pool: str
     apy: float
+
+
+@dataclass
+class HistoricalKeeperDebtData:
+    keeper: str
+    debt: float
+    totalKeepersDebt: float
+    timestamp: int

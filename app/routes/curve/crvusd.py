@@ -1,5 +1,6 @@
 import time
 
+from flask import request
 from flask_restx import Resource, Namespace, fields, reqparse, Model, marshal
 import json
 from routes import cache
@@ -19,6 +20,7 @@ from models.curve.crvusd import (
     CrvUsdFeesBreakdown,
     KeepersProfit,
     CrvUsdYield,
+    HistoricalKeeperDebtData,
 )
 from models.curve.pool import CurvePoolName
 from services.curve.crvusd import (
@@ -33,6 +35,7 @@ from services.curve.crvusd import (
     get_user_health_histogram,
     get_historical_supply,
     get_keepers_debt,
+    get_historical_keeper_debt_data,
     get_aggregated_fees,
     get_fees_breakdown,
     get_keepers_profit,
@@ -62,6 +65,9 @@ volume = api.model("Market historical volume", convert_schema(MarketVolume))
 loans = api.model("Market historical loan number", convert_schema(MarketLoans))
 states = api.model("User states", convert_schema(UserStateData))
 keepers_debt = api.model("Keepers debt", convert_schema(KeepersDebt))
+historical_keepers_debt = api.model(
+    "Historical Keepers debt", convert_schema(HistoricalKeeperDebtData)
+)
 keepers_profit = api.model("Keepers profit", convert_schema(KeepersProfit))
 interval_data_model = api.model(
     "IntervalData",
@@ -119,6 +125,15 @@ snapshot.add_argument(
     location="args",
 )
 
+days_parser = reqparse.RequestParser()
+days_parser.add_argument(
+    "days",
+    type=int,
+    help="Number of days to retrieve",
+    default=30,
+    location="args",
+)
+
 
 @api.route("/pools")
 @api.doc(description="Get the crvUSD pools")
@@ -158,6 +173,17 @@ class DebtOfKeepers(Resource):
     @api.marshal_list_with(keepers_debt, envelope="keepers")
     def get(self):
         return get_keepers_debt()
+
+
+@api.route('/keepers/debt/historical/<regex("[A-z0-9]+"):keeper>')
+@api.doc(description="Get historical keeper's debt")
+@api.param("keeper", "Address of the Keeper to query for")
+class HistoricalDebtOfKeepers(Resource):
+    @api.expect(days_parser)
+    @api.marshal_list_with(historical_keepers_debt, envelope="keepers")
+    def get(self, keeper):
+        days = int(request.args.get("days", 30))
+        return get_historical_keeper_debt_data(keeper, days)
 
 
 @api.route("/keepers/profit")
