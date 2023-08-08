@@ -19,6 +19,7 @@ from main import db
 class Market(db.Model):
     __tablename__ = "market"
     id = Column(String, primary_key=True)
+    chain = db.Column(db.String, default="mainnet")
     collateral = Column(String)
     collateralName = Column(String)
     collateralPrecision = Column(Integer)

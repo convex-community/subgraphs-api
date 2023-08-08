@@ -7,8 +7,8 @@ import json
 from functools import reduce
 from redis import Redis  # type: ignore
 from main import db
-from main.const import CHAIN_MAINNET, PoolType, CRVUSD_CONTRACT
-from models.curve.pool import CurvePool
+from main.const import CHAIN_MAINNET, CRVUSD_CONTRACT
+from models.curve.crvusd import PegKeeper
 from tasks.queries.graph import grt_curve_pools_query
 import logging
 
@@ -74,12 +74,12 @@ def get_prices(swaps):
 
 def get_crv_usd_pools():
     pools = (
-        db.session.query(CurvePool)
-        .with_entities(CurvePool.address)
-        .filter(CurvePool.poolType == PoolType.CRVUSD.value)
+        db.session.query(PegKeeper)
+        .with_entities(PegKeeper.pool)
+        .distinct()
         .all()
     )
-    return [pool.address for pool in pools]
+    return [pool[0] for pool in pools]
 
 
 def get_cg_prices(days=30):

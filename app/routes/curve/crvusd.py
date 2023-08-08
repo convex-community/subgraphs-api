@@ -193,6 +193,15 @@ class MarketList(Resource):
         return get_crvusd_markets()
 
 
+@api.route('/markets/summary/<regex("[A-z0-9]+"):market>')
+@api.doc(description="Get a market's descriptive stats")
+@api.param("market", "Market to query for")
+class MarketDesc(Resource):
+    @api.marshal_list_with(markets, envelope="markets")
+    def get(self, market):
+        return get_crvusd_markets(market)
+
+
 @api.route('/markets/<regex("[A-z0-9]+"):market>/rate/hourly')
 @api.doc(description="Get historical hourly rate over past 5 days")
 @api.param("market", "Market to query for")
