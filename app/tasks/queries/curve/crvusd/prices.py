@@ -82,9 +82,9 @@ def get_crv_usd_pools():
     return [pool.address for pool in pools]
 
 
-def get_cg_prices(days=30):
+def get_cg_prices():
     r = requests.get(
-        f"https://api.coingecko.com/api/v3/coins/crvusd/market_chart?vs_currency=usd&days={days}&interval=hourly"
+        f"https://www.coingecko.com/price_charts/30118/usd/max.json"
     )
     df = pd.DataFrame(r.json()["prices"])
     df.columns = ["timestamp", "USD"]
