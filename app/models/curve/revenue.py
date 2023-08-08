@@ -73,3 +73,15 @@ class CouchCushion:
     balance: List[float]
     value: List[float]
     totalUSD: float
+
+
+@dataclass
+class WeeklyFeesSnapshot:
+    week: int
+    label: str
+    total_fees: float
+
+
+WeeklyFeesSnapshotSchema = marshmallow_dataclass.class_schema(
+    WeeklyFeesSnapshot
+)

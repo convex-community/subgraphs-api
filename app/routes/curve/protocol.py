@@ -1,4 +1,4 @@
-from flask_restx import Resource, Namespace, fields
+from flask_restx import Resource, Namespace, fields, reqparse
 import json
 from main.const import CHAINS
 from models.curve.rankings import (
@@ -16,6 +16,7 @@ from models.curve.revenue import (
     CurveChainTopPoolRevenue,
     CurvePoolRevenue,
     CouchCushion,
+    WeeklyFeesSnapshot,
 )
 from routes import cache
 from services.curve.revenue import (
@@ -24,6 +25,7 @@ from services.curve.revenue import (
     get_top_chain_pools,
     get_pool_revenue,
     check_couch_cushion,
+    get_historical_fee_breakdown,
 )
 from utils import convert_schema
 from main import redis
@@ -54,6 +56,19 @@ chain_vol = api.model(
 )
 large_trades = api.model("Largest trades", convert_schema(LargeTrades))
 couch = api.model("Check couch cushions", convert_schema(CouchCushion))
+weekly_breakdown = api.model(
+    "Weekly revenue breakdown", convert_schema(WeeklyFeesSnapshot)
+)
+
+
+breakdown = reqparse.RequestParser()
+breakdown.add_argument(
+    "from",
+    type=int,
+    help="Date (unix timestamp) to start from",
+    required=False,
+    location="args",
+)
 
 
 def check_exists(func):
@@ -95,6 +110,19 @@ class RegistryList(Resource):
     def get(self, chain, pool):
         print(chain)
         return pool
+
+
+@api.route("/revenue/historical/breakdown")
+@api.doc(description="Get weekly revenue breakdown by chain & crvusd")
+@api.response(404, "Not found")
+@api.expect(breakdown)
+class WeeklyRevenueBreakdown(Resource):
+    @cache.cached(timeout=60)
+    @api.marshal_list_with(weekly_breakdown, envelope="revenue")
+    def get(self):
+        args = breakdown.parse_args()
+        start = args.get("start", 0)
+        return get_historical_fee_breakdown(start)
 
 
 @api.route("/revenue/historical/toppools/<int:top>")

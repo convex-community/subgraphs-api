@@ -249,6 +249,7 @@ def update_crvusd_market_data():
                 marketId=market_fees["id"],
                 borrowingFees=collected["borrowingFees"],
                 ammCollateralFees=collected["ammCollateralFees"],
+                ammCollateralFeesUsd=collected["ammCollateralFeesUsd"],
                 ammBorrowingFees=collected["ammBorrowingFees"],
                 blockNumber=collected["blockNumber"],
                 blockTimestamp=collected["blockTimestamp"],

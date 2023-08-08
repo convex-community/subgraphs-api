@@ -1,4 +1,7 @@
+from sqlalchemy import func, literal, case
+
 from main.const import WEEK, DAY
+from models.curve.crvusd import CollectedFees, Market
 from models.curve.pool import CurvePool
 from models.curve.revenue import (
     CurvePoolRevenue,
@@ -11,6 +14,8 @@ from models.curve.revenue import (
     CurveChainTopPoolRevenueSchema,
     CouchInfo,
     CouchCushion,
+    WeeklyFeesSnapshot,
+    WeeklyFeesSnapshotSchema,
 )
 from main import db
 from models.curve.snapshot import CurvePoolSnapshot
@@ -207,3 +212,64 @@ def check_couch_cushion() -> List[dict]:
         }
         for r in results
     ]
+
+
+def get_historical_fee_breakdown(start=0) -> list[WeeklyFeesSnapshot]:
+    WEEK = 60 * 60 * 24 * 7  # seconds in a week
+
+    crvusd_fees = (
+        db.session.query(
+            func.sum(
+                func.coalesce(CollectedFees.ammCollateralFeesUsd, 0)
+                + func.coalesce(CollectedFees.ammBorrowingFees, 0)
+                + func.coalesce(CollectedFees.borrowingFees, 0)
+            ).label("total_fees"),
+            (CollectedFees.blockTimestamp // WEEK * WEEK).label("week"),
+            case(
+                (Market.chain == "mainnet", literal("crvusd-mainnet")),
+                else_=literal("crvusd-alt_chains"),
+            ).label("label"),
+        )
+        .join(Market, Market.id == CollectedFees.marketId)
+        .filter(
+            (CollectedFees.blockTimestamp // WEEK * WEEK) >= start
+        )  # added filter
+        .group_by("week", "label")
+    )
+
+    pools_fees = (
+        db.session.query(
+            func.sum(CurvePoolSnapshot.totalDailyFeesUSD).label("total_fees"),
+            (CurvePoolSnapshot.timestamp // WEEK * WEEK).label("week"),
+            case(
+                (
+                    CurvePoolSnapshot.chain == "mainnet",
+                    literal("pools-mainnet"),
+                ),
+                else_=literal("pools-alt_chains"),
+            ).label("label"),
+        )
+        .filter(CurvePoolSnapshot.totalDailyFeesUSD < 1e7)
+        .filter(
+            (CurvePoolSnapshot.timestamp // WEEK * WEEK) >= start
+        )  # added filter
+        .group_by("week", "label")
+    )
+
+    merged = crvusd_fees.union_all(pools_fees).subquery()
+
+    results = (
+        db.session.query(
+            merged.c.week,
+            merged.c.label,
+            func.sum(merged.c.total_fees).label("total_fees"),
+        )
+        .group_by(merged.c.week, merged.c.label)
+        .order_by(merged.c.week)
+        .all()
+    )
+
+    weekly_fees = [WeeklyFeesSnapshot(*r) for r in results]
+    schema = WeeklyFeesSnapshotSchema(many=True)
+    result = schema.dump(weekly_fees)
+    return result
