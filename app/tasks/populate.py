@@ -14,6 +14,7 @@ from tasks.queries.convex.revenue import (
 from tasks.queries.convex.snapshots import get_convex_pool_snapshots
 from tasks.queries.curve.couch.couch import check_cushions
 from tasks.queries.curve.crvusd.health import update_user_states_and_health
+from tasks.queries.curve.crvusd.keepers import update_keeper_debt_data
 from tasks.queries.curve.crvusd.markets import update_crvusd_market_data
 from tasks.queries.curve.crvusd.prices import get_crvusd_prices
 from tasks.queries.curve.pools import get_curve_pools
@@ -83,6 +84,12 @@ def populate_hourly_rankings():
 def populate_crvusd_prices():
     logger.info(f"Updating crvUSD price Data")
     get_crvusd_prices()
+
+
+@celery.task
+def populate_crvusd_keeper_debt_data():
+    logger.info(f"Updating crvUSD Keepers' historical debt data")
+    update_keeper_debt_data()
 
 
 @celery.task

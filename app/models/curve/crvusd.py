@@ -52,6 +52,9 @@ class PegKeeper(db.Model):
     totalProvided = Column(Numeric)
     totalWithdrawn = Column(Numeric)
     totalProfit = Column(Numeric)
+    historicalDebt = relationship(
+        "HistoricalKeeperDebt", back_populates="keeper"
+    )
 
 
 class Liquidation(db.Model):
@@ -100,6 +103,16 @@ class VolumeSnapshot(db.Model):
     period = Column(Integer)
     count = Column(Integer)
     timestamp = Column(Integer)
+
+
+class HistoricalKeeperDebt(db.Model):
+    __tablename__ = "historical_keeper_debt"
+    id = Column(String, primary_key=True)
+    keeperId = Column(String, ForeignKey("pegKeeper.id"))
+    keeper = relationship("PegKeeper", back_populates="historicalDebt")
+    debt = Column(Numeric)
+    timestamp = Column(Integer)
+    blockNumber = Column(Integer)
 
 
 class Snapshot(db.Model):
@@ -285,3 +298,11 @@ class CrvUsdYield:
     platform: str
     pool: str
     apy: float
+
+
+@dataclass
+class HistoricalKeeperDebtData:
+    keeper: str
+    debt: float
+    totalKeepersDebt: float
+    timestamp: int

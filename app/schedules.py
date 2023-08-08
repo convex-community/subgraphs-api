@@ -70,6 +70,10 @@ crvusd_tasks = {
         "task": "tasks.populate.populate_crvusd_prices",
         "schedule": crontab(minute="*/60"),
     },
+    "populate-crvusd-historical-debt": {
+        "task": "tasks.populate.populate_crvusd_keeper_debt_data",
+        "schedule": crontab(minute=0, hour="*/4"),
+    },
     "populate-crvusd-market-data": {
         "task": "tasks.populate.populate_crvusd_market_data",
         "schedule": crontab(minute="*/60"),

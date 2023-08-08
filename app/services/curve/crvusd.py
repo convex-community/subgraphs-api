@@ -1,7 +1,7 @@
 from typing import List, Optional
 import pandas as pd
 import numpy as np
-from sqlalchemy import func, Date, cast, Integer, text, literal, label
+from sqlalchemy import func, Date, cast, Integer, text, literal, label, over
 
 from main import db
 from models.curve.crvusd import (
@@ -29,6 +29,8 @@ from models.curve.crvusd import (
     CrvUsdFees,
     MonetaryPolicy,
     KeepersProfit,
+    HistoricalKeeperDebtData,
+    HistoricalKeeperDebt,
 )
 from models.curve.pool import CurvePoolName, CurvePool, CurvePoolNameSchema
 from main.const import PoolType, DAY
@@ -472,6 +474,56 @@ def get_keepers_debt():
             keeper=keeper.id, pool=keeper.pool, debt=float(keeper.debt) * 1e-18
         )
         for keeper in keepers
+    ]
+
+
+def get_historical_keeper_debt_data(
+    keeper_id: str, days_limit: int = 30
+) -> list[HistoricalKeeperDebtData]:
+    end_date = int(time.time())
+    start_unix_time = end_date - days_limit * 86400  # 86400 seconds in a day
+
+    all_data = (
+        db.session.query(
+            HistoricalKeeperDebt.keeperId,
+            HistoricalKeeperDebt.debt,
+            HistoricalKeeperDebt.timestamp,
+        )
+        .filter(HistoricalKeeperDebt.timestamp >= start_unix_time)
+        .all()
+    )
+    df_all = pd.DataFrame(all_data, columns=["keeperId", "debt", "timestamp"])
+
+    # 2. Pivot the dataframe
+    df_pivot = df_all.pivot(
+        index="timestamp", columns="keeperId", values="debt"
+    ).sort_values(by="timestamp", ascending=False)
+
+    # 3. Backfill the NaN values
+    df_pivot = df_pivot.fillna(method="bfill")
+
+    # 4. Sum to get the total debt
+    df_total = df_pivot.sum(axis=1).reset_index()
+    df_total.columns = ["timestamp", "totalKeeperDebt"]
+
+    # 5. Get keeper specific data
+    keeper_data = df_all[df_all["keeperId"] == keeper_id]
+
+    # 6. Join the two dataframes on 'timestamp'
+    merged_df = pd.merge(keeper_data, df_total, on="timestamp", how="right")
+
+    merged_df = merged_df.sort_values(by="timestamp", ascending=False).fillna(
+        method="bfill"
+    )
+    merged_df = merged_df.sort_values(by="timestamp", ascending=False).dropna()
+    return [
+        HistoricalKeeperDebtData(
+            keeper=keeper_id,
+            debt=float(row["debt"]) * 1e-18,
+            totalKeepersDebt=float(row["totalKeeperDebt"]) * 1e-18,
+            timestamp=row["timestamp"],
+        )
+        for _, row in merged_df.iterrows()
     ]
 
 
