@@ -7,8 +7,8 @@ import json
 from functools import reduce
 from redis import Redis  # type: ignore
 from main import db
-from main.const import CHAIN_MAINNET, CRVUSD_CONTRACT
-from models.curve.crvusd import PegKeeper
+from main.const import CHAIN_MAINNET, PoolType, CRVUSD_CONTRACT
+from models.curve.pool import CurvePool
 from tasks.queries.graph import grt_curve_pools_query
 import logging
 
@@ -74,23 +74,23 @@ def get_prices(swaps):
 
 def get_crv_usd_pools():
     pools = (
-        db.session.query(PegKeeper)
-        .with_entities(PegKeeper.pool)
-        .distinct()
+        db.session.query(CurvePool)
+        .with_entities(CurvePool.address)
+        .filter(CurvePool.poolType == PoolType.CRVUSD.value)
         .all()
     )
-    return [pool[0] for pool in pools]
+    return [pool.address for pool in pools]
 
 
-def get_cg_prices():
+def get_cg_prices(days=30):
     r = requests.get(
-        f"https://www.coingecko.com/price_charts/30118/usd/max.json"
+        f"https://api.coingecko.com/api/v3/coins/crvusd/market_chart?vs_currency=usd&days={days}&interval=daily"
     )
     df = pd.DataFrame(r.json()["prices"])
     df.columns = ["timestamp", "USD"]
     df["timestamp"] = pd.to_datetime(df["timestamp"] / 1000, unit="s")
     df.set_index("timestamp", inplace=True)
-    df_resampled = df.resample("H").mean()
+    df_resampled = df.resample("D").mean()
     df_resampled.reset_index(inplace=True)
     return df_resampled
 
@@ -120,9 +120,7 @@ def get_crvusd_prices():
     crv_prices = crv_prices.fillna(method="ffill").fillna(method="bfill")
 
     cg_prices = get_cg_prices()
-    final_df = pd.merge(
-        cg_prices, crv_prices, on="timestamp", how="inner"
-    ).fillna(method="ffill")
+    final_df = crv_prices.copy()
     final_df["timestamp"] = final_df["timestamp"].apply(
         lambda x: int(x.timestamp())
     )
