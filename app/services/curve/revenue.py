@@ -25,7 +25,7 @@ from marshmallow import EXCLUDE
 import pandas as pd
 from datetime import datetime
 
-blacklist_filter = not_(CurvePoolSnapshot.pool.ilike(any_(BLACKLIST.keys())))
+blacklist_filter = ~(func.lower(CurvePoolSnapshot.pool).in_(BLACKLIST.keys()))
 
 
 def _get_all_revenue_snapshots() -> List[CurvePoolRevenue]:

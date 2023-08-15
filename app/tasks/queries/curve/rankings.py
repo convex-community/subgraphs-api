@@ -24,7 +24,7 @@ redis = Redis(
 )
 
 pd.options.mode.chained_assignment = None
-blacklist_filter = not_(CurvePoolSnapshot.pool.ilike(any_(BLACKLIST.keys())))
+blacklist_filter = ~(func.lower(CurvePoolSnapshot.pool).in_(BLACKLIST.keys()))
 
 DAY = 24 * 60 * 60
 logger = get_task_logger(__name__)
