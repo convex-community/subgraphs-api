@@ -1,5 +1,7 @@
+from operator import not_
+
 from main import db
-from sqlalchemy import func, and_, cast, Date
+from sqlalchemy import func, and_, cast, Date, any_
 import time
 import os
 from redis import Redis  # type: ignore
@@ -7,7 +9,7 @@ import pandas as pd
 import json
 from celery.utils.log import get_task_logger
 
-from main.const import CHAINS
+from main.const import CHAINS, BLACKLIST
 from models.curve.pool import CurvePool
 from models.curve.snapshot import CurvePoolSnapshot
 from tasks.queries.graph import grt_curve_pools_query
@@ -22,6 +24,8 @@ redis = Redis(
 )
 
 pd.options.mode.chained_assignment = None
+blacklist_filter = not_(CurvePoolSnapshot.pool.ilike(any_(BLACKLIST.keys())))
+
 DAY = 24 * 60 * 60
 logger = get_task_logger(__name__)
 
@@ -51,6 +55,7 @@ def get_tvl_gainers_losers():
                 CurvePoolSnapshot.timestamp < today + DAY,
             )
         )
+        .filter(blacklist_filter)
         .all()
     )
 
@@ -73,6 +78,7 @@ def get_tvl_gainers_losers():
                 CurvePoolSnapshot.timestamp < yesterday + DAY,
             )
         )
+        .filter(blacklist_filter)
         .all()
     )
     if len(today_tvl_query) < 1 or len(yesterday_tvl_query) < 1:
@@ -125,6 +131,7 @@ def get_top_vol_tvl_utilization():
             ),
         )
         .filter(CurvePoolSnapshot.timestamp == today)
+        .filter(blacklist_filter)
         .all()
     )
     if len(query) < 1:

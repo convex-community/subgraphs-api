@@ -67,3 +67,17 @@ ALCHEMY_API_KEY = os.getenv("ALCHEMY_API_KEY", "")
 WEB3_ALCHEMY_PROVIDER_URL = (
     "https://eth-mainnet.g.alchemy.com/v2/" + ALCHEMY_API_KEY
 )
+
+# we keep pools in here that have been hacked or cause a problem
+# to filters when subgraph is still syncing with fixes
+BLACKLIST = {
+    "0x06364f10b501e868329afbc005b3492902d6c763": 1680315890,
+    "0x8301ae4fc9c624d1d396cbdaa1ed877821d7c511": 1690578357,  # CRV/ETH
+    "0xc897b98272aa23714464ea2a0bd5180f1b8c0025": 1690578357,  # msETH
+    "0xc4c319e2d4d66cca4464c0c2b32c9bd23ebe784e": 1690578357,  # alETH
+    "0x9848482da3ee3076165ce6497eda906e66bb85c5": 1690578357,  # JPEGd
+    "0x28b0cf1bafb707f2c6826d10caf6dd901a6540c5": 1690578357,  # zus pools
+    "0x68934f60758243eafaf4d2cfed27bf8010bede3a": 1690578357,  # "
+    "0xbedca4252b27cc12ed7daf393f331886f86cd3ce": 1690578357,  # "
+    "0xfc636d819d1a98433402ec9dec633d864014f28c": 1690578357,  # "
+}
