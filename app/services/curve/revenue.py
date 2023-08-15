@@ -1,6 +1,6 @@
-from sqlalchemy import func, literal, case
+from sqlalchemy import func, literal, case, any_, not_
 
-from main.const import WEEK, DAY
+from main.const import WEEK, DAY, BLACKLIST
 from models.curve.crvusd import CollectedFees, Market
 from models.curve.pool import CurvePool
 from models.curve.revenue import (
@@ -25,6 +25,8 @@ from marshmallow import EXCLUDE
 import pandas as pd
 from datetime import datetime
 
+blacklist_filter = not_(CurvePoolSnapshot.pool.ilike(any_(BLACKLIST.keys())))
+
 
 def _get_all_revenue_snapshots() -> List[CurvePoolRevenue]:
     # we end 48h before because there are differences between the times
@@ -38,6 +40,7 @@ def _get_all_revenue_snapshots() -> List[CurvePoolRevenue]:
             CurvePoolSnapshot.chain,
         )
         .filter(CurvePoolSnapshot.timestamp < end_date)
+        .filter(blacklist_filter)
         .all()
     )
     result = [CurvePoolRevenueSchema().load(row._asdict()) for row in result]
@@ -47,18 +50,21 @@ def _get_all_revenue_snapshots() -> List[CurvePoolRevenue]:
 def _get_pool_revenue_snapshots(
     chain: str, pool: str
 ) -> List[CurvePoolRevenue]:
-    result = (
-        db.session.query(
-            CurvePoolSnapshot.totalDailyFeesUSD,
-            CurvePoolSnapshot.pool,
-            CurvePoolSnapshot.timestamp,
-            CurvePoolSnapshot.chain,
-        )
-        .filter(
-            CurvePoolSnapshot.chain == chain, CurvePoolSnapshot.pool == pool
-        )
-        .all()
+    base_query = db.session.query(
+        CurvePoolSnapshot.totalDailyFeesUSD,
+        CurvePoolSnapshot.pool,
+        CurvePoolSnapshot.timestamp,
+        CurvePoolSnapshot.chain,
     )
+    result = base_query.filter(
+        CurvePoolSnapshot.chain == chain, CurvePoolSnapshot.pool == pool
+    ).all()
+
+    if pool.lower() in map(str.lower, BLACKLIST.keys()):
+        blacklist_timestamp = BLACKLIST[pool.lower()]
+        for row in result:
+            if row.timestamp > blacklist_timestamp:
+                row.totalDailyFeesUSD = 0
     result = [CurvePoolRevenueSchema().load(row._asdict()) for row in result]
     return result
 
@@ -76,6 +82,7 @@ def _get_all_revenue_snapshots_last_week(chain: str) -> List[CurvePoolRevenue]:
             CurvePoolSnapshot.chain == chain,
             CurvePoolSnapshot.timestamp >= start_date,
         )
+        .filter(blacklist_filter)
         .all()
     )
     result = [CurvePoolRevenueSchema().load(row._asdict()) for row in result]

@@ -12,7 +12,7 @@ from main import db
 logger = get_task_logger(__name__)
 
 GRAPH_CONVEX_REVENUE_SNAPSHOTS_QUERY = """
-{ dailyRevenueSnapshots(first: 1000) {
+{ dailyRevenueSnapshots(first: 1000 orderBy: timestamp orderDirection: desc) {
   id
   crvRevenueToLpProvidersAmount
   cvxRevenueToLpProvidersAmount
