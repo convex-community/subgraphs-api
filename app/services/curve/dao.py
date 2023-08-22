@@ -1,3 +1,4 @@
+from main import db
 from main.common.subgraph_query import grt_query
 from main.const import CURVE_DAO
 from models.curve.dao import (
@@ -15,14 +16,18 @@ from models.curve.dao import (
     GaugeSchema,
     Emission,
     EmissionSchema,
+    CurveDaoScript,
 )
 from typing import List, Mapping, Any, Optional, MutableMapping
 from flask import current_app
 from marshmallow import EXCLUDE
 from services.modules.decode_proposal import parse_data
+import logging
+
+logger = logging.getLogger(__name__)
 
 
-def _query(query: str, envelope: str) -> List[Mapping[str, Any]]:
+def dao_subgraph_query(query: str, envelope: str) -> List[Mapping[str, Any]]:
     subgraph_endpoint = current_app.config["SUBGRAPHS"][CURVE_DAO]
     subgraph_data = grt_query(subgraph_endpoint, query)
     if not subgraph_data:
@@ -35,6 +40,7 @@ def get_all_proposals() -> List[DaoProposal]:
     query = """
 {
   proposals(first: 1000) {
+  id
   voteId
   voteType
   creator {
@@ -54,7 +60,7 @@ def get_all_proposals() -> List[DaoProposal]:
   }
 }
   """
-    proposals = _query(query, "proposals")
+    proposals = dao_subgraph_query(query, "proposals")
     proposals = [
         {
             **proposal,
@@ -74,6 +80,7 @@ def get_proposal_details(
     query_template = """
   {
     proposals(where: {voteId: "%s" voteType: %s}) {
+    id
     tx
     voteId
     voteType
@@ -106,7 +113,7 @@ def get_proposal_details(
   }
     """
     query = query_template % (vote_id, vote_type)
-    query_res = _query(query, "proposals")
+    query_res = dao_subgraph_query(query, "proposals")
     if len(query_res) == 0 or "script" not in query_res[0]:
         return None
     proposal: MutableMapping[str, Any] = dict(query_res[0])
@@ -114,7 +121,14 @@ def get_proposal_details(
     proposal["votes"] = [
         {**vote, "voter": vote["voter"]["id"]} for vote in proposal["votes"]
     ]
-    proposal["script"] = parse_data(proposal["script"])
+    entry = (
+        db.session.query(CurveDaoScript).filter_by(id=proposal["id"]).first()
+    )
+    if entry:
+        proposal["script"] = entry.decodedScript
+    else:
+        logger.warning(f"No DB entry found for proposal {proposal['id']}")
+        proposal["script"] = parse_data(proposal["script"])
     return DaoDetailedProposalSchema().load(
         proposal,
         unknown=EXCLUDE,
@@ -137,7 +151,7 @@ def get_user_locks(user: str) -> List[UserLock]:
   }
     """
     query = query_template % user
-    query_res = _query(query, "users")
+    query_res = dao_subgraph_query(query, "users")
     if len(query_res) == 0 or "locks" not in query_res[0]:
         return []
     return UserLockSchema(many=True).load(
@@ -158,7 +172,7 @@ def get_user_balance(user: str) -> List[UserBalance]:
 }
     """
     query = query_template % user
-    query_res = _query(query, "userBalances")
+    query_res = dao_subgraph_query(query, "userBalances")
     return UserBalanceSchema(many=True).load(
         query_res,
         unknown=EXCLUDE,
@@ -181,7 +195,7 @@ def get_user_votes(user: str) -> List[DaoVote]:
   }
     """
     query = query_template % user
-    query_res = _query(query, "votes")
+    query_res = dao_subgraph_query(query, "votes")
     query_res = [{**vote, "voter": vote["voter"]["id"]} for vote in query_res]
     return DaoVoteSchema(many=True).load(
         query_res,
@@ -212,7 +226,7 @@ def get_user_proposals(user: str) -> List[DaoProposal]:
   """
 
     return DaoProposalSchema(many=True).load(
-        _query(query % user, "proposals"),
+        dao_subgraph_query(query % user, "proposals"),
         unknown=EXCLUDE,
     )
 
@@ -232,7 +246,7 @@ def get_all_gauges() -> List[Gauge]:
   }
 }
   """
-    gauge_data = _query(query, "gauges")
+    gauge_data = dao_subgraph_query(query, "gauges")
     flattened_data = [
         {
             **gauge,
@@ -264,7 +278,7 @@ def _get_emission_data(entity: str, param: str) -> List[Emission]:
     }
       """
     query = query_template % (entity, param)
-    data = _query(query, "emissions")
+    data = dao_subgraph_query(query, "emissions")
     flattened_data = [
         {
             **emission,

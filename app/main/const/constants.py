@@ -62,6 +62,7 @@ PUBLIC_RPCS = {
 }
 
 ALCHEMY_API_KEY = os.getenv("ALCHEMY_API_KEY", "")
+ETHERSCAN_TOKEN = os.getenv("ETHERSCAN_TOKEN", "")
 # this is used for more heavy duty/frequent queries
 # the couch can use public RPCs
 WEB3_ALCHEMY_PROVIDER_URL = (
