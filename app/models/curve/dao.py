@@ -1,10 +1,20 @@
 from dataclasses import dataclass
 from typing import List
+from sqlalchemy import Column, String
 
 import marshmallow_dataclass
 from flask_restx import fields
 
+from main import db
 from utils import convert_schema
+
+
+class CurveDaoScript(db.Model):
+    __tablename__ = "curve_dao_proposal_scripts"
+
+    id = Column(String, primary_key=True)
+    script = Column(String)
+    decodedScript = Column(String)
 
 
 @dataclass

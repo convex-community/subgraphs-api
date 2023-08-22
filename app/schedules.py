@@ -56,6 +56,13 @@ curve_couch_tasks = {
     },
 }
 
+curve_dao_tasks = {
+    "populate-dao-proposals-info": {
+        "task": "tasks.populate.populate_dao_decoded_proposal_data",
+        "schedule": crontab(minute="*/10"),
+    },
+}
+
 curve_pool_snapshot_tasks = {
     f"populate-curve-pool-snapshots-{chain}": {
         "task": "tasks.populate.populate_curve_pool_snapshots",
@@ -91,4 +98,5 @@ beat_schedule = (
     | curve_pool_snapshot_tasks
     | ranking_tasks
     | crvusd_tasks
+    | curve_dao_tasks
 )

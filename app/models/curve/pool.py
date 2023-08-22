@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 import marshmallow_dataclass
-from typing import List
 from sqlalchemy import Column, Integer, Float, String, Boolean
 from sqlalchemy.dialects.postgresql import ARRAY
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema

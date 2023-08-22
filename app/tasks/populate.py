@@ -17,6 +17,7 @@ from tasks.queries.curve.crvusd.health import update_user_states_and_health
 from tasks.queries.curve.crvusd.keepers import update_keeper_debt_data
 from tasks.queries.curve.crvusd.markets import update_crvusd_market_data
 from tasks.queries.curve.crvusd.prices import get_crvusd_prices
+from tasks.queries.curve.decode_proposals import decode_proposals
 from tasks.queries.curve.pools import get_curve_pools
 from tasks.database.curve.pools import update_curve_pools
 from celery.utils.log import get_task_logger
@@ -108,3 +109,9 @@ def populate_couch_info():
 def populate_user_states():
     logger.info(f"Updating User States")
     update_user_states_and_health()
+
+
+@celery.task
+def populate_dao_decoded_proposal_data():
+    logger.info(f"Updating decoded dao proposal data")
+    decode_proposals()
