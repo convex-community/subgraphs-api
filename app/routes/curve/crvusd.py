@@ -21,6 +21,7 @@ from models.curve.crvusd import (
     KeepersProfit,
     CrvUsdYield,
     HistoricalKeeperDebtData,
+    MarketLosers,
 )
 from models.curve.pool import CurvePoolName
 from services.curve.crvusd import (
@@ -41,6 +42,7 @@ from services.curve.crvusd import (
     get_keepers_profit,
     get_volume_snapshot,
 )
+from services.curve.liquidations import get_loser_proportions
 from services.curve.yields import get_crv_usd_yields
 from utils import convert_schema
 
@@ -63,6 +65,9 @@ detailed_fees = api.model(
 )
 volume = api.model("Market historical volume", convert_schema(MarketVolume))
 loans = api.model("Market historical loan number", convert_schema(MarketLoans))
+losers = api.model(
+    "Proportion of users with losses", convert_schema(MarketLosers)
+)
 states = api.model("User states", convert_schema(UserStateData))
 keepers_debt = api.model("Keepers debt", convert_schema(KeepersDebt))
 historical_keepers_debt = api.model(
@@ -333,3 +338,11 @@ class LlammaVolumeSnapshot(Resource):
     def get(self, market):
         args = snapshot.parse_args()
         return get_volume_snapshot(market_id=market, **args)
+
+
+@api.route("/markets/liquidations/losses/proportions")
+@api.doc(description="Get proportion of users with losses for all market")
+class MarketLossProportion(Resource):
+    @api.marshal_list_with(losers, envelope="losses")
+    def get(self):
+        return get_loser_proportions()

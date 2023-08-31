@@ -7,6 +7,7 @@ USER_STATE_QUERY = """{
   users(first: 500 skip: %d orderBy: firstActionBlock orderDirection:desc){
     id
     stateSnapshots(first: 1000 orderBy: timestamp orderDirection: desc) {
+      id
       market {
         id
         collateralName
@@ -45,13 +46,15 @@ def update_user_states():
     for user in users:
         for snapshot in user["stateSnapshots"]:
             entry = UserStateSnapshot(
+                id=snapshot["id"],
                 user=user["id"],
                 marketId=snapshot["market"]["id"],
                 collateral=float(snapshot["collateral"]),
+                collateralUsd=float(snapshot["collateral"])
+                * float(snapshot["snapshot"]["oraclePrice"]),
                 collateralUp=float(snapshot["collateralUp"]),
                 depositedCollateral=float(snapshot["depositedCollateral"]),
                 activeBand=int(snapshot["snapshot"]["activeBand"]),
-                oraclePrice=float(snapshot["snapshot"]["oraclePrice"]),
                 n=int(snapshot["n"]),
                 n1=int(snapshot["n1"]),
                 n2=int(snapshot["n2"]),

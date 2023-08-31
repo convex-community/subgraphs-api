@@ -248,6 +248,7 @@ class UserStateSnapshot(db.Model):
     user = Column(String)
     marketId = Column(String, ForeignKey("market.id"))
     market = relationship("Market")
+    activeBand = Column(Float)
     collateral = Column(Float)
     collateralUsd = Column(Float)
     collateralUp = Column(Float)
@@ -332,4 +333,5 @@ class HistoricalKeeperDebtData:
 @dataclass
 class MarketLosers:
     market: str
+    marketName: str
     losers: float
