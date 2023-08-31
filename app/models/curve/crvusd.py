@@ -242,6 +242,27 @@ class UserState(db.Model):
     timestamp = Column(Integer)
 
 
+class UserStateSnapshot(db.Model):
+    __tablename__ = "user_state_snapshots"
+    id = Column(String, primary_key=True)
+    user = Column(String)
+    marketId = Column(String, ForeignKey("market.id"))
+    market = relationship("Market")
+    collateral = Column(Float)
+    collateralUsd = Column(Float)
+    collateralUp = Column(Float)
+    depositedCollateral = Column(Float)
+    debt = Column(Float)
+    n = Column(Float)
+    n1 = Column(Float)
+    n2 = Column(Float)
+    health = Column(Float)
+    loss = Column(Float)
+    lossPct = Column(Float)
+    softLiq = Column(Boolean)
+    timestamp = Column(Integer)
+
+
 @dataclass
 class UserStateData:
     index: int
@@ -306,3 +327,9 @@ class HistoricalKeeperDebtData:
     debt: float
     totalKeepersDebt: float
     timestamp: int
+
+
+@dataclass
+class MarketLosers:
+    market: str
+    losers: float
