@@ -250,6 +250,8 @@ class UserStateSnapshot(db.Model):
     market = relationship("Market")
     activeBand = Column(Float)
     collateral = Column(Float)
+    stablecoin = Column(Float)
+    oraclePrice = Column(Float)
     collateralUsd = Column(Float)
     collateralUp = Column(Float)
     depositedCollateral = Column(Float)
@@ -335,3 +337,30 @@ class MarketLosers:
     market: str
     marketName: str
     losers: float
+
+
+@dataclass
+class HistoricalMarketLosers:
+    timestamp: int
+    losers: float
+
+
+@dataclass
+class HistoricalMedianLoss:
+    timestamp: int
+    lossPct: float
+
+
+@dataclass
+class HistoricalSoftLoss:
+    timestamp: int
+    collateralPrice: float
+    proportion: float
+
+
+@dataclass
+class HealthDistribution:
+    decile: str
+    collateralUsdValue: float
+    stablecoin: float
+    debt: float

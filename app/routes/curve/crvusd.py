@@ -22,6 +22,10 @@ from models.curve.crvusd import (
     CrvUsdYield,
     HistoricalKeeperDebtData,
     MarketLosers,
+    HistoricalMarketLosers,
+    HistoricalMedianLoss,
+    HistoricalSoftLoss,
+    HealthDistribution,
 )
 from models.curve.pool import CurvePoolName
 from services.curve.crvusd import (
@@ -42,7 +46,13 @@ from services.curve.crvusd import (
     get_keepers_profit,
     get_volume_snapshot,
 )
-from services.curve.liquidations import get_loser_proportions
+from services.curve.liquidations import (
+    get_loser_proportions,
+    get_historical_loser_proportions,
+    get_historical_median_loss,
+    get_historical_soft_loss,
+    get_health_distribution,
+)
 from services.curve.yields import get_crv_usd_yields
 from utils import convert_schema
 
@@ -67,6 +77,22 @@ volume = api.model("Market historical volume", convert_schema(MarketVolume))
 loans = api.model("Market historical loan number", convert_schema(MarketLoans))
 losers = api.model(
     "Proportion of users with losses", convert_schema(MarketLosers)
+)
+historical_losers = api.model(
+    "Historical proportion of users with losses",
+    convert_schema(HistoricalMarketLosers),
+)
+historical_median_loss = api.model(
+    "Historical median loss % of users with losses",
+    convert_schema(HistoricalMedianLoss),
+)
+historical_soft_loss = api.model(
+    "Historical % of users in soft liquidation",
+    convert_schema(HistoricalSoftLoss),
+)
+health_distribution = api.model(
+    "Debt & collateral value in health deciles",
+    convert_schema(HealthDistribution),
 )
 states = api.model("User states", convert_schema(UserStateData))
 keepers_debt = api.model("Keepers debt", convert_schema(KeepersDebt))
@@ -346,3 +372,57 @@ class MarketLossProportion(Resource):
     @api.marshal_list_with(losers, envelope="losses")
     def get(self):
         return get_loser_proportions()
+
+
+@api.route(
+    '/markets/<regex("[A-z0-9]+"):market>/liquidations/losses/historical/proportions'
+)
+@api.doc(description="Get historical fraction of users with losses")
+@api.param("market", "Market to query for")
+class MarketHistoricLossProportion(Resource):
+    @api.marshal_list_with(historical_losers, envelope="losses")
+    def get(self, market):
+        res = get_historical_loser_proportions(market_id=market)
+        if not res:
+            api.abort(404)
+        return res
+
+
+@api.route(
+    '/markets/<regex("[A-z0-9]+"):market>/liquidations/losses/historical/median'
+)
+@api.doc(description="Get historical median loss % of users with losses")
+@api.param("market", "Market to query for")
+class MarketHistoricMedianLosses(Resource):
+    @api.marshal_list_with(historical_median_loss, envelope="losses")
+    def get(self, market):
+        res = get_historical_median_loss(market_id=market)
+        if not res:
+            api.abort(404)
+        return res
+
+
+@api.route(
+    '/markets/<regex("[A-z0-9]+"):market>/liquidations/losses/historical/soft'
+)
+@api.doc(description="Get historical proportion of users in soft liquidation")
+@api.param("market", "Market to query for")
+class MarketHistoricSoftLosses(Resource):
+    @api.marshal_list_with(historical_soft_loss, envelope="losses")
+    def get(self, market):
+        res = get_historical_soft_loss(market_id=market)
+        if not res:
+            api.abort(404)
+        return res
+
+
+@api.route('/markets/<regex("[A-z0-9]+"):market>/liquidations/health')
+@api.doc(description="Get collateral value & debt by health deciles ")
+@api.param("market", "Market to query for")
+class MarketHealthDistribution(Resource):
+    @api.marshal_list_with(health_distribution, envelope="health")
+    def get(self, market):
+        res = get_health_distribution(market_id=market)
+        if not res:
+            api.abort(404)
+        return res

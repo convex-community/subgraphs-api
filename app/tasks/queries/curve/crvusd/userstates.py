@@ -17,6 +17,7 @@ USER_STATE_QUERY = """{
         oraclePrice
       }
       collateral
+      stablecoin
       collateralUp
       depositedCollateral
       n
@@ -50,8 +51,10 @@ def update_user_states():
                 user=user["id"],
                 marketId=snapshot["market"]["id"],
                 collateral=float(snapshot["collateral"]),
+                stablecoin=float(snapshot["stablecoin"]),
                 collateralUsd=float(snapshot["collateral"])
                 * float(snapshot["snapshot"]["oraclePrice"]),
+                oraclePrice=float(snapshot["snapshot"]["oraclePrice"]),
                 collateralUp=float(snapshot["collateralUp"]),
                 depositedCollateral=float(snapshot["depositedCollateral"]),
                 activeBand=int(snapshot["snapshot"]["activeBand"]),
