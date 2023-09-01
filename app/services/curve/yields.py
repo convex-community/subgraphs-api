@@ -66,20 +66,6 @@ def get_max_boost_curve_yield() -> List[CrvUsdYield]:
     ]
 
 
-def get_conic_omnipool() -> List[CrvUsdYield]:
-    CNC_YIELD = (
-        "https://yields.llama.fi/chart/69a83093-60c1-42ad-9927-2bc85b3dabe8"
-    )
-    r = requests.get(CNC_YIELD)
-    return [
-        CrvUsdYield(
-            platform="Conic",
-            pool="crvUSD omnipool",
-            apy=r.json()["data"][-1]["apy"],
-        )
-    ]
-
-
 def get_std_yields() -> List[CrvUsdYield]:
     STD_YIELD = "https://lockers.stakedao.org/api/strategies/cache/curve"
     r = requests.get(STD_YIELD)
@@ -106,14 +92,9 @@ def get_crv_usd_yields() -> List[CrvUsdYield]:
         logger.error(f"Error fetching Curve yields : {e}")
         curve_yields = []
     try:
-        conic_yields = get_conic_omnipool()
-    except Exception as e:
-        logger.error(f"Error fetching Conic yields : {e}")
-        conic_yields = []
-    try:
         std_yields = get_std_yields()
     except Exception as e:
         logger.error(f"Error fetching StakeDAO yields : {e}")
         std_yields = []
 
-    return conic_yields + convex_yields + curve_yields + std_yields
+    return convex_yields + curve_yields + std_yields

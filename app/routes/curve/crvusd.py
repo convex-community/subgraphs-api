@@ -21,6 +21,15 @@ from models.curve.crvusd import (
     KeepersProfit,
     CrvUsdYield,
     HistoricalKeeperDebtData,
+    MarketLosers,
+    HistoricalMarketLosers,
+    HistoricalMedianLoss,
+    HistoricalSoftLoss,
+    HealthDistribution,
+    HistoricalLiquidations,
+    AggregatedLiquidations,
+    Liquidators,
+    HistoricalHealth,
 )
 from models.curve.pool import CurvePoolName
 from services.curve.crvusd import (
@@ -40,6 +49,17 @@ from services.curve.crvusd import (
     get_fees_breakdown,
     get_keepers_profit,
     get_volume_snapshot,
+)
+from services.curve.liquidations import (
+    get_loser_proportions,
+    get_historical_loser_proportions,
+    get_historical_median_loss,
+    get_historical_soft_loss,
+    get_health_distribution,
+    get_liquidation_history,
+    get_aggregated_liquidations,
+    get_top_liquidators,
+    get_historical_health,
 )
 from services.curve.yields import get_crv_usd_yields
 from utils import convert_schema
@@ -63,6 +83,41 @@ detailed_fees = api.model(
 )
 volume = api.model("Market historical volume", convert_schema(MarketVolume))
 loans = api.model("Market historical loan number", convert_schema(MarketLoans))
+losers = api.model(
+    "Proportion of users with losses", convert_schema(MarketLosers)
+)
+historical_losers = api.model(
+    "Historical proportion of users with losses",
+    convert_schema(HistoricalMarketLosers),
+)
+historical_median_loss = api.model(
+    "Historical median loss % of users with losses",
+    convert_schema(HistoricalMedianLoss),
+)
+historical_soft_loss = api.model(
+    "Historical % of users in soft liquidation",
+    convert_schema(HistoricalSoftLoss),
+)
+historical_health = api.model(
+    "Average health of users",
+    convert_schema(HistoricalHealth),
+)
+health_distribution = api.model(
+    "Debt & collateral value in health deciles",
+    convert_schema(HealthDistribution),
+)
+liquidation_history = api.model(
+    "Historical liquidation count and details per day",
+    convert_schema(HistoricalLiquidations),
+)
+aggregated_liquidations = api.model(
+    "Aggregated liquidation count and details",
+    convert_schema(AggregatedLiquidations),
+)
+liquidators = api.model(
+    "Top liquidators stats",
+    convert_schema(Liquidators),
+)
 states = api.model("User states", convert_schema(UserStateData))
 keepers_debt = api.model("Keepers debt", convert_schema(KeepersDebt))
 historical_keepers_debt = api.model(
@@ -333,3 +388,115 @@ class LlammaVolumeSnapshot(Resource):
     def get(self, market):
         args = snapshot.parse_args()
         return get_volume_snapshot(market_id=market, **args)
+
+
+@api.route("/markets/liquidations/losses/proportions")
+@api.doc(description="Get proportion of users with losses for all market")
+class MarketLossProportion(Resource):
+    @api.marshal_list_with(losers, envelope="losses")
+    def get(self):
+        return get_loser_proportions()
+
+
+@api.route(
+    '/markets/<regex("[A-z0-9]+"):market>/liquidations/losses/historical/proportions'
+)
+@api.doc(description="Get historical fraction of users with losses")
+@api.param("market", "Market to query for")
+class MarketHistoricLossProportion(Resource):
+    @api.marshal_list_with(historical_losers, envelope="losses")
+    def get(self, market):
+        res = get_historical_loser_proportions(market_id=market)
+        if not res:
+            api.abort(404)
+        return res
+
+
+@api.route(
+    '/markets/<regex("[A-z0-9]+"):market>/liquidations/losses/historical/median'
+)
+@api.doc(description="Get historical median loss % of users with losses")
+@api.param("market", "Market to query for")
+class MarketHistoricMedianLosses(Resource):
+    @api.marshal_list_with(historical_median_loss, envelope="losses")
+    def get(self, market):
+        res = get_historical_median_loss(market_id=market)
+        if not res:
+            api.abort(404)
+        return res
+
+
+@api.route(
+    '/markets/<regex("[A-z0-9]+"):market>/liquidations/losses/historical/soft'
+)
+@api.doc(description="Get historical proportion of users in soft liquidation")
+@api.param("market", "Market to query for")
+class MarketHistoricSoftLosses(Resource):
+    @api.marshal_list_with(historical_soft_loss, envelope="losses")
+    def get(self, market):
+        res = get_historical_soft_loss(market_id=market)
+        if not res:
+            api.abort(404)
+        return res
+
+
+@api.route(
+    '/markets/<regex("[A-z0-9]+"):market>/liquidations/health/historical'
+)
+@api.doc(description="Get historical average health factor")
+@api.param("market", "Market to query for")
+class MarketHistoricHealth(Resource):
+    @api.marshal_list_with(historical_health, envelope="health")
+    def get(self, market):
+        res = get_historical_health(market_id=market)
+        if not res:
+            api.abort(404)
+        return res
+
+
+@api.route('/markets/<regex("[A-z0-9]+"):market>/liquidations/health')
+@api.doc(description="Get collateral value & debt by health deciles ")
+@api.param("market", "Market to query for")
+class MarketHealthDistribution(Resource):
+    @api.marshal_list_with(health_distribution, envelope="health")
+    def get(self, market):
+        res = get_health_distribution(market_id=market)
+        if not res:
+            api.abort(404)
+        return res
+
+
+@api.route('/markets/<regex("[A-z0-9]+"):market>/liquidations/historical')
+@api.doc(description="Get stats for historical liquidations ")
+@api.param("market", "Market to query for")
+class MarketLiquidationHistory(Resource):
+    @api.marshal_list_with(liquidation_history, envelope="liquidations")
+    def get(self, market):
+        res = get_liquidation_history(market_id=market)
+        if not res:
+            api.abort(404)
+        return res
+
+
+@api.route('/markets/<regex("[A-z0-9]+"):market>/liquidations/aggregated')
+@api.doc(description="Get stats for liquidations ")
+@api.param("market", "Market to query for")
+class MarketAggregatedLiquidation(Resource):
+    @api.marshal_list_with(aggregated_liquidations, envelope="liquidations")
+    def get(self, market):
+        res = get_aggregated_liquidations(market_id=market)
+        if not res:
+            api.abort(404)
+        return res
+
+
+@api.route('/markets/<regex("[A-z0-9]+"):market>/liquidations/liquidators')
+@api.doc(description="Get stats for top liquidators ")
+@api.param("market", "Market to query for")
+class MarketTopLiquidators(Resource):
+    @api.marshal_list_with(liquidators, envelope="liquidations")
+    def get(self, market):
+        res = get_top_liquidators(market_id=market)
+        if not res:
+            api.abort(404)
+        return res

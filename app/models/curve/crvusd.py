@@ -66,6 +66,8 @@ class Liquidation(db.Model):
     market = relationship("Market", back_populates="liquidations")
     collateralReceived = Column(Numeric)
     stablecoinReceived = Column(Numeric)
+    collateralReceivedUSD = Column(Numeric)
+    oraclePrice = Column(Numeric)
     debt = Column(Numeric)
     blockNumber = Column(Numeric)
     blockTimestamp = Column(Numeric)
@@ -242,6 +244,30 @@ class UserState(db.Model):
     timestamp = Column(Integer)
 
 
+class UserStateSnapshot(db.Model):
+    __tablename__ = "user_state_snapshots"
+    id = Column(String, primary_key=True)
+    user = Column(String)
+    marketId = Column(String, ForeignKey("market.id"))
+    market = relationship("Market")
+    activeBand = Column(Float)
+    collateral = Column(Float)
+    stablecoin = Column(Float)
+    oraclePrice = Column(Float)
+    collateralUsd = Column(Float)
+    collateralUp = Column(Float)
+    depositedCollateral = Column(Float)
+    debt = Column(Float)
+    n = Column(Float)
+    n1 = Column(Float)
+    n2 = Column(Float)
+    health = Column(Float)
+    loss = Column(Float)
+    lossPct = Column(Float)
+    softLiq = Column(Boolean)
+    timestamp = Column(Integer)
+
+
 @dataclass
 class UserStateData:
     index: int
@@ -306,3 +332,70 @@ class HistoricalKeeperDebtData:
     debt: float
     totalKeepersDebt: float
     timestamp: int
+
+
+@dataclass
+class MarketLosers:
+    market: str
+    marketName: str
+    losers: float
+
+
+@dataclass
+class HistoricalMarketLosers:
+    timestamp: int
+    losers: float
+
+
+@dataclass
+class HistoricalMedianLoss:
+    timestamp: int
+    lossPct: float
+
+
+@dataclass
+class HistoricalSoftLoss:
+    timestamp: int
+    collateralPrice: float
+    proportion: float
+
+
+@dataclass
+class HealthDistribution:
+    decile: str
+    collateralUsdValue: float
+    stablecoin: float
+    debt: float
+
+
+@dataclass
+class HistoricalLiquidations:
+    timestamp: int
+    selfCount: int
+    hardCount: int
+    selfValue: float
+    hardValue: float
+    price: float
+
+
+@dataclass
+class AggregatedLiquidations:
+    selfCount: int
+    hardCount: int
+    selfValue: float
+    hardValue: float
+
+
+@dataclass
+class Liquidators:
+    address: str
+    count: int
+    value: float
+
+
+@dataclass
+class HistoricalHealth:
+    timestamp: int
+    avgHealth: float
+    weightedAvgHealth: float
+    price: float
