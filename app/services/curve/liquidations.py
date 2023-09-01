@@ -1,4 +1,4 @@
-from sqlalchemy import func
+from sqlalchemy import func, text
 
 from main import db
 from models.curve.crvusd import (
@@ -9,8 +9,13 @@ from models.curve.crvusd import (
     HistoricalMedianLoss,
     HistoricalSoftLoss,
     HealthDistribution,
+    HistoricalLiquidations,
+    AggregatedLiquidations,
+    Liquidators,
+    HistoricalHealth,
 )
 import pandas as pd
+from web3 import Web3
 
 
 def get_loser_proportions():
@@ -171,9 +176,9 @@ def get_health_distribution(market_id):
         "[{0:.5f}, {1:.5f})".format(bins[i], bins[i + 1])
         for i in range(len(bins) - 1)
     ]
-    df["health_decile"] = pd.cut(
+    df["health_decile"] = pd.cut(  # noqa
         df["health"], bins=bins, labels=labels, include_lowest=True
-    )  # noqa
+    )
 
     sums_by_decile = (
         df.groupby("health_decile")[["collateralUsd", "stablecoin", "debt"]]
@@ -189,4 +194,110 @@ def get_health_distribution(market_id):
             row["debt"],
         )
         for _, row in sums_by_decile.iterrows()
+    ]
+
+
+def get_liquidation_history(market_id):
+    sql_query = """
+        SELECT
+            extract(epoch from date_trunc('day', to_timestamp("blockTimestamp")))::int AS "timestamp",
+            SUM(CASE WHEN "user" = "liquidator" THEN 1 ELSE 0 END) AS "selfCount",
+            SUM(CASE WHEN "user" != "liquidator" THEN 1 ELSE 0 END) AS "hardCount",
+            SUM(CASE WHEN "user" = "liquidator" THEN "collateralReceivedUSD" + "stablecoinReceived" ELSE 0 END) AS "selfValue",
+            SUM(CASE WHEN "user" != "liquidator" THEN "collateralReceivedUSD" + "stablecoinReceived" ELSE 0 END) AS "hardValue",
+            AVG("oraclePrice") AS price
+        FROM
+            "liquidation"
+        JOIN
+            "market" ON "market"."id" = "liquidation"."marketId"
+        WHERE
+            LOWER("market"."id") = LOWER(:market_id)
+        GROUP BY
+            timestamp
+        ORDER BY
+            timestamp;
+    """
+    result = db.session.execute(text(sql_query), {"market_id": market_id})
+    rows = result.fetchall()
+    return [
+        HistoricalLiquidations(
+            timestamp=row[0],
+            selfCount=row[1],
+            hardCount=row[2],
+            selfValue=row[3],
+            hardValue=row[4],
+            price=row[5],
+        )
+        for row in rows
+    ]
+
+
+def get_aggregated_liquidations(market_id):
+    sql_query = """
+        SELECT
+            SUM(CASE WHEN "user" = "liquidator" THEN 1 ELSE 0 END) AS "selfCount",
+            SUM(CASE WHEN "user" != "liquidator" THEN 1 ELSE 0 END) AS "hardCount",
+            SUM(CASE WHEN "user" = "liquidator" THEN "collateralReceivedUSD" + "stablecoinReceived" ELSE 0 END) AS "selfValue",
+            SUM(CASE WHEN "user" != "liquidator" THEN "collateralReceivedUSD" + "stablecoinReceived" ELSE 0 END) AS "hardValue"
+        FROM
+            "liquidation"
+        WHERE
+            LOWER("marketId") = LOWER(:market_id)
+    """
+    result = db.session.execute(text(sql_query), {"market_id": market_id})
+    return AggregatedLiquidations(*result.fetchone())
+
+
+def get_top_liquidators(market_id):
+    sql_query = """
+        SELECT
+            "liquidator" AS "address",
+            COUNT(*) AS "count",
+            SUM("collateralReceivedUSD" + "stablecoinReceived") AS "value"
+        FROM
+            "liquidation"
+        WHERE
+            LOWER("marketId") = LOWER(:market_id) AND "user" != "liquidator"
+        GROUP BY
+            "liquidator"
+        ORDER BY
+            "count" DESC
+        LIMIT 5
+    """
+    results = db.session.execute(text(sql_query), {"market_id": market_id})
+    return [
+        Liquidators(Web3.to_checksum_address(row[0]), row[1], row[2])
+        for row in results
+    ]
+
+
+def get_historical_health(market_id):
+    sql_query = """
+    SELECT
+        "timestamp",
+        AVG("health") as avg_health,
+        SUM("health" * "depositedCollateral") / NULLIF(SUM("depositedCollateral"), 0) as weighted_avg_health,
+        AVG("oraclePrice") as price
+    FROM
+        "user_state_snapshots"
+    WHERE
+        LOWER("marketId") = LOWER(:market_id)
+    GROUP BY
+        "timestamp"
+    ORDER BY
+        "timestamp";
+    """
+
+    result = db.session.execute(
+        text(sql_query), {"market_id": market_id}
+    ).fetchall()
+
+    return [
+        HistoricalHealth(
+            timestamp=row[0],
+            avgHealth=row[1],
+            weightedAvgHealth=row[2],
+            price=row[3],
+        )
+        for row in result
     ]

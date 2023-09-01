@@ -15,6 +15,7 @@ from tasks.queries.convex.snapshots import get_convex_pool_snapshots
 from tasks.queries.curve.couch.couch import check_cushions
 from tasks.queries.curve.crvusd.health import update_user_states_and_health
 from tasks.queries.curve.crvusd.keepers import update_keeper_debt_data
+from tasks.queries.curve.crvusd.liquidations import update_liquidation_data
 from tasks.queries.curve.crvusd.markets import update_crvusd_market_data
 from tasks.queries.curve.crvusd.prices import get_crvusd_prices
 from tasks.queries.curve.crvusd.userstates import update_user_states
@@ -122,3 +123,9 @@ def populate_dao_decoded_proposal_data():
 def populate_user_state_snapshots():
     logger.info(f"Updating user state snapshot data")
     update_user_states()
+
+
+@celery.task
+def populate_liquidations():
+    logger.info(f"Updating liquidation data")
+    update_liquidation_data()

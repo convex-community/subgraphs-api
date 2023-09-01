@@ -66,6 +66,8 @@ class Liquidation(db.Model):
     market = relationship("Market", back_populates="liquidations")
     collateralReceived = Column(Numeric)
     stablecoinReceived = Column(Numeric)
+    collateralReceivedUSD = Column(Numeric)
+    oraclePrice = Column(Numeric)
     debt = Column(Numeric)
     blockNumber = Column(Numeric)
     blockTimestamp = Column(Numeric)
@@ -364,3 +366,36 @@ class HealthDistribution:
     collateralUsdValue: float
     stablecoin: float
     debt: float
+
+
+@dataclass
+class HistoricalLiquidations:
+    timestamp: int
+    selfCount: int
+    hardCount: int
+    selfValue: float
+    hardValue: float
+    price: float
+
+
+@dataclass
+class AggregatedLiquidations:
+    selfCount: int
+    hardCount: int
+    selfValue: float
+    hardValue: float
+
+
+@dataclass
+class Liquidators:
+    address: str
+    count: int
+    value: float
+
+
+@dataclass
+class HistoricalHealth:
+    timestamp: int
+    avgHealth: float
+    weightedAvgHealth: float
+    price: float
