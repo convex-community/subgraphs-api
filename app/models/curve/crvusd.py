@@ -396,5 +396,4 @@ class Liquidators:
 @dataclass
 class HistoricalHealth:
     timestamp: int
-    medianHealth: float
-    medianHealthTop10Percent: float
+    quartiles: List[float]
