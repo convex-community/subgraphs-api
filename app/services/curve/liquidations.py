@@ -162,8 +162,8 @@ def get_health_distribution(market_id):
             "user",
             "health",
             "collateralUsd",
-            "debt",
             "stablecoin",
+            "debt",
         ],
     )
 
