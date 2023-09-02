@@ -273,26 +273,44 @@ def get_top_liquidators(market_id):
 
 def get_historical_health(market_id):
     sql_query = """
-WITH Top10Percent AS (
-    SELECT "health"
-    FROM "user_state_snapshots"
-    WHERE LOWER("marketId") = LOWER(:market_id)
-    ORDER BY "depositedCollateral" DESC
-    LIMIT CAST(0.10 * (SELECT COUNT(*) FROM "user_state_snapshots" WHERE LOWER("marketId") = LOWER(:market_id)) AS INTEGER)
+WITH RankedSnapshots AS (
+    SELECT
+        "timestamp",
+        "health",
+        ROW_NUMBER() OVER(PARTITION BY "timestamp" ORDER BY "depositedCollateral" DESC) as rn,
+        COUNT(*) OVER(PARTITION BY "timestamp") as total
+    FROM
+        "user_state_snapshots"
+    WHERE
+        LOWER("marketId") = LOWER(:market_id)
 )
+
+, Top10Percent AS (
+    SELECT
+        "timestamp",
+        PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY "health") AS median_health_for_top_10_percent
+    FROM
+        RankedSnapshots
+    WHERE
+        rn <= 0.10 * total
+    GROUP BY
+        "timestamp"
+)
+
 SELECT
-    "timestamp",
-    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY "health") AS median_health,
-    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY "health") AS median_health_for_top_10_percent
+    rs."timestamp",
+    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY rs."health") AS median_health,
+    t.median_health_for_top_10_percent
 FROM
-    "user_state_snapshots",
-    Top10Percent
+    "user_state_snapshots" rs
+LEFT JOIN
+    Top10Percent t ON rs."timestamp" = t."timestamp"
 WHERE
-    LOWER("marketId") = LOWER(:market_id)
+    LOWER(rs."marketId") = LOWER(:market_id)
 GROUP BY
-    "timestamp"
+    rs."timestamp", t.median_health_for_top_10_percent
 ORDER BY
-    "timestamp";
+    rs."timestamp";
     """
 
     result = db.session.execute(
@@ -303,8 +321,7 @@ ORDER BY
         HistoricalHealth(
             timestamp=row[0],
             medianHealth=row[1],
-            medianHealthTop10Percent=row[2],
-            price=row[3],
+            medianHealthTop10Percent=row[2] if row[2] else row[1],
         )
         for row in result
     ]

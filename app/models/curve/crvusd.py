@@ -398,4 +398,3 @@ class HistoricalHealth:
     timestamp: int
     medianHealth: float
     medianHealthTop10Percent: float
-    price: float
