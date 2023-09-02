@@ -282,7 +282,7 @@ WITH WeeklySnapshots AS (
     WHERE
         LOWER("marketId") = LOWER(:market_id)
     AND
-        "timestamp" >= EXTRACT(EPOCH FROM (NOW() - INTERVAL '3 months'))
+        "timestamp" >= EXTRACT(EPOCH FROM (NOW() - INTERVAL '6 months'))
 ),
 
 IQRValues AS (
