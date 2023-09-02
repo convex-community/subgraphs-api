@@ -283,22 +283,39 @@ WITH WeeklySnapshots AS (
         LOWER("marketId") = LOWER(:market_id)
     AND
         "timestamp" >= EXTRACT(EPOCH FROM (NOW() - INTERVAL '3 months'))
+),
+
+IQRValues AS (
+    SELECT
+        weekly_timestamp,
+        PERCENTILE_CONT(0.25) WITHIN GROUP (ORDER BY "health") AS q1,
+        PERCENTILE_CONT(0.75) WITHIN GROUP (ORDER BY "health") AS q3,
+        PERCENTILE_CONT(0.75) WITHIN GROUP (ORDER BY "health") -
+        PERCENTILE_CONT(0.25) WITHIN GROUP (ORDER BY "health") AS iqr
+    FROM
+        WeeklySnapshots
+    GROUP BY
+        weekly_timestamp
 )
 
 SELECT
-    weekly_timestamp,
-    MIN("health") AS min_health,
-    PERCENTILE_CONT(0.25) WITHIN GROUP (ORDER BY "health") AS q1,
-    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY "health") AS median,
-    PERCENTILE_CONT(0.75) WITHIN GROUP (ORDER BY "health") AS q3,
-    MAX("health") AS max_health
+    ws.weekly_timestamp,
+    MIN(ws."health") AS min_health,
+    PERCENTILE_CONT(0.25) WITHIN GROUP (ORDER BY ws."health") AS q1,
+    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY ws."health") AS median,
+    PERCENTILE_CONT(0.75) WITHIN GROUP (ORDER BY ws."health") AS q3,
+    MAX(ws."health") AS max_health
 FROM
-    WeeklySnapshots
+    WeeklySnapshots ws
+JOIN
+    IQRValues iqr ON ws.weekly_timestamp = iqr.weekly_timestamp
+WHERE
+    ws."health" <= iqr.q3 + 1.5 * iqr.iqr -- This filters out the high-end outliers
 GROUP BY
-    weekly_timestamp
+    ws.weekly_timestamp
 ORDER BY
-    weekly_timestamp;
-    """
+    ws.weekly_timestamp;
+"""
 
     result = db.session.execute(
         text(sql_query), {"market_id": market_id}
