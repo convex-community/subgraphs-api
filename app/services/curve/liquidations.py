@@ -273,19 +273,26 @@ def get_top_liquidators(market_id):
 
 def get_historical_health(market_id):
     sql_query = """
-    SELECT
-        "timestamp",
-        AVG("health") as avg_health,
-        SUM("health" * "depositedCollateral") / NULLIF(SUM("depositedCollateral"), 0) as weighted_avg_health,
-        AVG("oraclePrice") as price
-    FROM
-        "user_state_snapshots"
-    WHERE
-        LOWER("marketId") = LOWER(:market_id)
-    GROUP BY
-        "timestamp"
-    ORDER BY
-        "timestamp";
+WITH Top10Percent AS (
+    SELECT "health"
+    FROM "user_state_snapshots"
+    WHERE LOWER("marketId") = LOWER(:market_id)
+    ORDER BY "depositedCollateral" DESC
+    LIMIT CAST(0.10 * (SELECT COUNT(*) FROM "user_state_snapshots" WHERE LOWER("marketId") = LOWER(:market_id)) AS INTEGER)
+)
+SELECT
+    "timestamp",
+    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY "health") AS median_health,
+    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY "health") AS median_health_for_top_10_percent
+FROM
+    "user_state_snapshots",
+    Top10Percent
+WHERE
+    LOWER("marketId") = LOWER(:market_id)
+GROUP BY
+    "timestamp"
+ORDER BY
+    "timestamp";
     """
 
     result = db.session.execute(
@@ -295,8 +302,8 @@ def get_historical_health(market_id):
     return [
         HistoricalHealth(
             timestamp=row[0],
-            avgHealth=row[1],
-            weightedAvgHealth=row[2],
+            medianHealth=row[1],
+            medianHealthTop10Percent=row[2],
             price=row[3],
         )
         for row in result

@@ -99,7 +99,7 @@ historical_soft_loss = api.model(
     convert_schema(HistoricalSoftLoss),
 )
 historical_health = api.model(
-    "Average health of users",
+    "Median health of users",
     convert_schema(HistoricalHealth),
 )
 health_distribution = api.model(
@@ -443,7 +443,7 @@ class MarketHistoricSoftLosses(Resource):
 @api.route(
     '/markets/<regex("[A-z0-9]+"):market>/liquidations/health/historical'
 )
-@api.doc(description="Get historical average health factor")
+@api.doc(description="Get historical median health factor")
 @api.param("market", "Market to query for")
 class MarketHistoricHealth(Resource):
     @api.marshal_list_with(historical_health, envelope="health")

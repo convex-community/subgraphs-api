@@ -396,6 +396,6 @@ class Liquidators:
 @dataclass
 class HistoricalHealth:
     timestamp: int
-    avgHealth: float
-    weightedAvgHealth: float
+    medianHealth: float
+    medianHealthTop10Percent: float
     price: float
