@@ -275,7 +275,7 @@ def get_historical_health(market_id):
     sql_query = """
 WITH WeeklySnapshots AS (
     SELECT
-        DATE_TRUNC('week', TO_TIMESTAMP("timestamp")) AS weekly_timestamp,
+        DATE_TRUNC('day', TO_TIMESTAMP("timestamp")) AS weekly_timestamp,
         "health"
     FROM
         "user_state_snapshots"

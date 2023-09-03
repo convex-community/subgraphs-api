@@ -3,10 +3,14 @@ from web3.constants import ADDRESS_ZERO
 
 from main import db
 from main.const import MULTICALL_CONTRACTS, CHAIN_MAINNET, PUBLIC_RPCS
-from main.const.abis import CRV_USD_CONTROLLER_ABI, MULTICALL2_ABI
+from main.const.abis import (
+    CRV_USD_CONTROLLER_ABI,
+    MULTICALL2_ABI,
+    CRV_USD_LLAMMA_ABI,
+)
 from web3 import Web3
 import time
-from models.curve.crvusd import UserState, Snapshot, Market
+from models.curve.crvusd import UserState, Snapshot, Market, Amm
 
 import logging
 
@@ -14,9 +18,10 @@ logger = logging.getLogger(__name__)
 
 
 def get_user_info(
-    controller_address, collateral_price=1.0, collateral_decimals=18
+    controller_address, llamma, collateral_price=1.0, collateral_decimals=18
 ):
     controller_address = Web3.to_checksum_address(controller_address)
+    llamma_address = Web3.to_checksum_address(llamma)
     w3 = Web3(
         Web3.HTTPProvider(
             PUBLIC_RPCS[CHAIN_MAINNET], request_kwargs={"timeout": 60}
@@ -26,10 +31,14 @@ def get_user_info(
     controller_contract = w3.eth.contract(
         address=controller_address, abi=CRV_USD_CONTROLLER_ABI
     )
+    llamma_contract = w3.eth.contract(
+        address=llamma_address, abi=CRV_USD_LLAMMA_ABI
+    )
     multicall2_contract = w3.eth.contract(
         address=MULTICALL_CONTRACTS[CHAIN_MAINNET], abi=MULTICALL2_ABI
     )
     n_loans = controller_contract.functions.n_loans().call()
+    active_band = llamma_contract.functions.active_band().call()
     for i in range(0, n_loans, 1000):
         logger.info(f"Fetching user addresses {i}:{i+1000}")
         calls = [
@@ -89,6 +98,24 @@ def get_user_info(
             int(result.hex()[:64], 16) * 1e-18 if result else 0
             for _, result in results
         ]
+        logger.info("Fetching user band range")
+        calls = [
+            (
+                llamma_address,
+                llamma_contract.functions.read_user_tick_numbers(
+                    user
+                )._encode_transaction_data(),
+            )
+            for user in user_addresses
+        ]
+        results = multicall2_contract.functions.tryAggregate(
+            False, calls
+        ).call()
+        user_bands = [
+            [int(calldata[i * 32 : (i + 1) * 32].hex(), 16) for i in range(2)]
+            for _, calldata in results
+        ]
+
         for j, user in enumerate(user_addresses):
             new_state = UserState(
                 id=controller_address.lower()
@@ -104,6 +131,9 @@ def get_user_info(
                 stableCoin=user_states[j][1],
                 debt=user_states[j][2],
                 N=user_states[j][3],
+                N1=user_bands[j][0],
+                N2=user_bands[j][1],
+                softLiq=user_bands[j][0] <= active_band,
                 health=user_health[j],
                 timestamp=timestamp,
             )
@@ -122,9 +152,13 @@ def update_user_states_and_health():
     )
     results = (
         db.session.query(
-            Market.controller, Market.collateralPrecision, Snapshot.oraclePrice
+            Market.controller,
+            Market.collateralPrecision,
+            Snapshot.oraclePrice,
+            Amm.id,
         )
         .join(Snapshot, Market.id == Snapshot.marketId)
+        .join(Amm, Market.amm == Amm.id)
         .join(
             subquery,
             (Snapshot.marketId == subquery.c.marketId)
@@ -132,10 +166,11 @@ def update_user_states_and_health():
         )
         .all()
     )
-    for controller, collateral_precision, price in results:
+    for controller, collateral_precision, price, amm_id in results:
         try:
             get_user_info(
                 controller,
+                llamma=amm_id,
                 collateral_price=float(price),
                 collateral_decimals=collateral_precision,
             )

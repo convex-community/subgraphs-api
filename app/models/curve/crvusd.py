@@ -240,6 +240,9 @@ class UserState(db.Model):
     stableCoin = Column(Numeric)
     debt = Column(Numeric)
     N = Column(Numeric)
+    N1 = Column(Numeric)
+    N2 = Column(Numeric)
+    softLiq = Column(Boolean)
     health = Column(Numeric)
     timestamp = Column(Integer)
 

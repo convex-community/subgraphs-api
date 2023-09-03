@@ -40,6 +40,9 @@ REGISTRY_V1_ABI = json.load(
 CRV_USD_CONTROLLER_ABI = json.load(
     open(os.path.join(location, "CrvUSDController.json"), "r")
 )
+CRV_USD_LLAMMA_ABI = json.load(
+    open(os.path.join(location, "Llamma.json"), "r")
+)
 
 LP_BURNER_ABI = json.load(open(os.path.join(location, "LPBurner.json"), "r"))
 ROLES_ABI = json.load(open(os.path.join(location, "Roles.json"), "r"))
