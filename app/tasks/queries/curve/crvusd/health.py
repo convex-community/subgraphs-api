@@ -17,6 +17,14 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+def decode_int256(data):
+    int_max = 2**255 - 1
+    value = int(data, 16)
+    if value > int_max:
+        value -= 2**256
+    return value
+
+
 def get_user_info(
     controller_address, llamma, collateral_price=1.0, collateral_decimals=18
 ):
@@ -95,7 +103,7 @@ def get_user_info(
             False, calls
         ).call()
         user_health = [
-            int(result.hex()[:64], 16) * 1e-18 if result else 0
+            decode_int256(result.hex()[:64], 16) * 1e-18 if result else 0
             for _, result in results
         ]
         logger.info("Fetching user band range")
@@ -112,7 +120,10 @@ def get_user_info(
             False, calls
         ).call()
         user_bands = [
-            [int(calldata[i * 32 : (i + 1) * 32].hex(), 16) for i in range(2)]
+            [
+                decode_int256(calldata[i * 32 : (i + 1) * 32].hex(), 16)
+                for i in range(2)
+            ]
             for _, calldata in results
         ]
 
