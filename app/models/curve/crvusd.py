@@ -400,3 +400,15 @@ class Liquidators:
 class HistoricalHealth:
     timestamp: int
     quartiles: List[float]
+
+
+@dataclass
+class MarketHealthState:
+    softLiqUsers: int
+    softLiqRatio: float
+    liqablePositions: int
+    liqableDebt: float
+    liqableCollatUsd: float
+    liqableStable: float
+    medianHealth: float
+    collatRatio: float

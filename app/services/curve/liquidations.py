@@ -13,6 +13,7 @@ from models.curve.crvusd import (
     AggregatedLiquidations,
     Liquidators,
     HistoricalHealth,
+    MarketHealthState,
 )
 import pandas as pd
 from web3 import Web3
@@ -328,3 +329,29 @@ ORDER BY
         )
         for row in result
     ]
+
+
+def get_market_health(market_id):
+    sql_query = """
+    WITH RecentSnapshot AS (
+        SELECT *
+        FROM "user_states"
+        WHERE "marketId" = :market_id
+        AND "timestamp" = (SELECT MAX("timestamp") FROM "user_states" WHERE "marketId" = :market_id)
+    )
+
+    SELECT
+        SUM(CASE WHEN "softLiq" = TRUE THEN 1 ELSE 0 END) AS soft_liq_users,
+        SUM(CASE WHEN "softLiq" = TRUE THEN 1 ELSE 0 END)::FLOAT / COUNT(*) AS soft_liq_ratio,
+        SUM(CASE WHEN "health" < 0 THEN 1 ELSE 0 END) AS liqable_positions,
+        SUM(CASE WHEN "health" < 0 THEN "debt" ELSE 0 END) AS liqable_debt,
+        SUM(CASE WHEN "health" < 0 THEN "collateralUsd" ELSE 0 END) AS liqable_collat_usd,
+        SUM(CASE WHEN "health" < 0 THEN "stableCoin" ELSE 0 END) AS liqable_stable,
+        PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY "health") AS median_health,
+        SUM("collateralUsd") / NULLIF(SUM("debt"), 0) AS collat_ratio
+    FROM RecentSnapshot;
+    """
+    result = db.session.execute(
+        text(sql_query), {"market_id": market_id}
+    ).fetchone()
+    return MarketHealthState(*result)
