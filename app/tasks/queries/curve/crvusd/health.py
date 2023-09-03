@@ -103,7 +103,7 @@ def get_user_info(
             False, calls
         ).call()
         user_health = [
-            decode_int256(result.hex()[:64], 16) * 1e-18 if result else 0
+            decode_int256(result.hex()[:64]) * 1e-18 if result else 0
             for _, result in results
         ]
         logger.info("Fetching user band range")
@@ -121,7 +121,7 @@ def get_user_info(
         ).call()
         user_bands = [
             [
-                decode_int256(calldata[i * 32 : (i + 1) * 32].hex(), 16)
+                decode_int256(calldata[i * 32 : (i + 1) * 32].hex())
                 for i in range(2)
             ]
             for _, calldata in results
