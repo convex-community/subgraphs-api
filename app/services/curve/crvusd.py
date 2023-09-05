@@ -348,6 +348,7 @@ def get_crvusd_markets(
             MarketInfo(
                 name=market.collateralName,
                 address=market.id,
+                llamma=market.amm,
                 rate=last_snapshot_rate,
                 rateAbsDelta=last_snapshot_rate - snapshot_one_day_ago_rate,
                 borrowed=last_snapshot_totalDebt,

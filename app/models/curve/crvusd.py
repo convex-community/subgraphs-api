@@ -192,6 +192,7 @@ class Histogram:
 class MarketInfo:
     name: str
     address: str
+    llamma: str
     rate: float
     rateAbsDelta: float
     borrowed: float
