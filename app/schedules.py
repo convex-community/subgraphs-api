@@ -97,6 +97,10 @@ crvusd_tasks = {
         "task": "tasks.populate.populate_liquidations",
         "schedule": crontab(minute="*/15"),
     },
+    "populate-crvusd-stable_supply_data": {
+        "task": "tasks.populate.populate_supply_events",
+        "schedule": crontab(minute="*/15"),
+    },
 }
 
 beat_schedule = (

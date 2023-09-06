@@ -93,6 +93,7 @@ SNAPSHOT_QUERY = """{
   totalCollateral
   totalCollateralUsd
   totalSupply
+  available
   totalStableCoin
 
   totalDebt
@@ -222,6 +223,7 @@ def update_crvusd_market_data():
                 totalCollateralUsd=snapshot["totalCollateralUsd"],
                 totalSupply=snapshot["totalSupply"],
                 totalStableCoin=snapshot["totalStableCoin"],
+                available=snapshot["available"],
                 totalDebt=snapshot["totalDebt"],
                 nLoans=snapshot["nLoans"],
                 crvUsdAdminFees=snapshot["crvUsdAdminFees"],

@@ -31,6 +31,9 @@ from models.curve.crvusd import (
     KeepersProfit,
     HistoricalKeeperDebtData,
     HistoricalKeeperDebt,
+    DebtCeiling,
+    SupplyEvent,
+    SupplyAvailable,
 )
 from models.curve.pool import CurvePoolName, CurvePool, CurvePoolNameSchema
 from main.const import PoolType, DAY
@@ -656,3 +659,68 @@ def get_fees_breakdown(market_id=None):
         "pending": get_pending_fees_from_snapshot(market_id),
         "collected": get_total_collected_fees(market_id),
     }
+
+
+def get_market_ceiling(market_id: str):
+    result = (
+        db.session.query(DebtCeiling.blockTimestamp, DebtCeiling.amount)
+        .filter(DebtCeiling.address.ilike(market_id))
+        .order_by(DebtCeiling.blockTimestamp.desc())
+        .first()
+    )
+
+    return (
+        [SupplyEvent(timestamp=result.blockTimestamp, amount=result.amount)]
+        if result
+        else []
+    )
+
+
+def get_market_borrowable(market_id: str) -> list[SupplyAvailable]:
+    debt_ceiling_sql = """
+    SELECT
+        ("blockTimestamp" / (24*60*60)) * (24*60*60)::integer as day,
+        AVG(amount) as avg_amount
+    FROM
+        debt_ceilings
+    WHERE
+        LOWER(address) = LOWER(:market_id)
+    GROUP BY
+        day;
+    """
+
+    debt_ceiling_results = db.session.execute(
+        text(debt_ceiling_sql), {"market_id": market_id}
+    ).fetchall()
+    df_ceiling = pd.DataFrame(
+        debt_ceiling_results, columns=["timestamp_day", "avg_amount"]
+    )
+
+    snapshot_sql = """
+    SELECT
+        (timestamp / (24*60*60)) * (24*60*60)::integer as day,
+        AVG("available") as avg_total_stable_coin
+    FROM
+        snapshot
+    WHERE
+        LOWER("marketId") = LOWER(:market_id)
+    GROUP BY
+        day;
+    """
+
+    snapshot_results = db.session.execute(
+        text(snapshot_sql), {"market_id": market_id}
+    ).fetchall()
+    df_supply = pd.DataFrame(
+        snapshot_results, columns=["timestamp_day", "avg_total_stable_coin"]
+    )
+
+    df_ceiling.set_index("timestamp_day", inplace=True)
+    df_supply.set_index("timestamp_day", inplace=True)
+    df = df_supply.join(df_ceiling, how="outer")
+    df["avg_amount"].ffill(inplace=True)
+    df.fillna(0, inplace=True)
+    return [
+        SupplyAvailable(timestamp=row[0], borrowable=row[1], ceiling=row[2])
+        for row in df.itertuples()
+    ]
