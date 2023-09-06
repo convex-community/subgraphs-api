@@ -13,6 +13,7 @@ from tasks.queries.convex.revenue import (
 )
 from tasks.queries.convex.snapshots import get_convex_pool_snapshots
 from tasks.queries.curve.couch.couch import check_cushions
+from tasks.queries.curve.crvusd.factory import update_stable_supply_data
 from tasks.queries.curve.crvusd.health import update_user_states_and_health
 from tasks.queries.curve.crvusd.keepers import update_keeper_debt_data
 from tasks.queries.curve.crvusd.liquidations import update_liquidation_data
@@ -129,3 +130,9 @@ def populate_user_state_snapshots():
 def populate_liquidations():
     logger.info(f"Updating liquidation data")
     update_liquidation_data()
+
+
+@celery.task
+def populate_supply_events():
+    logger.info(f"Updating stablecoin supply data")
+    update_stable_supply_data()

@@ -14,6 +14,8 @@ from models.curve.crvusd import (
     Liquidators,
     HistoricalHealth,
     MarketHealthState,
+    DebtCeiling,
+    SupplyEvent,
 )
 import pandas as pd
 from web3 import Web3
@@ -336,7 +338,7 @@ def get_market_health(market_id):
     WITH RecentSnapshot AS (
         SELECT *
         FROM "user_states"
-        WHERE "marketId" = :market_id
+        LOWER("marketId") = LOWER(:market_id)
         AND "timestamp" = (SELECT MAX("timestamp") FROM "user_states" WHERE "marketId" = :market_id)
     )
 

@@ -138,6 +138,7 @@ class Snapshot(db.Model):
     totalCollateralUsd = Column(Numeric)
     totalSupply = Column(Numeric)
     totalStableCoin = Column(Numeric)
+    available = Column(Numeric)
     totalDebt = Column(Numeric)
     nLoans = Column(Integer)
     crvUsdAdminFees = Column(Numeric)
@@ -167,6 +168,36 @@ class CollectedFees(db.Model):
     ammBorrowingFees = Column(Float)
     blockNumber = Column(Integer)
     blockTimestamp = Column(Integer)
+
+
+class Burn(db.Model):
+    __tablename__ = "burns"
+    id = Column(String, primary_key=True)
+    address = Column(String)
+    amount = Column(Float)
+    blockNumber = Column(Integer)
+    blockTimestamp = Column(Integer)
+    transactionHash = Column(String)
+
+
+class Mint(db.Model):
+    __tablename__ = "mints"
+    id = Column(String, primary_key=True)
+    address = Column(String)
+    amount = Column(Float)
+    blockNumber = Column(Integer)
+    blockTimestamp = Column(Integer)
+    transactionHash = Column(String)
+
+
+class DebtCeiling(db.Model):
+    __tablename__ = "debt_ceilings"
+    id = Column(String, primary_key=True)
+    address = Column(String)
+    amount = Column(Float)
+    blockNumber = Column(Integer)
+    blockTimestamp = Column(Integer)
+    transactionHash = Column(String)
 
 
 @dataclass
@@ -413,3 +444,16 @@ class MarketHealthState:
     liqableStable: float
     medianHealth: float
     collatRatio: float
+
+
+@dataclass
+class SupplyEvent:
+    timestamp: int
+    amount: float
+
+
+@dataclass
+class SupplyAvailable:
+    timestamp: int
+    borrowable: float
+    ceiling: float
