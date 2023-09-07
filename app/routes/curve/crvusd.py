@@ -204,6 +204,7 @@ days_parser.add_argument(
 @api.route("/pools")
 @api.doc(description="Get the crvUSD pools")
 class PoolList(Resource):
+    @cache.cached(timeout=60 * 3)
     @api.marshal_list_with(names, envelope="pools")
     def get(self):
         return get_crv_usd_pool_names()
@@ -212,6 +213,7 @@ class PoolList(Resource):
 @api.route("/pools/stats")
 @api.doc(description="Get descriptive stats for crvUSD pools")
 class PoolStats(Resource):
+    @cache.cached(timeout=60 * 3)
     @api.marshal_list_with(stats, envelope="stats")
     def get(self):
         return get_crv_usd_pool_stats()
@@ -220,6 +222,7 @@ class PoolStats(Resource):
 @api.route("/prices")
 @api.doc(description="Get historical prices for crvUSD pools")
 class UsdPrices(Resource):
+    @cache.cached(timeout=60 * 3)
     @api.marshal_list_with(prices, envelope="prices")
     def get(self):
         return json.loads(redis.get("crvusd_prices"))
@@ -228,6 +231,7 @@ class UsdPrices(Resource):
 @api.route("/supply")
 @api.doc(description="Get historical supply for crvUSD")
 class CrvUsdSupply(Resource):
+    @cache.cached(timeout=60 * 3)
     @api.marshal_list_with(supply, envelope="supply")
     def get(self):
         return get_historical_supply()
@@ -255,6 +259,7 @@ class HistoricalDebtOfKeepers(Resource):
 @api.route("/keepers/profit")
 @api.doc(description="Get Keepers total all-time profit")
 class ProfitOfKeepers(Resource):
+    @cache.cached(timeout=60 * 3)
     @api.marshal_list_with(keepers_profit, envelope="profit")
     def get(self):
         return get_keepers_profit()
@@ -263,6 +268,7 @@ class ProfitOfKeepers(Resource):
 @api.route("/prices/hist")
 @api.doc(description="Get crvUSD USD price histogram")
 class PricesHist(Resource):
+    @cache.cached(timeout=60 * 3)
     @api.marshal_with(hist)
     def get(self):
         return json.loads(redis.get("crvusd_hist"))
@@ -280,6 +286,7 @@ class YieldList(Resource):
 @api.route("/markets")
 @api.doc(description="List all markets and their descriptive stats")
 class MarketList(Resource):
+    @cache.cached(timeout=60 * 3)
     @api.marshal_list_with(markets, envelope="markets")
     def get(self):
         return get_crvusd_markets()
@@ -289,6 +296,7 @@ class MarketList(Resource):
 @api.doc(description="Get a market's descriptive stats")
 @api.param("market", "Market to query for")
 class MarketDesc(Resource):
+    @cache.cached(timeout=60 * 3)
     @api.marshal_list_with(markets, envelope="markets")
     def get(self, market):
         return get_crvusd_markets(market)
@@ -298,6 +306,7 @@ class MarketDesc(Resource):
 @api.doc(description="Get historical hourly rate over past 5 days")
 @api.param("market", "Market to query for")
 class MarketHourlyRate(Resource):
+    @cache.cached(timeout=60 * 3)
     @api.marshal_list_with(rates, envelope="rates")
     def get(self, market):
         return get_hourly_market_rates(market)
@@ -307,6 +316,7 @@ class MarketHourlyRate(Resource):
 @api.doc(description="Get average daily rate history")
 @api.param("market", "Market to query for")
 class MarketDailyRate(Resource):
+    @cache.cached(timeout=60 * 3)
     @api.marshal_list_with(rates, envelope="rates")
     def get(self, market):
         return get_daily_market_rates(market)
@@ -316,6 +326,7 @@ class MarketDailyRate(Resource):
 @api.doc(description="Get market trading volume history")
 @api.param("market", "Market to query for")
 class DailyMarketVolume(Resource):
+    @cache.cached(timeout=60 * 3)
     @api.marshal_list_with(volume, envelope="volumes")
     def get(self, market):
         return get_daily_market_volume(market)
@@ -325,6 +336,7 @@ class DailyMarketVolume(Resource):
 @api.doc(description="Get daily loan # history")
 @api.param("market", "Market to query for")
 class DailyMarketLoans(Resource):
+    @cache.cached(timeout=60 * 3)
     @api.marshal_list_with(loans, envelope="loans")
     def get(self, market):
         return get_daily_market_loans(market)
@@ -335,6 +347,7 @@ class DailyMarketLoans(Resource):
 @api.param("market", "Market to query for")
 @api.expect(pagination)
 class UserRecentStates(Resource):
+    @cache.cached(timeout=60 * 3)
     @api.marshal_list_with(states, envelope="states")
     def get(self, market):
         args = pagination.parse_args()
@@ -353,6 +366,7 @@ class UserHealthDeciles(Resource):
 @api.route("/fees")
 @api.doc(description="Get aggregated pending and collected fees")
 class TotalFees(Resource):
+    @cache.cached(timeout=60 * 3)
     @api.marshal_list_with(fees, envelope="fees")
     def get(self):
         return get_aggregated_fees()
@@ -364,6 +378,7 @@ class TotalFees(Resource):
 )
 @api.param("market", "Market to query for")
 class MarketTotalFees(Resource):
+    @cache.cached(timeout=60 * 3)
     @api.marshal_list_with(fees, envelope="fees")
     def get(self, market):
         return get_aggregated_fees(market_id=market)
@@ -372,6 +387,7 @@ class MarketTotalFees(Resource):
 @api.route("/fees/breakdown")
 @api.doc(description="Get breakdown of pending and collected fees")
 class TotalDetailedFees(Resource):
+    @cache.cached(timeout=60 * 3)
     @api.marshal_with(detailed_fees)
     def get(self):
         return get_fees_breakdown()
@@ -383,6 +399,7 @@ class TotalDetailedFees(Resource):
 )
 @api.param("market", "Market to query for")
 class MarketTotalDetailedFees(Resource):
+    @cache.cached(timeout=60 * 3)
     @api.marshal_with(detailed_fees)
     def get(self, market):
         return get_fees_breakdown(market_id=market)
@@ -395,6 +412,7 @@ class MarketTotalDetailedFees(Resource):
 @api.param("market", "Market to query for")
 @api.expect(snapshot)
 class LlammaVolumeSnapshot(Resource):
+    @cache.cached(timeout=60 * 3)
     @api.marshal_list_with(volume, envelope="volumes")
     def get(self, market):
         args = snapshot.parse_args()
@@ -404,6 +422,7 @@ class LlammaVolumeSnapshot(Resource):
 @api.route("/markets/liquidations/losses/proportions")
 @api.doc(description="Get proportion of users with losses for all market")
 class MarketLossProportion(Resource):
+    @cache.cached(timeout=60 * 3)
     @api.marshal_list_with(losers, envelope="losses")
     def get(self):
         return get_loser_proportions()
@@ -415,6 +434,7 @@ class MarketLossProportion(Resource):
 @api.doc(description="Get historical fraction of users with losses")
 @api.param("market", "Market to query for")
 class MarketHistoricLossProportion(Resource):
+    @cache.cached(timeout=60 * 3)
     @api.marshal_list_with(historical_losers, envelope="losses")
     def get(self, market):
         res = get_historical_loser_proportions(market_id=market)
@@ -429,6 +449,7 @@ class MarketHistoricLossProportion(Resource):
 @api.doc(description="Get historical median loss % of users with losses")
 @api.param("market", "Market to query for")
 class MarketHistoricMedianLosses(Resource):
+    @cache.cached(timeout=60 * 3)
     @api.marshal_list_with(historical_median_loss, envelope="losses")
     def get(self, market):
         res = get_historical_median_loss(market_id=market)
@@ -443,6 +464,7 @@ class MarketHistoricMedianLosses(Resource):
 @api.doc(description="Get historical proportion of users in soft liquidation")
 @api.param("market", "Market to query for")
 class MarketHistoricSoftLosses(Resource):
+    @cache.cached(timeout=60 * 3)
     @api.marshal_list_with(historical_soft_loss, envelope="losses")
     def get(self, market):
         res = get_historical_soft_loss(market_id=market)
@@ -457,6 +479,7 @@ class MarketHistoricSoftLosses(Resource):
 @api.doc(description="Get historical median health factor")
 @api.param("market", "Market to query for")
 class MarketHistoricHealth(Resource):
+    @cache.cached(timeout=60 * 3)
     @api.marshal_list_with(historical_health, envelope="health")
     def get(self, market):
         res = get_historical_health(market_id=market)
@@ -469,6 +492,7 @@ class MarketHistoricHealth(Resource):
 @api.doc(description="Get collateral value & debt by health deciles ")
 @api.param("market", "Market to query for")
 class MarketHealthDistribution(Resource):
+    @cache.cached(timeout=60 * 3)
     @api.marshal_list_with(health_distribution, envelope="health")
     def get(self, market):
         res = get_health_distribution(market_id=market)
@@ -481,6 +505,7 @@ class MarketHealthDistribution(Resource):
 @api.doc(description="Get stats for historical liquidations ")
 @api.param("market", "Market to query for")
 class MarketLiquidationHistory(Resource):
+    @cache.cached(timeout=60 * 3)
     @api.marshal_list_with(liquidation_history, envelope="liquidations")
     def get(self, market):
         res = get_liquidation_history(market_id=market)
@@ -493,6 +518,7 @@ class MarketLiquidationHistory(Resource):
 @api.doc(description="Get stats for liquidations ")
 @api.param("market", "Market to query for")
 class MarketAggregatedLiquidation(Resource):
+    @cache.cached(timeout=60 * 3)
     @api.marshal_list_with(aggregated_liquidations, envelope="liquidations")
     def get(self, market):
         res = get_aggregated_liquidations(market_id=market)
@@ -505,6 +531,7 @@ class MarketAggregatedLiquidation(Resource):
 @api.doc(description="Get stats for top liquidators ")
 @api.param("market", "Market to query for")
 class MarketTopLiquidators(Resource):
+    @cache.cached(timeout=60 * 3)
     @api.marshal_list_with(liquidators, envelope="liquidations")
     def get(self, market):
         res = get_top_liquidators(market_id=market)
@@ -517,6 +544,7 @@ class MarketTopLiquidators(Resource):
 @api.doc(description="Get stats for general market health ")
 @api.param("market", "Market to query for")
 class MarketLiqStates(Resource):
+    @cache.cached(timeout=60 * 3)
     @api.marshal_list_with(health_state, envelope="health")
     def get(self, market):
         res = get_market_health(market_id=market)

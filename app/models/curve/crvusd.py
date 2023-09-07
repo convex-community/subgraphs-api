@@ -10,6 +10,7 @@ from sqlalchemy import (
     Integer,
     Numeric,
     Float,
+    Index,
 )
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import relationship
@@ -258,6 +259,25 @@ MarketVolumeSchema = marshmallow_dataclass.class_schema(MarketVolume)
 class MarketLoans:
     nLoans: int
     timestamp: int
+
+
+class UserLiquidationDiscount(db.Model):
+    __tablename__ = "user_liquidation_discount"
+    id = Column(String, primary_key=True)
+    user = Column(String)
+    market_id = Column(String, ForeignKey("market.id"))
+    market = relationship("Market")
+    discount = Column(Float)
+    block = Column(Integer)
+    timestamp = Column(Integer)
+    __table_args__ = (
+        Index(
+            "idx_user_liquidation_discount__user__market_id__block",
+            user,
+            market_id,
+            block,
+        ),
+    )
 
 
 class UserState(db.Model):

@@ -103,6 +103,13 @@ crvusd_tasks = {
     },
 }
 
+backfill = {
+    "populate-backfill": {
+        "task": "tasks.populate.populate_backfill",
+        "schedule": crontab(minute="*/5"),
+    },
+}
+
 beat_schedule = (
     convex_pool_tasks
     | curve_pool_tasks
@@ -111,4 +118,5 @@ beat_schedule = (
     | ranking_tasks
     | crvusd_tasks
     | curve_dao_tasks
+    | backfill
 )

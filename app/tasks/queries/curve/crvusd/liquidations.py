@@ -1,5 +1,5 @@
 from main import db
-from models.curve.crvusd import Market, Liquidation
+from models.curve.crvusd import Market, Liquidation, UserLiquidationDiscount
 from tasks.queries.graph import grt_crvusd_query
 
 LIQUIDATION_QUERY = """
@@ -24,6 +24,23 @@ LIQUIDATION_QUERY = """
     }
   }
 }"""
+
+LIQUIDATION_DISCOUNT_QUERY = """
+{
+  users(first: 500 skip: %d orderBy: firstActionBlock orderDirection:desc) {
+    id
+    states(first: 1000 orderBy: blockTimestamp orderDirection: desc)
+{
+  id
+  liquidationDiscount
+  market{
+    id
+  }
+    blockNumber
+    blockTimestamp}
+  }
+}
+"""
 
 
 def update_liquidation_data():
@@ -53,3 +70,28 @@ def update_liquidation_data():
             )
             db.session.merge(new_liq)
     db.session.commit()
+
+
+def update_user_liquidation_discounts():
+    users = []
+    for i in range(12):
+        query = LIQUIDATION_DISCOUNT_QUERY % (i * 500)
+        data = grt_crvusd_query(query)
+        data = data["users"]
+        if len(data) > 0:
+            users += data
+        else:
+            break
+
+    for user in users:
+        for snapshot in user["states"]:
+            entry = UserLiquidationDiscount(
+                id=snapshot["id"],
+                user=user["id"],
+                market_id=snapshot["market"]["id"],
+                discount=float(snapshot["liquidationDiscount"]) * 1e-18,
+                block=snapshot["blockNumber"],
+                timestamp=snapshot["blockTimestamp"],
+            )
+            db.session.merge(entry)
+        db.session.commit()
