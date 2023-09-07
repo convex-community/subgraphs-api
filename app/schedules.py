@@ -118,5 +118,4 @@ beat_schedule = (
     | ranking_tasks
     | crvusd_tasks
     | curve_dao_tasks
-    | backfill
 )
