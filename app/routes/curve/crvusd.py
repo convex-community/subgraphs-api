@@ -31,7 +31,6 @@ from models.curve.crvusd import (
     Liquidators,
     HistoricalHealth,
     MarketHealthState,
-    SupplyEvent,
     SupplyAvailable,
 )
 from models.curve.pool import CurvePoolName
@@ -52,7 +51,6 @@ from services.curve.crvusd import (
     get_fees_breakdown,
     get_keepers_profit,
     get_volume_snapshot,
-    get_market_ceiling,
     get_market_borrowable,
 )
 from services.curve.liquidations import (
@@ -129,9 +127,6 @@ health_state = api.model(
     convert_schema(MarketHealthState),
 )
 states = api.model("User states", convert_schema(UserStateData))
-supply_events = api.model(
-    "Stablecoin supply events", convert_schema(SupplyEvent)
-)
 supply_available = api.model(
     "Stablecoin available to borrow", convert_schema(SupplyAvailable)
 )
@@ -525,18 +520,6 @@ class MarketLiqStates(Resource):
     @api.marshal_list_with(health_state, envelope="health")
     def get(self, market):
         res = get_market_health(market_id=market)
-        if not res:
-            api.abort(404)
-        return res
-
-
-@api.route('/markets/<regex("[A-z0-9]+"):market>/debt_ceiling')
-@api.doc(description="Get debt ceilings for a specific market")
-@api.param("market", "Market to query for")
-class MarketCeilings(Resource):
-    @api.marshal_list_with(supply_events, envelope="ceiling")
-    def get(self, market):
-        res = get_market_ceiling(market_id=market)
         if not res:
             api.abort(404)
         return res

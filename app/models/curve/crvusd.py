@@ -447,12 +447,6 @@ class MarketHealthState:
 
 
 @dataclass
-class SupplyEvent:
-    timestamp: int
-    amount: float
-
-
-@dataclass
 class SupplyAvailable:
     timestamp: int
     borrowable: float

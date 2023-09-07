@@ -19,8 +19,6 @@ from models.curve.crvusd import (
     Amm,
     UserStateData,
     UserState,
-    Histogram,
-    TotalSupply,
     TotalSupplySchema,
     PegKeeper,
     KeepersDebt,
@@ -31,8 +29,6 @@ from models.curve.crvusd import (
     KeepersProfit,
     HistoricalKeeperDebtData,
     HistoricalKeeperDebt,
-    DebtCeiling,
-    SupplyEvent,
     SupplyAvailable,
 )
 from models.curve.pool import CurvePoolName, CurvePool, CurvePoolNameSchema
@@ -659,21 +655,6 @@ def get_fees_breakdown(market_id=None):
         "pending": get_pending_fees_from_snapshot(market_id),
         "collected": get_total_collected_fees(market_id),
     }
-
-
-def get_market_ceiling(market_id: str):
-    result = (
-        db.session.query(DebtCeiling.blockTimestamp, DebtCeiling.amount)
-        .filter(DebtCeiling.address.ilike(market_id))
-        .order_by(DebtCeiling.blockTimestamp.desc())
-        .first()
-    )
-
-    return (
-        [SupplyEvent(timestamp=result.blockTimestamp, amount=result.amount)]
-        if result
-        else []
-    )
 
 
 def get_market_borrowable(market_id: str) -> list[SupplyAvailable]:
