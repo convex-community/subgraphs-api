@@ -477,3 +477,4 @@ class SupplyAvailable:
 class LiquidatorRevenue:
     timestamp: int
     amount: float
+    discount: float

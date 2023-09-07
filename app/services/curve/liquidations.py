@@ -352,33 +352,44 @@ def get_market_health(market_id):
         SUM("collateralUsd") / NULLIF(SUM("debt"), 0) AS collat_ratio
     FROM RecentSnapshot;
     """
+
     result = db.session.execute(
         text(sql_query), {"market_id": market_id}
     ).fetchone()
     return MarketHealthState(*result)
 
 
-def get_liquidator_revenue(market_id):
-    sql_query = """WITH BonusCalculation AS (
+def get_liquidator_revenue(market_id: str):
+    sql_query = """
+    WITH BonusCalculation AS (
+        SELECT
+            "blockTimestamp",
+            ("collateralReceivedUSD" + "stablecoinReceived" - "debt") AS bonus_for_timestamp,
+            1 - (SUM("debt") / SUM("collateralReceivedUSD" + "stablecoinReceived")) AS discount
+        FROM
+            "liquidation"
+        WHERE
+            LOWER("marketId") = LOWER(:market_id)
+            AND "user" != "liquidator"
+            AND "blockTimestamp" > EXTRACT(EPOCH FROM NOW() - interval '90 days')
+        GROUP BY
+            "blockTimestamp"
+    )
     SELECT
         "blockTimestamp",
-        ("collateralReceivedUSD" + "stablecoinReceived" - "debt") AS bonus_for_timestamp
+        SUM(bonus_for_timestamp) OVER (ORDER BY "blockTimestamp") AS cumulative_bonus,
+        AVG(discount) OVER (ORDER BY "blockTimestamp") AS discount
     FROM
-        "liquidation"
-    WHERE
-        "user" != "liquidator"
-)
-SELECT
-    "blockTimestamp",
-    SUM(bonus_for_timestamp) OVER (ORDER BY "blockTimestamp") AS cumulative_bonus
-FROM
-    BonusCalculation
-ORDER BY
-    "blockTimestamp";"""
+        BonusCalculation
+    ORDER BY
+        "blockTimestamp";
+    """
     results = db.session.execute(
         text(sql_query), {"market_id": market_id}
     ).fetchall()
     return [
-        LiquidatorRevenue(timestamp=row[0], amount=float(row[1]))
+        LiquidatorRevenue(
+            timestamp=row[0], amount=float(row[1]), discount=float(row[2])
+        )
         for row in results
     ]
