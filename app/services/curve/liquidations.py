@@ -364,14 +364,13 @@ def get_liquidator_revenue(market_id: str):
     WITH BonusCalculation AS (
         SELECT
             "blockTimestamp",
-            ("collateralReceivedUSD" + "stablecoinReceived" - "debt") AS bonus_for_timestamp,
+            SUM("collateralReceivedUSD" + "stablecoinReceived" - "debt") AS bonus_for_timestamp,
             1 - (SUM("debt") / SUM("collateralReceivedUSD" + "stablecoinReceived")) AS discount
         FROM
             "liquidation"
         WHERE
             LOWER("marketId") = LOWER(:market_id)
             AND "user" != "liquidator"
-            AND "blockTimestamp" > EXTRACT(EPOCH FROM NOW() - interval '90 days')
         GROUP BY
             "blockTimestamp"
     )

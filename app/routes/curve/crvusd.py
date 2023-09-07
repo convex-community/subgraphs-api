@@ -546,7 +546,9 @@ class MarketTopLiquidators(Resource):
         return res
 
 
-@api.route('/markets/<regex("[A-z0-9]+"):market>/liquidations/discounts')
+@api.route(
+    '/markets/<regex("[A-z0-9]+"):market>/liquidations/liquidators/revenue'
+)
 @api.doc(description="Get historical revenue of liquidators ")
 @api.param("market", "Market to query for")
 class MarketLiquidatorsRevenue(Resource):
