@@ -32,6 +32,7 @@ from models.curve.crvusd import (
     HistoricalHealth,
     MarketHealthState,
     SupplyAvailable,
+    LiquidatorRevenue,
 )
 from models.curve.pool import CurvePoolName
 from services.curve.crvusd import (
@@ -64,6 +65,7 @@ from services.curve.liquidations import (
     get_top_liquidators,
     get_historical_health,
     get_market_health,
+    get_liquidator_revenue,
 )
 from services.curve.yields import get_crv_usd_yields
 from utils import convert_schema
@@ -121,6 +123,10 @@ aggregated_liquidations = api.model(
 liquidators = api.model(
     "Top liquidators stats",
     convert_schema(Liquidators),
+)
+liquidators_revenue = api.model(
+    "Liquidator Revenue",
+    convert_schema(LiquidatorRevenue),
 )
 health_state = api.model(
     "General market health stats",
@@ -535,6 +541,18 @@ class MarketTopLiquidators(Resource):
     @api.marshal_list_with(liquidators, envelope="liquidations")
     def get(self, market):
         res = get_top_liquidators(market_id=market)
+        if not res:
+            api.abort(404)
+        return res
+
+
+@api.route('/markets/<regex("[A-z0-9]+"):market>/liquidations/discounts')
+@api.doc(description="Get historical revenue of liquidators ")
+@api.param("market", "Market to query for")
+class MarketLiquidatorsRevenue(Resource):
+    @api.marshal_list_with(liquidators_revenue, envelope="revenue")
+    def get(self, market):
+        res = get_liquidator_revenue(market_id=market)
         if not res:
             api.abort(404)
         return res

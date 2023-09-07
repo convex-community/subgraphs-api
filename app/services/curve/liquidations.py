@@ -14,6 +14,7 @@ from models.curve.crvusd import (
     Liquidators,
     HistoricalHealth,
     MarketHealthState,
+    LiquidatorRevenue,
 )
 import pandas as pd
 from web3 import Web3
@@ -355,3 +356,29 @@ def get_market_health(market_id):
         text(sql_query), {"market_id": market_id}
     ).fetchone()
     return MarketHealthState(*result)
+
+
+def get_liquidator_revenue(market_id):
+    sql_query = """WITH BonusCalculation AS (
+    SELECT
+        "blockTimestamp",
+        ("collateralReceivedUSD" + "stablecoinReceived" - "debt") AS bonus_for_timestamp
+    FROM
+        "liquidation"
+    WHERE
+        "user" != "liquidator"
+)
+SELECT
+    "blockTimestamp",
+    SUM(bonus_for_timestamp) OVER (ORDER BY "blockTimestamp") AS cumulative_bonus
+FROM
+    BonusCalculation
+ORDER BY
+    "blockTimestamp";"""
+    results = db.session.execute(
+        text(sql_query), {"market_id": market_id}
+    ).fetchall()
+    return [
+        LiquidatorRevenue(timestamp=row[0], amount=float(row[1]))
+        for row in results
+    ]

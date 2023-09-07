@@ -471,3 +471,9 @@ class SupplyAvailable:
     timestamp: int
     borrowable: float
     ceiling: float
+
+
+@dataclass
+class LiquidatorRevenue:
+    timestamp: int
+    amount: float
