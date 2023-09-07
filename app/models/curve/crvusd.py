@@ -478,3 +478,9 @@ class LiquidatorRevenue:
     timestamp: int
     amount: float
     discount: float
+
+
+@dataclass
+class CollateralRatios:
+    timestamp: int
+    ratio: float

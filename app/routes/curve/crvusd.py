@@ -33,6 +33,7 @@ from models.curve.crvusd import (
     MarketHealthState,
     SupplyAvailable,
     LiquidatorRevenue,
+    CollateralRatios,
 )
 from models.curve.pool import CurvePoolName
 from services.curve.crvusd import (
@@ -66,6 +67,7 @@ from services.curve.liquidations import (
     get_historical_health,
     get_market_health,
     get_liquidator_revenue,
+    get_collateral_ratio,
 )
 from services.curve.yields import get_crv_usd_yields
 from utils import convert_schema
@@ -136,6 +138,7 @@ states = api.model("User states", convert_schema(UserStateData))
 supply_available = api.model(
     "Stablecoin available to borrow", convert_schema(SupplyAvailable)
 )
+cratio = api.model("Collateral ratio", convert_schema(CollateralRatios))
 keepers_debt = api.model("Keepers debt", convert_schema(KeepersDebt))
 historical_keepers_debt = api.model(
     "Historical Keepers debt", convert_schema(HistoricalKeeperDebtData)
@@ -582,6 +585,18 @@ class MarketAvailable(Resource):
     @api.marshal_list_with(supply_available, envelope="available")
     def get(self, market):
         res = get_market_borrowable(market_id=market)
+        if not res:
+            api.abort(404)
+        return res
+
+
+@api.route('/markets/<regex("[A-z0-9]+"):market>/collateral_ratio')
+@api.doc(description="Get historical collateral ratio for a specific market")
+@api.param("market", "Market to query for")
+class MarketCollatRatio(Resource):
+    @api.marshal_list_with(cratio, envelope="ratios")
+    def get(self, market):
+        res = get_collateral_ratio(market_id=market)
         if not res:
             api.abort(404)
         return res

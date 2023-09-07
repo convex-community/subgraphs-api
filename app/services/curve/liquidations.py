@@ -15,6 +15,7 @@ from models.curve.crvusd import (
     HistoricalHealth,
     MarketHealthState,
     LiquidatorRevenue,
+    CollateralRatios,
 )
 import pandas as pd
 from web3 import Web3
@@ -338,7 +339,7 @@ def get_market_health(market_id):
         SELECT *
         FROM "user_states"
         WHERE LOWER("marketId") = LOWER(:market_id)
-        AND "timestamp" = (SELECT MAX("timestamp") FROM "user_states" WHERE "marketId" = :market_id)
+        AND "timestamp" = (SELECT MAX("timestamp") FROM "user_states" WHERE LOWER("marketId") = LOWER(:market_id))
     )
 
     SELECT
@@ -349,7 +350,7 @@ def get_market_health(market_id):
         SUM(CASE WHEN "health" < 0 THEN "collateralUsd" ELSE 0 END) AS liqable_collat_usd,
         SUM(CASE WHEN "health" < 0 THEN "stableCoin" ELSE 0 END) AS liqable_stable,
         PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY "health") AS median_health,
-        SUM("collateralUsd") / NULLIF(SUM("debt"), 0) AS collat_ratio
+        SUM("collateralUsd") / NULLIF(SUM("debt" - "stableCoin"), 0) AS collat_ratio
     FROM RecentSnapshot;
     """
 
@@ -390,5 +391,32 @@ def get_liquidator_revenue(market_id: str):
         LiquidatorRevenue(
             timestamp=row[0], amount=float(row[1]), discount=float(row[2])
         )
+        for row in results
+    ]
+
+
+def get_collateral_ratio(market_id: str):
+    sql_query = """
+    WITH CollatRatios AS (
+        SELECT
+            CAST("timestamp" / (24 * 60 * 60) AS INTEGER) * (24 * 60 * 60) AS day_timestamp,
+            SUM("collateralUsd") / NULLIF(SUM("debt" - "stableCoin"), 0) AS avg_collat_ratio_two
+        FROM "user_states"
+        WHERE LOWER("marketId") = LOWER(:market_id)
+        GROUP BY day_timestamp
+    )
+
+    SELECT
+        day_timestamp,
+        AVG(avg_collat_ratio_two) OVER (ORDER BY day_timestamp)
+    FROM CollatRatios
+    ORDER BY day_timestamp;
+    """
+
+    results = db.session.execute(
+        text(sql_query), {"market_id": market_id}
+    ).fetchall()
+    return [
+        CollateralRatios(timestamp=row[0], ratio=float(row[1]))
         for row in results
     ]
