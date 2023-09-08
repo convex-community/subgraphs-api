@@ -397,20 +397,13 @@ def get_liquidator_revenue(market_id: str):
 
 def get_collateral_ratio(market_id: str):
     sql_query = """
-    WITH CollatRatios AS (
-        SELECT
-            CAST("timestamp" / (24 * 60 * 60) AS INTEGER) * (24 * 60 * 60) AS day_timestamp,
-            SUM("collateralUsd") / NULLIF(SUM("debt" - "stableCoin"), 0) AS avg_collat_ratio_two
-        FROM "user_states"
-        WHERE LOWER("marketId") = LOWER(:market_id)
-        GROUP BY day_timestamp
-    )
-
     SELECT
-        day_timestamp,
-        AVG(avg_collat_ratio_two) OVER (ORDER BY day_timestamp)
-    FROM CollatRatios
-    ORDER BY day_timestamp;
+        CAST("timestamp" / (24 * 60 * 60) AS INTEGER) * (24 * 60 * 60) AS day_timestamp,
+        SUM("collateralUsd") / NULLIF(SUM("debt" - "stableCoin"), 0) as CR
+    FROM "user_states"
+    WHERE LOWER("marketId") = LOWER(:market_id)
+    GROUP BY day_timestamp
+    ORDER BY day_timestamp DESC;
     """
 
     results = db.session.execute(
