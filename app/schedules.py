@@ -59,7 +59,7 @@ curve_couch_tasks = {
 curve_dao_tasks = {
     "populate-dao-proposals-info": {
         "task": "tasks.populate.populate_dao_decoded_proposal_data",
-        "schedule": crontab(minute="*/10"),
+        "schedule": crontab(minute="*/2"),
     },
 }
 
