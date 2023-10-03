@@ -257,6 +257,7 @@ def get_historical_fee_breakdown(start=0) -> list[WeeklyFeesSnapshot]:
             ).label("label"),
         )
         .filter(CurvePoolSnapshot.totalDailyFeesUSD < 1e7)
+        .filter(~CurvePoolSnapshot.pool.in_(BLACKLIST.keys()))
         .filter(
             (CurvePoolSnapshot.timestamp // WEEK * WEEK) >= start
         )  # added filter
