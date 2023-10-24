@@ -9,8 +9,8 @@ logger = get_task_logger(__name__)
 
 
 GRAPH_CURVE_POOL_SNAPSHOT_QUERY = """
-{ pools(first: 1000) {
-  dailyPoolSnapshots(first: 500 orderBy: timestamp orderDirection: desc) {
+{ pools(first: 1000 skip: %d) {
+  dailyPoolSnapshots(first: 30 orderBy: timestamp orderDirection: desc) {
     id
     pool {
         id
@@ -36,8 +36,8 @@ GRAPH_CURVE_POOL_SNAPSHOT_QUERY = """
 """
 
 GRAPH_CURVE_VOLUME_SNAPSHOT_QUERY = """
-{ pools(first: 1000) {
-  swapVolumeSnapshots(first: 500 orderBy: timestamp orderDirection: desc where: {period: 86400}) {
+{ pools(first: 1000 skip: %d) {
+  swapVolumeSnapshots(first: 30 orderBy: timestamp orderDirection: desc where: {period: 86400}) {
     pool {
         id
     }
@@ -63,17 +63,25 @@ def _flatten(
 
 
 def get_curve_pool_standard_snapshots(chain: str) -> List[Mapping[str, Any]]:
-    data = grt_curve_pools_query(chain, GRAPH_CURVE_POOL_SNAPSHOT_QUERY)
-    if data is None:
-        return []
-    return _flatten(data, "dailyPoolSnapshots")
+    res: List[Mapping[str, Any]] = []
+    for i in range(0, 6000, 1000):
+        query = GRAPH_CURVE_POOL_SNAPSHOT_QUERY % i
+        data = grt_curve_pools_query(chain, query)
+        if data is None:
+            break
+        res += _flatten(data, "dailyPoolSnapshots")
+    return res
 
 
 def get_curve_pool_volume_snapshots(chain: str) -> List[Mapping[str, Any]]:
-    data = grt_curve_pools_query(chain, GRAPH_CURVE_VOLUME_SNAPSHOT_QUERY)
-    if data is None:
-        return []
-    return _flatten(data, "swapVolumeSnapshots")
+    res: List[Mapping[str, Any]] = []
+    for i in range(0, 6000, 1000):
+        query = GRAPH_CURVE_VOLUME_SNAPSHOT_QUERY % i
+        data = grt_curve_pools_query(chain, query)
+        if data is None:
+            break
+        res += _flatten(data, "swapVolumeSnapshots")
+    return res
 
 
 def get_curve_pool_snapshots(chain: str) -> List[CurvePoolSnapshot]:
