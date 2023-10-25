@@ -57,9 +57,13 @@ curve_couch_tasks = {
 }
 
 curve_revenue_tasks = {
-    "populate-couch-info": {
+    "populate-revenue-breakdown": {
         "task": "tasks.populate.populate_revenue_breakdown",
-        "schedule": crontab(minute="*/5"),
+        "schedule": crontab(hour="*/12"),
+    },
+    "populate-protocol-revenue": {
+        "task": "tasks.populate.populate_protocol_revenue",
+        "schedule": crontab(hour="*/12"),
     },
 }
 

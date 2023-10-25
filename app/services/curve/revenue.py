@@ -172,18 +172,6 @@ def get_pool_revenue(chain: str, pool: str) -> List[CurvePoolRevenue]:
     return _get_pool_revenue_snapshots(chain, pool)
 
 
-def get_platform_revenue() -> List[CurveChainRevenue]:
-    df_rev = pd.DataFrame(_get_all_revenue_snapshots())
-    data = (
-        df_rev[["totalDailyFeesUSD", "chain"]]
-        .groupby("chain")
-        .sum()
-        .reset_index()
-        .to_dict(orient="records")
-    )
-    return CurveChainRevenueSchema(many=True).load(data, unknown=EXCLUDE)
-
-
 def check_couch_cushion() -> List[dict]:
     results = (
         db.session.query(

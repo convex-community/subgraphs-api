@@ -1,6 +1,7 @@
 import os
 import time
 import json
+import pandas as pd
 from redis import Redis  # type: ignore
 from sqlalchemy import func, literal, case
 
@@ -9,6 +10,8 @@ from models.curve.crvusd import CollectedFees, Market
 from main import db
 from models.curve.snapshot import CurvePoolSnapshot
 import logging
+
+from services.curve.revenue import _get_all_revenue_snapshots
 
 logger = logging.getLogger(__name__)
 blacklist_filter = ~(func.lower(CurvePoolSnapshot.pool).in_(BLACKLIST.keys()))
@@ -97,3 +100,15 @@ def get_historical_fee_breakdown():
     )
 
     redis.set("historical_fee_breakdown", json.dumps(sorted_weekly_fees))
+
+
+def get_platform_revenue():
+    df_rev = pd.DataFrame(_get_all_revenue_snapshots())
+    data = (
+        df_rev[["totalDailyFeesUSD", "chain"]]
+        .groupby("chain")
+        .sum()
+        .reset_index()
+        .to_dict(orient="records")
+    )
+    redis.set("platform_revenue", json.dumps(data))

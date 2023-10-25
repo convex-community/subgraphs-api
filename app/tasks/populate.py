@@ -34,7 +34,10 @@ from tasks.queries.curve.rankings import (
     get_top_vol_tvl_utilization,
     get_sizeable_trades,
 )
-from tasks.queries.curve.revenue import get_historical_fee_breakdown
+from tasks.queries.curve.revenue import (
+    get_platform_revenue,
+    get_historical_fee_breakdown,
+)
 from tasks.queries.curve.snapshots import get_curve_pool_snapshots
 
 logger = get_task_logger(__name__)
@@ -93,6 +96,12 @@ def populate_hourly_rankings():
 def populate_revenue_breakdown():
     logger.info(f"Updating Revenue Breakdown")
     get_historical_fee_breakdown()
+
+
+@celery.task
+def populate_protocol_revenue():
+    logger.info(f"Updating Protocol / Chain revenue")
+    get_platform_revenue()
 
 
 @celery.task

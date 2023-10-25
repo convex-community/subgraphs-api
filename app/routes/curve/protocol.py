@@ -20,7 +20,6 @@ from models.curve.revenue import (
 )
 from routes import cache
 from services.curve.revenue import (
-    get_platform_revenue,
     get_top_pools,
     get_top_chain_pools,
     get_pool_revenue,
@@ -163,10 +162,9 @@ class ChainPoolRevenue(Resource):
 @api.doc(description="Get total revenue accumulated on each chain")
 @api.response(404, "Chain or pool not found")
 class RevenueByChain(Resource):
-    @cache.cached(timeout=60 * 15)
     @api.marshal_list_with(chain_rev, envelope="revenue")
     def get(self):
-        return get_platform_revenue()
+        return json.loads(redis.get("platform_revenue"))
 
 
 @api.route("/tvl/gainers")
