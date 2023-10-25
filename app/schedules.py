@@ -56,6 +56,13 @@ curve_couch_tasks = {
     },
 }
 
+curve_revenue_tasks = {
+    "populate-couch-info": {
+        "task": "tasks.populate.populate_revenue_breakdown",
+        "schedule": crontab(minute="*/5"),
+    },
+}
+
 curve_dao_tasks = {
     "populate-dao-proposals-info": {
         "task": "tasks.populate.populate_dao_decoded_proposal_data",

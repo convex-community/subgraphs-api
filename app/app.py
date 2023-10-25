@@ -38,6 +38,9 @@ def at_start(sender, **k):
         sender.app.send_task(
             "tasks.populate.populate_crvusd_prices", connection=conn
         )
+        sender.app.send_task(
+            "tasks.populate.populate_revenue_breakdown", connection=conn
+        )
 
 
 if __name__ == "__main__":

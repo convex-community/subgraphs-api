@@ -25,7 +25,6 @@ from services.curve.revenue import (
     get_top_chain_pools,
     get_pool_revenue,
     check_couch_cushion,
-    get_historical_fee_breakdown,
 )
 from utils import convert_schema
 from main import redis
@@ -117,12 +116,9 @@ class RegistryList(Resource):
 @api.response(404, "Not found")
 @api.expect(breakdown)
 class WeeklyRevenueBreakdown(Resource):
-    # @cache.cached(timeout=60)
     @api.marshal_list_with(weekly_breakdown, envelope="revenue")
     def get(self):
-        args = breakdown.parse_args()
-        start = args.get("from", 0)
-        return get_historical_fee_breakdown(start)
+        return json.loads(redis.get("historical_fee_breakdown"))
 
 
 @api.route("/revenue/historical/toppools/<int:top>")
