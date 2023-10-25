@@ -23,7 +23,7 @@ redis = Redis(
 
 
 def get_historical_fee_breakdown():
-    start = int(time.time() - (WEEK * 26))
+    start = int(time.time() - (WEEK * 20))
     logger.warning("Getting historical fee breakdown")
     crvusd_fees = (
         db.session.query(
