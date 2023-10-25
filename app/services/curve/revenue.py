@@ -1,4 +1,4 @@
-from sqlalchemy import func, literal, case, any_, not_
+from sqlalchemy import func, literal, case, any_, not_, select
 
 from main.const import WEEK, DAY, BLACKLIST
 from models.curve.crvusd import CollectedFees, Market
@@ -224,6 +224,10 @@ def check_couch_cushion() -> List[dict]:
 def get_historical_fee_breakdown(start=0) -> list[WeeklyFeesSnapshot]:
     WEEK = 60 * 60 * 24 * 7  # seconds in a week
 
+    import logging
+
+    logging.warning(f"START {start}")
+
     crvusd_fees = (
         db.session.query(
             func.sum(
@@ -238,46 +242,64 @@ def get_historical_fee_breakdown(start=0) -> list[WeeklyFeesSnapshot]:
             ).label("label"),
         )
         .join(Market, Market.id == CollectedFees.marketId)
-        .filter(
-            (CollectedFees.blockTimestamp // WEEK * WEEK) >= start
-        )  # added filter
+        .filter((CollectedFees.blockTimestamp // WEEK * WEEK) >= start)
         .group_by("week", "label")
     )
 
-    pools_fees = (
+    pools_fees_admin = (
         db.session.query(
-            func.sum(CurvePoolSnapshot.totalDailyFeesUSD).label("total_fees"),
+            func.sum(
+                CurvePoolSnapshot.totalDailyFeesUSD
+                * CurvePoolSnapshot.adminFee
+            ).label("total_fees"),
             (CurvePoolSnapshot.timestamp // WEEK * WEEK).label("week"),
             case(
                 (
                     CurvePoolSnapshot.chain == "mainnet",
-                    literal("pools-mainnet"),
+                    literal("pools-admin-mainnet"),
                 ),
-                else_=literal("pools-alt_chains"),
+                else_=literal("pools-admin-alt_chains"),
             ).label("label"),
         )
         .filter(CurvePoolSnapshot.totalDailyFeesUSD < 1e7)
         .filter(~CurvePoolSnapshot.pool.in_(BLACKLIST.keys()))
-        .filter(
-            (CurvePoolSnapshot.timestamp // WEEK * WEEK) >= start
-        )  # added filter
+        .filter((CurvePoolSnapshot.timestamp // WEEK * WEEK) >= start)
         .group_by("week", "label")
     )
 
-    merged = crvusd_fees.union_all(pools_fees).subquery()
-
-    results = (
+    pools_fees_lp = (
         db.session.query(
-            merged.c.week,
-            merged.c.label,
-            func.sum(merged.c.total_fees).label("total_fees"),
+            func.sum(
+                CurvePoolSnapshot.totalDailyFeesUSD
+                * (1 - CurvePoolSnapshot.adminFee)
+            ).label("total_fees"),
+            (CurvePoolSnapshot.timestamp // WEEK * WEEK).label("week"),
+            case(
+                (
+                    CurvePoolSnapshot.chain == "mainnet",
+                    literal("pools-lp-mainnet"),
+                ),
+                else_=literal("pools-lp-alt_chains"),
+            ).label("label"),
         )
-        .group_by(merged.c.week, merged.c.label)
-        .order_by(merged.c.week)
-        .all()
+        .filter(CurvePoolSnapshot.totalDailyFeesUSD < 1e7)
+        .filter(~CurvePoolSnapshot.pool.in_(BLACKLIST.keys()))
+        .filter((CurvePoolSnapshot.timestamp // WEEK * WEEK) >= start)
+        .group_by("week", "label")
     )
 
-    weekly_fees = [WeeklyFeesSnapshot(*r) for r in results]
+    crvusd_fees_results = crvusd_fees.all()
+    pools_fees_admin_results = pools_fees_admin.all()
+    pools_fees_lp_results = pools_fees_lp.all()
+    results = (
+        crvusd_fees_results + pools_fees_admin_results + pools_fees_lp_results
+    )
+
+    weekly_fees = [
+        WeeklyFeesSnapshot(week=r[1], label=r[2], total_fees=r[0])
+        for r in results
+    ]
+    sorted_weekly_fees = sorted(weekly_fees, key=lambda x: (-x.week, x.label))
     schema = WeeklyFeesSnapshotSchema(many=True)
-    result = schema.dump(weekly_fees)
+    result = schema.dump(sorted_weekly_fees)
     return result

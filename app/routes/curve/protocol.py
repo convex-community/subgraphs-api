@@ -117,11 +117,11 @@ class RegistryList(Resource):
 @api.response(404, "Not found")
 @api.expect(breakdown)
 class WeeklyRevenueBreakdown(Resource):
-    @cache.cached(timeout=60)
+    # @cache.cached(timeout=60)
     @api.marshal_list_with(weekly_breakdown, envelope="revenue")
     def get(self):
         args = breakdown.parse_args()
-        start = args.get("start", 0)
+        start = args.get("from", 0)
         return get_historical_fee_breakdown(start)
 
 
