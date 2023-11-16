@@ -93,7 +93,7 @@ SUBGRAPH_CELO_API_DEV = (
 )
 SUBGRAPH_AURORA_API_DEV = "https://api.thegraph.com/subgraphs/name/convex-community/volume-aurora-test"
 
-CONVEX_POOLS_SUBGRAPH_PROD = f"https://gateway.thegraph.com/api/{SUBGRAPHS_API_KEY}/subgraphs/id/6x6tQirWcrrESPPQU5cRkbtZnGBEAKHZrpJ7he9xqeth"
+CONVEX_POOLS_SUBGRAPH_PROD = f"https://gateway.thegraph.com/api/{SUBGRAPHS_API_KEY}/subgraphs/id/86irRVuFotfaCFwtFxiSaJ76Y8pxfU3xX91gU6CoYTvi"
 CONVEX_POOLS_SUBGRAPH_DEV = (
     "https://api.thegraph.com/subgraphs/name/convex-community/convex"
 )
