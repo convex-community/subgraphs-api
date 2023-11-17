@@ -77,7 +77,7 @@ curve_dao_tasks = {
 curve_pool_snapshot_tasks = {
     f"populate-curve-pool-snapshots-{chain}": {
         "task": "tasks.populate.populate_curve_pool_snapshots",
-        "schedule": crontab(minute="*/12"),
+        "schedule": crontab(minute=0, hour="*/12"),
         "args": (chain,),
     }
     for chain in CHAINS
