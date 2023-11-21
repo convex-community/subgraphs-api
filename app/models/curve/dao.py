@@ -17,6 +17,13 @@ class CurveDaoScript(db.Model):
     decodedScript = Column(String)
 
 
+class CurveDaoMetadata(db.Model):
+    __tablename__ = "curve_dao_proposal_metadata"
+
+    id = Column(String, primary_key=True)
+    ipfs_metadata = Column(String)
+
+
 @dataclass
 class DaoProposal:
     voteId: int

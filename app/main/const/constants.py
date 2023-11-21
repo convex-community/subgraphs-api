@@ -61,6 +61,10 @@ PUBLIC_RPCS = {
     CHAIN_MOONBEAM: "https://rpc.api.moonbeam.network",
 }
 
+# For IPFS proposal retrievals
+INFURA_API_KEY = os.getenv("INFURA_API_KEY", "")
+INFURA_SECRET_KEY = os.getenv("INFURA_SECRET_KEY", "")
+
 ALCHEMY_API_KEY = os.getenv("ALCHEMY_API_KEY", "")
 ETHERSCAN_TOKEN = os.getenv("ETHERSCAN_TOKEN", "")
 # this is used for more heavy duty/frequent queries

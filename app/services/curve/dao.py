@@ -17,12 +17,15 @@ from models.curve.dao import (
     Emission,
     EmissionSchema,
     CurveDaoScript,
+    CurveDaoMetadata,
 )
 from typing import List, Mapping, Any, Optional, MutableMapping
 from flask import current_app
 from marshmallow import EXCLUDE
 from services.modules.decode_proposal import parse_data
 import logging
+
+from services.modules.ipfs import retrieve_proposal_text_from_ipfs
 
 logger = logging.getLogger(__name__)
 
@@ -61,15 +64,18 @@ def get_all_proposals() -> List[DaoProposal]:
 }
   """
     proposals = dao_subgraph_query(query, "proposals")
-    proposals = [
-        {
+    formatted_proposals = []
+    for proposal in proposals:
+        prop = {
             **proposal,
             "creator": proposal["creator"]["id"],
         }
-        for proposal in proposals
-    ]
+        if prop["metadata"] == "":
+            prop["metadata"] = _get_ipfs_metadata(proposal)
+        formatted_proposals.append(prop)
+
     return DaoProposalSchema(many=True).load(
-        proposals,
+        formatted_proposals,
         unknown=EXCLUDE,
     )
 
@@ -129,10 +135,25 @@ def get_proposal_details(
     else:
         logger.warning(f"No DB entry found for proposal {proposal['id']}")
         proposal["script"] = parse_data(proposal["script"])
+    if proposal["metadata"] == "":
+        proposal["metadata"] = _get_ipfs_metadata(proposal)
     return DaoDetailedProposalSchema().load(
         proposal,
         unknown=EXCLUDE,
     )
+
+
+def _get_ipfs_metadata(proposal):
+    entry = (
+        db.session.query(CurveDaoMetadata).filter_by(id=proposal["id"]).first()
+    )
+    if entry:
+        return entry.ipfs_metadata
+    else:
+        logger.warning(
+            f"No DB entry found for IPFS metadata for proposal {proposal['id']}"
+        )
+        return retrieve_proposal_text_from_ipfs(proposal["ipfsMetadata"])
 
 
 def get_user_locks(user: str) -> List[UserLock]:
