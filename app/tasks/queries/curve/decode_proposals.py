@@ -52,6 +52,9 @@ def decode_proposals():
         logging.info(f"Retrieving metadata for proposal {proposal['id']}")
         metadata = retrieve_proposal_text_from_ipfs(proposal["script"])
         logging.info(f"Retrieved data: {metadata}")
+        if metadata == "":
+            logging.error("No metadata retrieved for the proposal")
+            continue
         prop = CurveDaoMetadata(
             id=proposal["id"],
             ipfs_metadata=metadata,
