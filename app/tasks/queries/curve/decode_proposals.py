@@ -28,17 +28,17 @@ def decode_proposals():
             .filter_by(id=proposal["id"])
             .first()
         )
-        if entry:
-            continue
-        logging.info(f"Decoding script for proposal {proposal['id']}")
-        decoded_script = parse_data_etherscan(proposal["script"])
-        logging.info(f"Decoded script: {decoded_script}")
-        prop = CurveDaoScript(
-            id=proposal["id"],
-            script=proposal["script"],
-            decodedScript=decoded_script,
-        )
-        db.session.merge(prop)
+        if not entry:
+            logging.info(f"Decoding script for proposal {proposal['id']}")
+            decoded_script = parse_data_etherscan(proposal["script"])
+            logging.info(f"Decoded script: {decoded_script}")
+            prop = CurveDaoScript(
+                id=proposal["id"],
+                script=proposal["script"],
+                decodedScript=decoded_script,
+            )
+            db.session.merge(prop)
+
         # ensure metadata from IPFS
         if proposal["metadata"] != "":
             continue
@@ -47,7 +47,7 @@ def decode_proposals():
             .filter_by(id=proposal["id"])
             .first()
         )
-        if entry:
+        if entry and entry["ipfs_metadata"] != "":
             continue
         logging.info(f"Retrieving metadata for proposal {proposal['id']}")
         metadata = retrieve_proposal_text_from_ipfs(proposal["script"])
