@@ -50,7 +50,7 @@ def decode_proposals():
         if entry and entry["ipfs_metadata"] != "":
             continue
         logging.info(f"Retrieving metadata for proposal {proposal['id']}")
-        metadata = retrieve_proposal_text_from_ipfs(proposal["script"])
+        metadata = retrieve_proposal_text_from_ipfs(proposal["ipfsMetadata"])
         logging.info(f"Retrieved data: {metadata}")
         if metadata == "":
             logging.error("No metadata retrieved for the proposal")
