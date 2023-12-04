@@ -133,7 +133,9 @@ def get_proposal_details(
     if entry:
         proposal["script"] = entry.decodedScript
     else:
-        logger.warning(f"No DB entry found for proposal {proposal['id']}")
+        logger.warning(
+            f"No DB entry found for proposal {proposal['id']} ({proposal['ipfsMetadata']})"
+        )
         proposal["script"] = parse_data(proposal["script"])
     if proposal["metadata"] == "":
         proposal["metadata"] = _get_ipfs_metadata(proposal)
@@ -151,7 +153,7 @@ def _get_ipfs_metadata(proposal):
         return entry.ipfs_metadata
     else:
         logger.warning(
-            f"No DB entry found for IPFS metadata for proposal {proposal['id']}"
+            f"No DB entry found for IPFS metadata for proposal {proposal['id']} ({proposal['ipfsMetadata']})"
         )
         return retrieve_proposal_text_from_ipfs(proposal["ipfsMetadata"])
 
