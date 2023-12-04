@@ -18,6 +18,7 @@ def retrieve_proposal_text_from_ipfs(ipfs_hash: str):
         )
     except requests.exceptions.ReadTimeout as e:
         logger.warning(f"IPFS retrieval failed due to timeout: {e}")
+        return ""
     if response:
         data = json.loads(response.text)
         return data["text"]
