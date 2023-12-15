@@ -47,7 +47,7 @@ def decode_proposals():
             .filter_by(id=proposal["id"])
             .first()
         )
-        if entry and entry["ipfs_metadata"] != "":
+        if entry and entry.ipfs_metadata != "":
             continue
         logging.info(
             f"Retrieving metadata for proposal {proposal['id']} ({proposal['ipfsMetadata']})"
