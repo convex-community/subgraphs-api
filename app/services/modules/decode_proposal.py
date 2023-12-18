@@ -26,12 +26,22 @@ def get_abi(pool_address: str) -> Optional[list[dict]]:
 
 
 def format_inputs(inputs):
-    return [
-        arg
-        if arg[0] != "address"
-        else (arg[0], arg[1], Web3.to_checksum_address(arg[2]))
-        for arg in inputs
-    ]
+    res = []
+    for arg in inputs:
+        if arg[0] == "address":
+            res.append((arg[0], arg[1], Web3.to_checksum_address(arg[2])))
+        else:
+            res.append(arg)
+    return res
+
+
+def convert_bytes_to_hex(item):
+    if isinstance(item, bytes):
+        return item.hex()
+    elif isinstance(item, tuple):
+        return tuple(convert_bytes_to_hex(sub_item) for sub_item in item)
+    else:
+        return item
 
 
 # TODO: decoding routing needs a thorough clean up
@@ -80,7 +90,12 @@ def parse_data(data: str) -> str:
                     continue
 
                 inputs = decode_function(abi, inputs[2][-1])
-                res.append(f" ├─ Function: {fn}\n └─ Inputs: {inputs!r}\n")
+                formatted_inputs = [
+                    convert_bytes_to_hex(tup) for tup in inputs
+                ]
+                res.append(
+                    f" ├─ Function: {fn}\n └─ Inputs: {formatted_inputs!r}\n"
+                )
             else:
                 res.append(
                     f"Direct call:\n ├─ To: {target.hex()}\n ├─ Function: {fn}\n └─ Inputs: {inputs!r}"
@@ -134,7 +149,12 @@ def parse_data_etherscan(data: str) -> str:
                     )
                     continue
                 inputs = format_inputs(decode_function(abi, inputs[2][-1]))
-                res.append(f" ├─ Function: {fn}\n └─ Inputs: {inputs!r}\n")
+                formatted_inputs = [
+                    convert_bytes_to_hex(tup) for tup in inputs
+                ]
+                res.append(
+                    f" ├─ Function: {fn}\n └─ Inputs: {formatted_inputs!r}\n"
+                )
             else:
                 res.append(
                     f"Direct call:\n ├─ To: {Web3.to_checksum_address(target.hex())}\n ├─ Function: {fn}\n └─ Inputs: {inputs!r}"
