@@ -65,9 +65,9 @@ def get_prices(swaps):
     res = []
     for swap in swaps:
         if swap["tokenBought"] == CRVUSD_CONTRACT:
-            price = float(swap["amountBought"]) / float(swap["amountSold"])
+            price = float(swap["amountBought"]) / float(swap["amountSold"]) if float(swap["amountSold"]) != 0 else 0
         else:
-            price = float(swap["amountSold"]) / float(swap["amountBought"])
+            price = float(swap["amountSold"]) / float(swap["amountBought"])if float(swap["amountBought"]) != 0 else 0
         res.append({"timestamp": swap["timestamp"], "price": price})
     return res
 

@@ -140,6 +140,8 @@ def get_proposal_details(
             f"No DB entry found for proposal {proposal['id']} ({proposal['ipfsMetadata']})"
         )
         proposal["script"] = parse_data(proposal["script"])
+    if "ipfs:" not in proposal["ipfsMetadata"]:
+        proposal["metadata"] = "No IPFS metadata"
     if proposal["metadata"] == "":
         proposal["metadata"] = _get_ipfs_metadata(proposal)
     return DaoDetailedProposalSchema().load(
@@ -158,8 +160,11 @@ def _get_ipfs_metadata(proposal):
         logger.warning(
             f"No DB entry found for IPFS metadata for proposal {proposal['id']} ({proposal['ipfsMetadata']})"
         )
-        entry = retrieve_proposal_text_from_ipfs(proposal["ipfsMetadata"])
-        if entry == "":
+        try:
+            entry = retrieve_proposal_text_from_ipfs(proposal["ipfsMetadata"])
+        except Exception as e:
+            logger.error(f"Failed to retrieve from Infura: {e}")
+        if entry == "" or entry is None:
             entry = fetch_from_public_gateway(proposal["ipfsMetadata"])
     return entry
 
