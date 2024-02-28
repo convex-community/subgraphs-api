@@ -1,5 +1,8 @@
 from dataclasses import dataclass
-from typing import List
+from typing import List, Optional
+
+import marshmallow
+from marshmallow import Schema
 from sqlalchemy import Column, String
 
 import marshmallow_dataclass
@@ -32,7 +35,7 @@ class DaoProposal:
     startDate: int
     snapshotBlock: int
     ipfsMetadata: str
-    metadata: str | None
+    metadata: Optional[str]
     votesFor: str
     votesAgainst: str
     voteCount: int
@@ -42,7 +45,24 @@ class DaoProposal:
     executed: bool
 
 
-DaoProposalSchema = marshmallow_dataclass.class_schema(DaoProposal)
+class DaoProposalSchema(Schema):
+    voteId = marshmallow.fields.Int(required=True)
+    voteType = marshmallow.fields.Str(required=True)
+    creator = marshmallow.fields.Str(required=True)
+    startDate = marshmallow.fields.Int(required=True)
+    snapshotBlock = marshmallow.fields.Int(required=True)
+    ipfsMetadata = marshmallow.fields.Str(required=True)
+    metadata = marshmallow.fields.Str(allow_none=True)  # Allowing null for metadata
+    votesFor = marshmallow.fields.Str(required=True)
+    votesAgainst = marshmallow.fields.Str(required=True)
+    voteCount = marshmallow.fields.Int(required=True)
+    supportRequired = marshmallow.fields.Str(required=True)
+    minAcceptQuorum = marshmallow.fields.Str(required=True)
+    totalSupply = marshmallow.fields.Str(required=True)
+    executed = marshmallow.fields.Boolean(required=True)
+
+#DaoProposalSchema = marshmallow_dataclass.class_schema(DaoProposal)
+#DaoProposalSchema.fields['metadata'] = fields.Str(allow_none=True)
 
 
 @dataclass
