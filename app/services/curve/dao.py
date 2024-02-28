@@ -1,3 +1,5 @@
+import json
+
 from main import db
 from main.common.subgraph_query import grt_query
 from main.const import CURVE_DAO
@@ -24,8 +26,9 @@ from flask import current_app
 from marshmallow import EXCLUDE
 from services.modules.decode_proposal import parse_data
 import logging
+import requests
 
-from services.modules.ipfs import retrieve_proposal_text_from_ipfs
+from services.modules.ipfs import retrieve_proposal_text_from_ipfs, fetch_from_public_gateway
 
 logger = logging.getLogger(__name__)
 
@@ -155,7 +158,10 @@ def _get_ipfs_metadata(proposal):
         logger.warning(
             f"No DB entry found for IPFS metadata for proposal {proposal['id']} ({proposal['ipfsMetadata']})"
         )
-        return retrieve_proposal_text_from_ipfs(proposal["ipfsMetadata"])
+        entry = retrieve_proposal_text_from_ipfs(proposal["ipfsMetadata"])
+        if entry == "":
+            entry = fetch_from_public_gateway(proposal["ipfsMetadata"])
+    return entry
 
 
 def get_user_locks(user: str) -> List[UserLock]:
