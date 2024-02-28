@@ -4,7 +4,7 @@ from services.curve.dao import dao_subgraph_query
 from services.modules.decode_proposal import parse_data_etherscan
 import logging
 
-from services.modules.ipfs import retrieve_proposal_text_from_ipfs
+from services.modules.ipfs import retrieve_proposal_text_from_ipfs, fetch_from_public_gateway
 
 logger = logging.getLogger(__name__)
 
@@ -52,7 +52,11 @@ def decode_proposals():
         logging.info(
             f"Retrieving metadata for proposal {proposal['id']} ({proposal['ipfsMetadata']})"
         )
+        if "ipfs:" not in proposal["metadata"]:
+            metadata = "No IPFS metadata"
         metadata = retrieve_proposal_text_from_ipfs(proposal["ipfsMetadata"])
+        if metadata == "" or metadata is None:
+            metadata = fetch_from_public_gateway(proposal["ipfsMetadata"])
         logging.info(f"Retrieved data: {metadata}")
         if metadata == "":
             logging.error("No metadata retrieved for the proposal")
