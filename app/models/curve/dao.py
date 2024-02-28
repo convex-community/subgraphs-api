@@ -35,7 +35,7 @@ class DaoProposal:
     startDate: int
     snapshotBlock: int
     ipfsMetadata: str
-    metadata: Optional[str]
+    metadata: str
     votesFor: str
     votesAgainst: str
     voteCount: int
