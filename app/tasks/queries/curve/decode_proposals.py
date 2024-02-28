@@ -54,7 +54,8 @@ def decode_proposals():
         )
         if "ipfs:" not in proposal["metadata"]:
             metadata = "No IPFS metadata"
-        metadata = retrieve_proposal_text_from_ipfs(proposal["ipfsMetadata"])
+        else:
+            metadata = retrieve_proposal_text_from_ipfs(proposal["ipfsMetadata"])
         if metadata == "" or metadata is None:
             metadata = fetch_from_public_gateway(proposal["ipfsMetadata"])
         logging.info(f"Retrieved data: {metadata}")
