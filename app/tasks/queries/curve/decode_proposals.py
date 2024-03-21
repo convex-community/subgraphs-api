@@ -52,7 +52,7 @@ def decode_proposals():
         logging.info(
             f"Retrieving metadata for proposal {proposal['id']} ({proposal['ipfsMetadata']})"
         )
-        if "ipfs:" not in proposal["metadata"]:
+        if "ipfs:" not in proposal["ipfsMetadata"]:
             metadata = "No IPFS metadata"
         else:
             metadata = retrieve_proposal_text_from_ipfs(proposal["ipfsMetadata"])
