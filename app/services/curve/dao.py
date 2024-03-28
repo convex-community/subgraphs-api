@@ -144,6 +144,8 @@ def get_proposal_details(
         proposal["metadata"] = "No IPFS metadata"
     if proposal["metadata"] == "":
         proposal["metadata"] = _get_ipfs_metadata(proposal)
+        if proposal["metadata"] is None:
+            proposal["metadata"] = ""
     return DaoDetailedProposalSchema().load(
         proposal,
         unknown=EXCLUDE,
