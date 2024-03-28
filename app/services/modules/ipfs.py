@@ -8,7 +8,7 @@ logger = logging.getLogger()
 
 
 def retrieve_proposal_text_from_ipfs(ipfs_hash: str):
-    parsed_hash = ipfs_hash.split(":")[-1]
+    parsed_hash = ipfs_hash.split(":")[-1].strip()
     url = f"https://ipfs.infura.io:5001/api/v0/cat?arg={parsed_hash}"
     try:
         response = requests.post(
@@ -26,7 +26,7 @@ def retrieve_proposal_text_from_ipfs(ipfs_hash: str):
 
 
 def fetch_from_public_gateway(ipfs_hash: str) -> str | None:
-    parsed_hash = ipfs_hash.split(":")[-1]
+    parsed_hash = ipfs_hash.split(":")[-1].strip()
     public_gateways = [
         "https://gateway.pinata.cloud/ipfs/",
         "https://fleek.ipfs.io/ipfs/",
