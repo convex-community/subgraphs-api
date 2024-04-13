@@ -35,7 +35,7 @@ USER_STATE_QUERY = """{
 
 def update_user_states():
     users = []
-    for i in range(12):
+    for i in range(20):
         query = USER_STATE_QUERY % (i * 500)
         data = grt_crvusd_query(query)
         data = data["users"]
