@@ -411,6 +411,7 @@ def get_collateral_ratio(market_id: str):
     FROM OrderedResults
     LIMIT 4000;
     """
+    return []
 
     try:
         results = db.session.execute(
