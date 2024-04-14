@@ -102,7 +102,7 @@ crvusd_tasks = {
     },
     "populate-crvusd-user_states": {
         "task": "tasks.populate.populate_user_states",
-        "schedule": crontab(minute="*/15"),
+        "schedule": crontab(minute="*/60"),
     },
     "populate-crvusd-liquidation_data": {
         "task": "tasks.populate.populate_liquidations",

@@ -409,7 +409,7 @@ def get_collateral_ratio(market_id: str):
     )
     SELECT day_timestamp, CR
     FROM OrderedResults
-    LIMIT 400;
+    LIMIT 4000;
     """
 
     try:
