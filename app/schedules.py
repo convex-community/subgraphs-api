@@ -88,6 +88,10 @@ crvusd_tasks = {
         "task": "tasks.populate.populate_crvusd_prices",
         "schedule": crontab(minute="*/60"),
     },
+    "populate-crvusd-user_states_update": {
+        "task": "tasks.populate.populate_user_states",
+        "schedule": crontab(minute=0, hour="*/1"),
+    },
     "populate-crvusd-historical-debt": {
         "task": "tasks.populate.populate_crvusd_keeper_debt_data",
         "schedule": crontab(minute=0, hour="*/4"),
@@ -99,10 +103,6 @@ crvusd_tasks = {
     "populate-crvusd-user_state_snapshots": {
         "task": "tasks.populate.populate_user_state_snapshots",
         "schedule": crontab(minute="*/120"),
-    },
-    "populate-crvusd-user_states": {
-        "task": "tasks.populate.populate_user_states",
-        "schedule": crontab(minute="*/60"),
     },
     "populate-crvusd-liquidation_data": {
         "task": "tasks.populate.populate_liquidations",
