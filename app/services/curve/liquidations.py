@@ -1,4 +1,5 @@
 from sqlalchemy import func, text
+from sqlalchemy.exc import SQLAlchemyError
 
 from main import db
 from models.curve.crvusd import (
@@ -397,19 +398,30 @@ def get_liquidator_revenue(market_id: str):
 
 def get_collateral_ratio(market_id: str):
     sql_query = """
-    SELECT
-        CAST("timestamp" / (24 * 60 * 60) AS INTEGER) * (24 * 60 * 60) AS day_timestamp,
-        SUM("collateralUsd") / NULLIF(SUM("debt" - "stableCoin"), 0) as CR
-    FROM "user_states"
-    WHERE LOWER("marketId") = LOWER(:market_id)
-    GROUP BY day_timestamp
-    ORDER BY day_timestamp DESC;
+    WITH OrderedResults AS (
+        SELECT
+            CAST("timestamp" / (24 * 60 * 60) AS INTEGER) * (24 * 60 * 60) AS day_timestamp,
+            SUM("collateralUsd") / NULLIF(SUM("debt" - "stableCoin"), 0) AS CR
+        FROM "user_states"
+        WHERE LOWER("marketId") = LOWER(:market_id)
+        GROUP BY day_timestamp
+        ORDER BY day_timestamp DESC
+    )
+    SELECT day_timestamp, CR
+    FROM OrderedResults
+    LIMIT 400;
     """
 
-    results = db.session.execute(
-        text(sql_query), {"market_id": market_id}
-    ).fetchall()
-    return [
-        CollateralRatios(timestamp=row[0], ratio=float(row[1]))
-        for row in results
-    ]
+    try:
+        results = db.session.execute(
+            text(sql_query), {"market_id": market_id.lower()}
+        ).fetchall()
+
+        return [
+            CollateralRatios(timestamp=row[0], ratio=float(row[1]))
+            for row in results if row[1] is not None
+        ]
+    except SQLAlchemyError as e:
+        print(f"An error occurred: {e}")
+        return []
+
