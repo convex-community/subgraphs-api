@@ -129,7 +129,7 @@ def populate_couch_info():
 
 
 @celery.task
-def populate_user_states():
+def populate_crvusd_user_states():
     logger.info(f"Updating User States")
     update_user_states_and_health()
 
