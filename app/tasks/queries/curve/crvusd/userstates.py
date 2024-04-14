@@ -4,7 +4,7 @@ from tasks.queries.graph import grt_crvusd_query
 
 
 USER_STATE_QUERY = """{
-  users(first: 500 skip: %d orderBy: firstActionBlock orderDirection:desc){
+  users(first: 100 skip: %d orderBy: firstActionBlock orderDirection:desc){
     id
     stateSnapshots(first: 1000 orderBy: timestamp orderDirection: desc) {
       id
@@ -35,8 +35,8 @@ USER_STATE_QUERY = """{
 
 def update_user_states():
     users = []
-    for i in range(20):
-        query = USER_STATE_QUERY % (i * 500)
+    for i in range(50):
+        query = USER_STATE_QUERY % (i * 100)
         data = grt_crvusd_query(query)
         data = data["users"]
         if len(data) > 0:

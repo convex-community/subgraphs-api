@@ -594,6 +594,7 @@ class MarketAvailable(Resource):
 @api.doc(description="Get historical collateral ratio for a specific market")
 @api.param("market", "Market to query for")
 class MarketCollatRatio(Resource):
+    @cache.cached(timeout=60 * 15)
     @api.marshal_list_with(cratio, envelope="ratios")
     def get(self, market):
         res = get_collateral_ratio(market_id=market)
