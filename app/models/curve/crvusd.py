@@ -156,6 +156,14 @@ class Snapshot(db.Model):
     bandSnapshot = Column(Boolean)
     blockNumber = Column(Integer)
     timestamp = Column(Integer)
+    __table_args__ = (
+        Index(
+            "idx_snapshot__llamma__market_id__timestamp",
+            llammaId,
+            marketId,
+            timestamp,
+        ),
+    )
 
 
 class CollectedFees(db.Model):
@@ -297,6 +305,14 @@ class UserState(db.Model):
     softLiq = Column(Boolean)
     health = Column(Numeric)
     timestamp = Column(Integer)
+    __table_args__ = (
+        Index(
+            "idx_user_states__user__market_id__timestamp",
+            user,
+            marketId,
+            timestamp,
+        ),
+    )
 
 
 class UserStateSnapshot(db.Model):
@@ -321,6 +337,14 @@ class UserStateSnapshot(db.Model):
     lossPct = Column(Float)
     softLiq = Column(Boolean)
     timestamp = Column(Integer)
+    __table_args__ = (
+        Index(
+            "idx_user_state_snapshots__user__market_id__timestamp",
+            user,
+            marketId,
+            timestamp,
+        ),
+    )
 
 
 @dataclass
