@@ -79,7 +79,7 @@ def get_historical_loser_proportions(market_id):
             UserStateSnapshot.timestamp, UserStateSnapshot.lossPct
         )
         .join(Market, Market.id == UserStateSnapshot.marketId)
-        .filter(func.lower(Market.id) == market_id.lower())
+        .filter(Market.id == market_id.lower())
         .order_by(UserStateSnapshot.timestamp)
     ).all()
     df = pd.DataFrame(query, columns=["timestamp", "lossPct"])
@@ -94,7 +94,7 @@ def get_historical_median_loss(market_id):
             UserStateSnapshot.timestamp, UserStateSnapshot.lossPct
         )
         .join(Market, Market.id == UserStateSnapshot.marketId)
-        .filter(func.lower(Market.id) == market_id.lower())
+        .filter(Market.id == market_id.lower())
         .filter(UserStateSnapshot.lossPct > 0)
         .order_by(UserStateSnapshot.timestamp)
     ).all()
@@ -112,7 +112,7 @@ def get_historical_soft_loss(market_id):
             UserStateSnapshot.oraclePrice,
         )
         .join(Market, Market.id == UserStateSnapshot.marketId)
-        .filter(func.lower(Market.id) == market_id.lower())
+        .filter(Market.id == market_id.lower())
         .order_by(UserStateSnapshot.timestamp)
     ).all()
     df = pd.DataFrame(
@@ -142,7 +142,7 @@ def get_health_distribution(market_id):
     subquery = (
         db.session.query(func.max(UserStateSnapshot.timestamp))
         .join(Market, Market.id == UserStateSnapshot.marketId)
-        .filter(func.lower(Market.id) == market_id.lower())
+        .filter(Market.id == market_id.lower())
     ).scalar()
 
     query = (
@@ -155,7 +155,7 @@ def get_health_distribution(market_id):
             UserStateSnapshot.debt,
         )
         .join(Market, Market.id == UserStateSnapshot.marketId)
-        .filter(func.lower(Market.id) == market_id.lower())
+        .filter(Market.id == market_id.lower())
         .filter(UserStateSnapshot.timestamp == subquery)
     ).all()
 
@@ -215,7 +215,7 @@ def get_liquidation_history(market_id):
         JOIN
             "market" ON "market"."id" = "liquidation"."marketId"
         WHERE
-            LOWER("market"."id") = LOWER(:market_id)
+            ("market"."id") = LOWER(:market_id)
         GROUP BY
             timestamp
         ORDER BY
@@ -246,7 +246,7 @@ def get_aggregated_liquidations(market_id):
         FROM
             "liquidation"
         WHERE
-            LOWER("marketId") = LOWER(:market_id)
+            "marketId" = LOWER(:market_id)
     """
     result = db.session.execute(text(sql_query), {"market_id": market_id})
     return AggregatedLiquidations(*result.fetchone())
@@ -261,7 +261,7 @@ def get_top_liquidators(market_id):
         FROM
             "liquidation"
         WHERE
-            LOWER("marketId") = LOWER(:market_id) AND "user" != "liquidator"
+            "marketId" = LOWER(:market_id) AND "user" != "liquidator"
         GROUP BY
             "liquidator"
         ORDER BY
@@ -284,7 +284,7 @@ WITH WeeklySnapshots AS (
     FROM
         "user_state_snapshots"
     WHERE
-        LOWER("marketId") = LOWER(:market_id)
+        "marketId" = LOWER(:market_id)
     AND
         "timestamp" >= EXTRACT(EPOCH FROM (NOW() - INTERVAL '6 months'))
 ),
@@ -339,8 +339,8 @@ def get_market_health(market_id):
     WITH RecentSnapshot AS (
         SELECT *
         FROM "user_states"
-        WHERE LOWER("marketId") = LOWER(:market_id)
-        AND "timestamp" = (SELECT MAX("timestamp") FROM "user_states" WHERE LOWER("marketId") = LOWER(:market_id))
+        WHERE "marketId" = LOWER(:market_id)
+        AND "timestamp" = (SELECT MAX("timestamp") FROM "user_states" WHERE "marketId" = LOWER(:market_id))
     )
 
     SELECT
@@ -371,7 +371,7 @@ def get_liquidator_revenue(market_id: str):
         FROM
             "liquidation"
         WHERE
-            LOWER("marketId") = LOWER(:market_id)
+            "marketId" = LOWER(:market_id)
             AND "user" != "liquidator"
         GROUP BY
             "blockTimestamp"
@@ -403,7 +403,7 @@ def get_collateral_ratio(market_id: str):
             CAST("timestamp" / (24 * 60 * 60) AS INTEGER) * (24 * 60 * 60) AS day_timestamp,
             SUM("collateralUsd") / NULLIF(SUM("debt" - "stableCoin"), 0) AS CR
         FROM "user_states"
-        WHERE LOWER("marketId") = LOWER(:market_id)
+        WHERE "marketId" = :market_id
         GROUP BY day_timestamp
         ORDER BY day_timestamp DESC
     )
