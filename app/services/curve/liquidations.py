@@ -408,11 +408,8 @@ def get_collateral_ratio(market_id: str):
         ORDER BY day_timestamp DESC
     )
     SELECT day_timestamp, CR
-    FROM OrderedResults
-    LIMIT 4000;
+    FROM OrderedResults;
     """
-    return []
-
     try:
         results = db.session.execute(
             text(sql_query), {"market_id": market_id.lower()}
