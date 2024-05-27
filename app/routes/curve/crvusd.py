@@ -504,6 +504,7 @@ class MarketHealthDistribution(Resource):
     @cache.cached(timeout=60 * 10)
     @api.marshal_list_with(health_distribution, envelope="health")
     def get(self, market):
+        return
         res = get_health_distribution(market_id=market)
         if not res:
             api.abort(404)
@@ -570,6 +571,7 @@ class MarketLiqStates(Resource):
     @cache.cached(timeout=60 * 15)
     @api.marshal_list_with(health_state, envelope="health")
     def get(self, market):
+        return
         res = get_market_health(market_id=market)
         if not res:
             api.abort(404)
