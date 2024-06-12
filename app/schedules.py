@@ -36,7 +36,7 @@ ranking_tasks = {
     },
     "rankings-hourly": {
         "task": "tasks.populate.populate_hourly_rankings",
-        "schedule": crontab(minute="*/10"),
+        "schedule": crontab(hour="*/6"),
     },
 }
 
@@ -90,34 +90,34 @@ crvusd_tasks = {
     },
     "populate-crvusd-user_states": {
         "task": "tasks.populate.populate_crvusd_user_states",
-        "schedule": crontab(minute=0, hour="*/1"),
+        "schedule": crontab(minute=0, hour="*/12"),
     },
     "populate-crvusd-historical-debt": {
         "task": "tasks.populate.populate_crvusd_keeper_debt_data",
-        "schedule": crontab(minute=0, hour="*/4"),
+        "schedule": crontab(minute=0, hour="*/12"),
     },
     "populate-crvusd-market-data": {
         "task": "tasks.populate.populate_crvusd_market_data",
-        "schedule": crontab(minute="*/60"),
+        "schedule": crontab(hour="*/6"),
     },
     "populate-crvusd-user_state_snapshots": {
         "task": "tasks.populate.populate_user_state_snapshots",
-        "schedule": crontab(minute="*/120"),
+        "schedule": crontab(hour="*/12"),
     },
     "populate-crvusd-liquidation_data": {
         "task": "tasks.populate.populate_liquidations",
-        "schedule": crontab(minute="*/15"),
+        "schedule": crontab(hour="*/12"),
     },
     "populate-crvusd-stable_supply_data": {
         "task": "tasks.populate.populate_supply_events",
-        "schedule": crontab(minute="*/15"),
+        "schedule": crontab(hour="*/12"),
     },
 }
 
 backfill = {
     "populate-backfill": {
         "task": "tasks.populate.populate_backfill",
-        "schedule": crontab(minute="*/5"),
+        "schedule": crontab(hour="*/12"),
     },
 }
 

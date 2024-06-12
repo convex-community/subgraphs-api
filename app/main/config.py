@@ -6,6 +6,8 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 class Config:
     ALCHEMY_KEY = os.getenv("WEB3_ALCHEMY_API_KEY", "test")
+    ALCHEMY_SUBGRAPH_KEY = os.getenv("ALCHEMY_SUBGRAPH_KEY", 'test')
+    VOLUME_SUBGRAPHS_API_KEY = os.getenv("VOLUME_SUBGRAPH_API_KEY", 'test')
     DEBUG = False
     CELERY_BROKER_URL = os.getenv(
         "CELERY_BROKER_URL", "redis://localhost:6379"

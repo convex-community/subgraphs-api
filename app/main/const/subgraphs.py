@@ -28,6 +28,8 @@ REGISTRIES = {
 }
 
 SUBGRAPHS_API_KEY = os.getenv("GRAPH_API_KEY")
+VOLUME_SUBGRAPHS_API_KEY = os.getenv("VOLUME_SUBGRAPHS_API_KEY")
+ALCHEMY_SUBGRAPH_KEY = os.getenv("ALCHEMY_SUBGRAPH_KEY", "")
 
 CHAINS = [
     CHAIN_MAINNET,
@@ -44,47 +46,55 @@ CHAINS = [
 ]
 
 SUBGRAPH_MAINNET_API_PROD = (
-    "https://api.thegraph.com/subgraphs/name/convex-community/volume-mainnet"
+    f"https://gateway-arbitrum.network.thegraph.com/api/{VOLUME_SUBGRAPHS_API_KEY}/subgraphs/id/6NkLKJQbjtpYir45Pvj61gvTkLeunEeEBFXGwisC35TB"
 )
 SUBGRAPH_ARBITRUM_API_PROD = (
-    "https://api.thegraph.com/subgraphs/name/convex-community/volume-arbitrum"
+    f"https://gateway-arbitrum.network.thegraph.com/api/{VOLUME_SUBGRAPHS_API_KEY}/subgraphs/id/6okUrfq2HYokFytJd2JDhXW2kdyViy5gXWWpZkTnSL8w"
 )
 SUBGRAPH_AVALANCHE_API_PROD = (
-    "https://api.thegraph.com/subgraphs/name/convex-community/volume-avalanche"
+    f"https://gateway-arbitrum.network.thegraph.com/api/{VOLUME_SUBGRAPHS_API_KEY}/subgraphs/id/4m6FwSHYnkQRUBSKdhh5heGd1ojTAXwEiacUyFix2Ygx"
 )
 SUBGRAPH_FANTOM_API_PROD = (
-    "https://api.thegraph.com/subgraphs/name/convex-community/volume-fantom"
+    f"https://gateway-arbitrum.network.thegraph.com/api/{VOLUME_SUBGRAPHS_API_KEY}/subgraphs/id/7ZnKrxY26bDHZPSqJ3MNkDNjaRXLoc1ZiATDLbVjWa7H"
 )
 SUBGRAPH_HARMONY_API_PROD = (
-    "https://api.thegraph.com/subgraphs/name/convex-community/volume-harmony"
+    f"https://gateway-arbitrum.network.thegraph.com/api/{VOLUME_SUBGRAPHS_API_KEY}/subgraphs/id/H75nfKRN9MYcm4yNFa3UgEKNL4hEiQwLBLxyqSEH3b38"
 )
 SUBGRAPH_MATIC_API_PROD = (
-    "https://api.thegraph.com/subgraphs/name/convex-community/volume-matic"
+    f"https://gateway-arbitrum.network.thegraph.com/api/{VOLUME_SUBGRAPHS_API_KEY}/subgraphs/id/35YrC6LVEouScs3gJt1vjSKPYk9QvLy49c2ZaagDQufi"
 )
 SUBGRAPH_MOONBEAM_API_PROD = (
-    "https://api.thegraph.com/subgraphs/name/convex-community/volume-moonbeam"
+    f"https://gateway-arbitrum.network.thegraph.com/api/{VOLUME_SUBGRAPHS_API_KEY}/subgraphs/id/6i1ni4i7D8TmqH8Rgkze6PQGoYQA9hqGc29r9d99YAWJ"
 )
 SUBGRAPH_OPTIMISM_API_PROD = (
-    "https://api.thegraph.com/subgraphs/name/convex-community/volume-optimism"
+    f"https://gateway-arbitrum.network.thegraph.com/api/{VOLUME_SUBGRAPHS_API_KEY}/subgraphs/id/7cXBpS75ThtbYwtCD8B277vUfWptmz6vbhk9BKgYrEvQ"
 )
 SUBGRAPH_XDAI_API_PROD = (
-    "https://api.thegraph.com/subgraphs/name/convex-community/volume-xdai"
+    f"https://gateway-arbitrum.network.thegraph.com/api/{VOLUME_SUBGRAPHS_API_KEY}/subgraphs/id/i82AxuGMFX7bqGNpXGrUvXqFMWZjLeRTNpJFvc3aW8L"
 )
 SUBGRAPH_CELO_API_PROD = (
-    "https://api.thegraph.com/subgraphs/name/convex-community/volume-celo"
+    f"https://gateway-arbitrum.network.thegraph.com/api/{VOLUME_SUBGRAPHS_API_KEY}/subgraphs/id/82vh2JJrPL91fXVzpbePBHP4UttLNXsSViiXMPF89WHr"
 )
 SUBGRAPH_AURORA_API_PROD = (
-    "https://api.thegraph.com/subgraphs/name/convex-community/volume-aurora"
+    f"https://gateway-arbitrum.network.thegraph.com/api/{VOLUME_SUBGRAPHS_API_KEY}/subgraphs/id/8zX76uiGe5GWqwMf8rEzisT9YYazu9kzccGQXeU2j5wi"
 )
 
-SUBGRAPH_MAINNET_API_DEV = "https://api.thegraph.com/subgraphs/name/convex-community/volume-mainnet-test"
-SUBGRAPH_ARBITRUM_API_DEV = "https://api.thegraph.com/subgraphs/name/convex-community/volume-arbitrum-test"
+SUBGRAPH_MAINNET_API_DEV = (
+    f"https://subgraph.satsuma-prod.com/{ALCHEMY_SUBGRAPH_KEY}/curve-1/volume-mainnet/api"
+)
+SUBGRAPH_ARBITRUM_API_DEV = (
+    f"https://subgraph.satsuma-prod.com/{ALCHEMY_SUBGRAPH_KEY}/curve-1/volume-arbitrum/api"
+)
 SUBGRAPH_AVALANCHE_API_DEV = "https://api.thegraph.com/subgraphs/name/convex-community/volume-avalanche-test"
 SUBGRAPH_FANTOM_API_DEV = "https://api.thegraph.com/subgraphs/name/convex-community/volume-fantom-test"
 SUBGRAPH_HARMONY_API_DEV = "https://api.thegraph.com/subgraphs/name/convex-community/volume-harmony-test"
-SUBGRAPH_MATIC_API_DEV = "https://api.thegraph.com/subgraphs/name/convex-community/volume-matic-test"
+SUBGRAPH_MATIC_API_DEV = (
+    f"https://subgraph.satsuma-prod.com/{ALCHEMY_SUBGRAPH_KEY}/curve-1/volume-matic/api"
+)
 SUBGRAPH_MOONBEAM_API_DEV = "https://api.thegraph.com/subgraphs/name/convex-community/volume-moonbeam-test"
-SUBGRAPH_OPTIMISM_API_DEV = "https://api.thegraph.com/subgraphs/name/convex-community/volume-optimism-test"
+SUBGRAPH_OPTIMISM_API_DEV = (
+    f"https://subgraph.satsuma-prod.com/{ALCHEMY_SUBGRAPH_KEY}/curve-1/volume-optimism/api"
+)
 SUBGRAPH_XDAI_API_DEV = (
     "https://api.thegraph.com/subgraphs/name/convex-community/volume-xdai-test"
 )
@@ -127,18 +137,18 @@ CURVE_SUBGRAPHS_DEV = {
 }
 
 CURVE_DAO_SUBGRAPH_PROD = (
-    "https://api.thegraph.com/subgraphs/name/convex-community/curve-dao"
+    f"https://subgraph.satsuma-prod.com/{ALCHEMY_SUBGRAPH_KEY}/curve-1/curve-dao/api"
 )
 CURVE_DAO_SUBGRAPH_DEV = (
-    "https://api.thegraph.com/subgraphs/name/convex-community/curve-dao"
+    f"https://subgraph.satsuma-prod.com/{ALCHEMY_SUBGRAPH_KEY}/curve-1/curve-dao/api"
 )
 
 CRVUSD_SUBGRAPH_PROD = (
-    "https://api.thegraph.com/subgraphs/name/convex-community/crvusd"
+    f"https://gateway-arbitrum.network.thegraph.com/api/{VOLUME_SUBGRAPHS_API_KEY}/subgraphs/id/B6jNaCpuWbz1BfEVq5D8EyZHtvX55oBY3viaYnLeFgQ3"
 )
 
 CRVUSD_SUBGRAPH_DEV = (
-    "https://api.thegraph.com/subgraphs/name/convex-community/crvusd"
+    f"https://gateway-arbitrum.network.thegraph.com/api/{VOLUME_SUBGRAPHS_API_KEY}/subgraphs/id/B6jNaCpuWbz1BfEVq5D8EyZHtvX55oBY3viaYnLeFgQ3"
 )
 
 CURVE_POOLS = "CURVE_POOLS"
